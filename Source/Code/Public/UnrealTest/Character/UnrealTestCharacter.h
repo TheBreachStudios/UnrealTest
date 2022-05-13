@@ -61,5 +61,23 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	void DisableCotrollerRotation();
+	void ConfigureCharacterMovement(class UCharacterMovementComponent* characterMovement);
+	void SetCameraBoom();
+	void SetFollowCamera();
+
+	void JumpBinding(class UInputComponent* PlayerInputComponent);
+	void MovementBinding(class UInputComponent* PlayerInputComponent);
+	void TurnBinding(class UInputComponent* PlayerInputComponent);
+	void LookUpBinding(class UInputComponent* PlayerInputComponent);
+	void TouchBinding(class UInputComponent* PlayerInputComponent);
+
+	const float TURN_RATE_GAMEPAD = 50.f;
+	const float JUMP_Z_VELOCITY= 700.f;
+	const float AIR_CONTROL = 0.35f;
+	const float MAX_WALK_SPEED = 500.f;
+	const float MIN_ANALOG_WALK_SPEED = 20.f;
+	const float BRAKING_DECELERATION_WALKING = 2000.f;
 };
 
