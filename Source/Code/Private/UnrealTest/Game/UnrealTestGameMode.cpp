@@ -1,8 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UnrealTest/Game/UnrealTestGameMode.h"
-#include "UnrealTest/Character/UnrealTestCharacter.h"
+
+// Unreal Engine
 #include "UObject/ConstructorHelpers.h"
+
+// Game Project
+#include "UnrealTest/Character/UnrealTestCharacter.h"
+#include "UnrealTest/Game/UnrealTestGameState.h"
 
 #pragma region Initialization
 AUnrealTestGameMode::AUnrealTestGameMode()
@@ -16,14 +21,16 @@ AUnrealTestGameMode::AUnrealTestGameMode()
 }
 #pragma endregion Initialization
 
-#pragma region Functions
-// Creates a session a host it
-void AUnrealTestGameMode::HostGame()
-{
-}
+#pragma region Overrides
+// Overrides
 
-// Joins the first session available
-void AUnrealTestGameMode::JoinGame()
+// On post login event;
+void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 {
+	Super::PostLogin(NewPlayer);
+
+	AUnrealTestGameState* const gameState = GetWorld() != NULL ? GetWorld()->GetGameState<AUnrealTestGameState>() : NULL;
+	if (gameState) { gameState->SetPlayerInSession(GetNumPlayers()); }
+	if (gameState) { gameState->SetMaxPlayerInSession(GetMaxPlayerPerSession()); }
 }
-#pragma endregion Functions
+#pragma endregion Overrides

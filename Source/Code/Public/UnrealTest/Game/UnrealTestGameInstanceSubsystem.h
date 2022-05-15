@@ -83,17 +83,20 @@ private:
 
 	// Internal on session join completed delegate handle
 	FDelegateHandle JoinSessionCompleteDelegateHandle;
+#pragma endregion Delegates
 
+#pragma region Variables
+	// Variables
+private:
 	// Last session settings
 	TSharedPtr<FOnlineSessionSettings> LastSessionSettings;
 
 	// Last session search
 	TSharedPtr<FOnlineSessionSearch> LastSessionSearch;
-
-
-#pragma endregion Delegates
+#pragma endregion Variables
 
 #pragma region Initialization
+//Initialization
 public:
 	// Constructor
 	UUnrealTestGameInstanceSubsystem();
@@ -121,9 +124,8 @@ protected:
 	// On session join completed event
 	void OnJoinSessionCompletedEvent(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
-	// Try travel to current session
-	UFUNCTION(BlueprintCallable)
-	bool TryTravelToCurrentSession();
+	// Add player to session
+
 
 public:
 	// Create game session
@@ -141,5 +143,9 @@ public:
 	// Join game session
 	UFUNCTION(BlueprintCallable)
 	void JoinGameSession(const FBlueprintSessionResult& SessionResultStruct);
+
+	// Try travel to current session
+	UFUNCTION(BlueprintCallable)
+	bool TryTravelToCurrentSession();
 #pragma endregion Functions
 };

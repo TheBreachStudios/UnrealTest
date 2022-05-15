@@ -25,6 +25,21 @@ void UMasterButton::NativePreConstruct()
 }
 #pragma endregion Overrides
 
+#pragma region Getters / Setters
+// Get ButtonLabel content
+FText UMasterButton::GetButtonLabelContent() 
+{
+	return ButtonLabel->GetText();
+}
+
+// Set ButtonLabel content
+void UMasterButton::SetButtonLabelContent(FText LabelContent)
+{
+	ButtonLabelContent = LabelContent;
+	ButtonLabel->SetText(ButtonLabelContent);
+}
+#pragma endregion Getters / Setters
+
 #pragma region Functions
 // Functions
 

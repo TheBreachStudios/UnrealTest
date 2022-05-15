@@ -3,7 +3,11 @@
 #include "UnrealTest/Game/UnrealTestGameInstanceSubsystem.h"
 
 // Unreal engine
+#include "Kismet/GameplayStatics.h"
+
+// Game Project
 #include "OnlineSubsystemUtils.h"
+#include "Code/Public/UnrealTest/Game/UnrealTestGameMode.h"
 
 #pragma region Initialization
 // Constructor
@@ -72,6 +76,11 @@ void UUnrealTestGameInstanceSubsystem::OnCreateSessionCompletedEvent(FName Sessi
 	if (sessionInterface)
 	{
 		sessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegateHandle);
+	}
+
+	AUnrealTestGameMode* gameMode = Cast<AUnrealTestGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (!gameMode) {
+		UE_LOG(LogTemp, Fatal, TEXT("GameMode is not AUnrealTestGameMode."));
 	}
 
 	OnCreateSessionCompleted.Broadcast(Successful);
@@ -188,7 +197,14 @@ void UUnrealTestGameInstanceSubsystem::OnJoinSessionCompletedEvent(FName Session
 		sessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegateHandle);
 	}
 
+	AUnrealTestGameMode* gameMode = Cast<AUnrealTestGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (!gameMode) {
+		UE_LOG(LogTemp, Fatal, TEXT("GameMode is not AUnrealTestGameMode."));
+	}
+
 	OnJoinGameSessionCompleted.Broadcast(TranslateToBPOnJoinSessionCompleteResult(Result));
+
+	UE_LOG(LogTemp, Warning, TEXT("[UUnrealTestGameInstanceSubsystem] NumSessions: %i"), sessionInterface->GetNumSessions());
 }
 
 bool UUnrealTestGameInstanceSubsystem::TryTravelToCurrentSession()

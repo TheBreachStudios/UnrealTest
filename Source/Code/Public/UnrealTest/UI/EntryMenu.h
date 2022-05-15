@@ -11,6 +11,9 @@
 
 // Definitions
 class UMasterButton;
+class UUnrealTestGameInstanceSubsystem;
+class AUnrealTestGameMode;
+struct FBlueprintSessionResult;
 
 /**
  * Entry menu
@@ -19,8 +22,16 @@ UCLASS()
 class UNREALTEST_API UEntryMenu : public UMasterWidget
 {
 	GENERATED_BODY()
+
 #pragma region Variables
-// Variables
+// Vriables
+private:
+	// Game Instance Subsystem reference
+	UUnrealTestGameInstanceSubsystem* GameInstanceSubsystem = nullptr;
+
+	// Game mode reference
+	AUnrealTestGameMode* GameMode;
+
 protected:
 	// Button widget reference
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -31,4 +42,29 @@ protected:
 	UMasterButton* FindSessionButton = nullptr;
 
 #pragma endregion Variables
+
+#pragma region Overrides
+// Overrides
+	// On initialized function
+	virtual void NativeOnInitialized() override;
+#pragma endregion Overrides
+
+#pragma region Functions
+// Functions
+	// Try create session
+	UFUNCTION()
+	void TryCreateSession();
+
+	// Try find session
+	UFUNCTION()
+	void TryFindSession();
+
+	// Session created event
+	UFUNCTION()
+	void OnSessionCreatedEvent(bool Success);
+
+	// Session joined event
+	UFUNCTION()
+	void OnSessionJoinedEvent(EBPOnJoinSessionCompleteResult Result);
+#pragma endregion Functions
 };

@@ -36,7 +36,7 @@ protected:
 #define LOCTEXT_NAMESPACE "TechTest"
 	
 	// Button label content
-	UPROPERTY(EditAnywhere, Category = "ButtonSettings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ButtonSettings")
 	FText ButtonLabelContent = LOCTEXT("ButtonPlaceholder", "Button");
 #undef LOCTEXT_NAMESPACE
 #pragma endregion Configuration
@@ -53,6 +53,19 @@ protected:
 	URichTextBlock* ButtonLabel = nullptr;
 
 #pragma endregion Variables
+
+#pragma region Getters / Setters
+// Getters / Setters
+public:
+	// Get ButtonLabel content
+	UFUNCTION(BlueprintCallable)
+	FText GetButtonLabelContent();
+
+	// Set ButtonLabel content
+	UFUNCTION(BlueprintCallable)
+	void SetButtonLabelContent(FText LabelContent);
+
+#pragma endregion Getters / Setters
 
 #pragma region Overrides
 // Overrides
