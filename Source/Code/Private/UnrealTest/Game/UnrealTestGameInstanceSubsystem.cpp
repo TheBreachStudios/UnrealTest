@@ -4,9 +4,9 @@
 
 // Unreal engine
 #include "Kismet/GameplayStatics.h"
+#include "OnlineSubsystemUtils.h"
 
 // Game Project
-#include "OnlineSubsystemUtils.h"
 #include "Code/Public/UnrealTest/Game/UnrealTestGameMode.h"
 
 #pragma region Initialization
@@ -15,9 +15,9 @@ UUnrealTestGameInstanceSubsystem::UUnrealTestGameInstanceSubsystem()
 	: OnCreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionCompletedEvent)),
 	OnStartSessionCompleteDelegate(FOnStartSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnStartSessionCompletedEvent)),
 	OnFindSessionsCompleteDelegate(FOnFindSessionsCompleteDelegate::CreateUObject(this, &ThisClass::OnFindSessionsCompletedEvent)),
-	OnJoinSessionCompleteDelegate(FOnJoinSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnJoinSessionCompletedEvent))
+	OnJoinSessionCompleteDelegate(FOnJoinSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnJoinSessionCompletedEvent)),
+	GamePhase(EMatchPhase::NONE)
 {
-
 }
 #pragma endregion Initialization
 

@@ -11,7 +11,8 @@
 
 #pragma region Initialization
 // Initialization
-AUnrealTestGameState::AUnrealTestGameState()
+AUnrealTestGameState::AUnrealTestGameState() :
+	GamePhase(EMatchPhase::NONE)
 {
 	bReplicates = true;
 }
@@ -25,5 +26,6 @@ void AUnrealTestGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 	DOREPLIFETIME(AUnrealTestGameState, CurrentPlayersInSession);
 	DOREPLIFETIME(AUnrealTestGameState, MaxPlayersInSession);
+	DOREPLIFETIME(AUnrealTestGameState, GamePhase);
 }
 #pragma endregion Override

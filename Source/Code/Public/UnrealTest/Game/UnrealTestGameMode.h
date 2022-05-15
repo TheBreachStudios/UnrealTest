@@ -12,6 +12,20 @@
 // Definitions
 class APlayerCharacter;
 
+// Definitions
+UENUM(BlueprintType)
+enum class EMatchPhase : uint8
+{
+	/** No state */
+	NONE,
+	/** Session was created and needs players to join */
+	FILLING,
+	/** Session was created and all players have joined and are waiting to travel */
+	WAITING,
+	/** Session was created and all players have traveled to actual game level */
+	PLAYING
+};
+
 UCLASS(minimalapi)
 class AUnrealTestGameMode : public AGameModeBase
 {
@@ -32,6 +46,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 MaxSessionSearchResults = 100;
 #pragma endregion Configuration
+
+#pragma region Variables
+// Variables
+protected:
+	// Match phase
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EMatchPhase GamePhase = EMatchPhase::NONE;
+#pragma endregion // Variables
+
 
 #pragma region Initialization
 // Initialization

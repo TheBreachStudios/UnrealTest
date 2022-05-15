@@ -11,6 +11,7 @@
 
 // Definitions
 class AUnrealTestGameMode;
+enum class EMatchPhase : uint8;
 
 /**
  * 
@@ -33,6 +34,10 @@ private:
 	// Max players in session
 	UPROPERTY(Replicated)
 	int32 MaxPlayersInSession = 0;
+
+	// Match phase
+	UPROPERTY(Replicated)
+	EMatchPhase GamePhase;
 
 #pragma endregion Variables
 
@@ -61,6 +66,10 @@ public:
 	// Get max player count in session
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	int32 GetMaxPlayerInSession() { return MaxPlayersInSession; }
+
+	// Get current match phase
+	UFUNCTION(BlueprintPure, BlueprintCallable)
+	EMatchPhase GetMatchPhase() { return GamePhase; }
 	
 	// Set current player count in session
 	UFUNCTION(BlueprintCallable)
@@ -69,6 +78,10 @@ public:
 	// Set max player count in session
 	UFUNCTION(BlueprintCallable)
 	void SetMaxPlayerInSession(int32 NewMaxPlayerCount) { MaxPlayersInSession = NewMaxPlayerCount; };
+
+	// Set current match phase
+	UFUNCTION(BlueprintCallable)
+	void SetMatchPhase(EMatchPhase NewPhase) { GamePhase = NewPhase; }
 
 #pragma endregion Getters / Setters
 

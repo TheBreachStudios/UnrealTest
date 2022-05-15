@@ -19,8 +19,8 @@
 #pragma region Overrides
 void UEntryMenu::NativeOnInitialized()
 {
-	UGameInstance* GameInstance = GetWorld()->GetGameInstance();
-	GameInstanceSubsystem = GameInstance->GetSubsystem<UUnrealTestGameInstanceSubsystem>();
+	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
+	GameInstanceSubsystem = gameInstance->GetSubsystem<UUnrealTestGameInstanceSubsystem>();
 
 	// Bind game instance events
 	GameInstanceSubsystem->OnCreateSessionCompleted.AddDynamic(this, &UEntryMenu::OnSessionCreatedEvent);

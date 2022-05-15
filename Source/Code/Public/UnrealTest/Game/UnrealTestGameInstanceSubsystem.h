@@ -29,6 +29,8 @@ enum class EBPOnJoinSessionCompleteResult : uint8
 	UnknownError
 };
 
+enum class EMatchPhase : uint8;
+
 /**
  * 
  */
@@ -59,6 +61,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "SessionHandling")
 	FOnJoinSessionCompleted OnJoinGameSessionCompleted;
 
+
+
 private:
 	// Internal on session creation completed delegate
 	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
@@ -86,13 +90,16 @@ private:
 #pragma endregion Delegates
 
 #pragma region Variables
-	// Variables
+// Variables
 private:
 	// Last session settings
 	TSharedPtr<FOnlineSessionSettings> LastSessionSettings;
 
 	// Last session search
 	TSharedPtr<FOnlineSessionSearch> LastSessionSearch;
+
+public:
+	EMatchPhase GamePhase;
 #pragma endregion Variables
 
 #pragma region Initialization
