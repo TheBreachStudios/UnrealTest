@@ -68,11 +68,11 @@ public:
 // Getters / Setters
 public:
 	// Get max player ammount per session
-	UFUNCTION(BlueprintCallable, Category = "GameMode"))
+	UFUNCTION(BlueprintCallable, Category = "GameMode")
 	int32 GetMaxPlayerPerSession() { return MaxPlayerPerSession; };
 
 	// Get player amount per team
-	UFUNCTION(BlueprintCallable, Category = "GameMode"))
+	UFUNCTION(BlueprintCallable, Category = "GameMode")
 	int32 GetPlayersPerTeam() { return PlayersPerTeam; };
 
 	// Get max session search results to find

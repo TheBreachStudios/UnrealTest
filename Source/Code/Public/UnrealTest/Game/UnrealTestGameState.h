@@ -49,15 +49,15 @@ private:
 	AUnrealTestGameMode* GameMode;
 
 	// Current players in session
-	UPROPERTY(Replicated, Category = "SessionHandling")
+	UPROPERTY(Replicated)
 	int32 CurrentPlayersInSession = 0;
 
 	// Max players in session
-	UPROPERTY(Replicated, Category = "SessionHandling")
+	UPROPERTY(Replicated)
 	int32 MaxPlayersInSession = 0;
 
 	// Match phase
-	UPROPERTY(Replicated, Category = "GameMode")
+	UPROPERTY(Replicated)
 	EMatchPhase GamePhase;
 
 #pragma endregion Variables

@@ -38,7 +38,7 @@ protected:
 	UMasterButton* HostSessionButton = nullptr;
 
 	// Button label widget reference
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components"))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components")
 	UMasterButton* FindSessionButton = nullptr;
 
 #pragma endregion Variables
