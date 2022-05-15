@@ -21,6 +21,27 @@ class UNREALTEST_API AUnrealTestGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 
+
+#pragma region Delegates
+// Delegates
+public:
+	// On match phase changed
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMatchPhaseChanged, EMatchPhase, NewMatchPhase);
+	UPROPERTY(BlueprintAssignable, Category = "SessionHandling")
+	FOnMatchPhaseChanged OnMatchPhaseChanged;
+
+	// On player max count changed
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerMaxChanged, int32, MaxPlayers);
+	UPROPERTY(BlueprintAssignable, Category = "SessionHandling")
+	FOnPlayerMaxChanged OnPlayerMaxChanged;
+
+	// On player current count changed
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerJoined, int32, CurrentPlayers);
+	UPROPERTY(BlueprintAssignable, Category = "SessionHandling")
+	FOnPlayerJoined OnPlayerJoined;
+
+#pragma endregion Delegates
+
 #pragma region Variables
 // Variables
 private:
@@ -28,15 +49,15 @@ private:
 	AUnrealTestGameMode* GameMode;
 
 	// Current players in session
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, Category = "SessionHandling")
 	int32 CurrentPlayersInSession = 0;
 
 	// Max players in session
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, Category = "SessionHandling")
 	int32 MaxPlayersInSession = 0;
 
 	// Match phase
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, Category = "GameMode")
 	EMatchPhase GamePhase;
 
 #pragma endregion Variables
@@ -60,28 +81,28 @@ private:
 
 public:
 	// Get current player count in session
-	UFUNCTION(BlueprintPure, BlueprintCallable)
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "SessionHandling")
 	int32 GetCurrentPlayersInSession() { return CurrentPlayersInSession; }
 
 	// Get max player count in session
-	UFUNCTION(BlueprintPure, BlueprintCallable)
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "SessionHandling")
 	int32 GetMaxPlayerInSession() { return MaxPlayersInSession; }
 
 	// Get current match phase
-	UFUNCTION(BlueprintPure, BlueprintCallable)
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "GameMode")
 	EMatchPhase GetMatchPhase() { return GamePhase; }
 	
 	// Set current player count in session
-	UFUNCTION(BlueprintCallable)
-	void SetPlayerInSession(int32 NewPlayerCount) { CurrentPlayersInSession = NewPlayerCount; }
+	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
+	void SetPlayerInSession(int32 NewPlayerCount);
 
 	// Set max player count in session
-	UFUNCTION(BlueprintCallable)
-	void SetMaxPlayerInSession(int32 NewMaxPlayerCount) { MaxPlayersInSession = NewMaxPlayerCount; };
+	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
+	void SetMaxPlayerInSession(int32 NewMaxPlayerCount);
 
 	// Set current match phase
-	UFUNCTION(BlueprintCallable)
-	void SetMatchPhase(EMatchPhase NewPhase) { GamePhase = NewPhase; }
+	UFUNCTION(BlueprintCallable, Category = "GameMode")
+	void SetMatchPhase(EMatchPhase NewPhase);
 
 #pragma endregion Getters / Setters
 

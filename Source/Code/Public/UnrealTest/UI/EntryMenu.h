@@ -34,11 +34,11 @@ private:
 
 protected:
 	// Button widget reference
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category="Components")
 	UMasterButton* HostSessionButton = nullptr;
 
 	// Button label widget reference
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components"))
 	UMasterButton* FindSessionButton = nullptr;
 
 #pragma endregion Variables
@@ -52,19 +52,19 @@ protected:
 #pragma region Functions
 // Functions
 	// Try create session
-	UFUNCTION()
+	UFUNCTION(Category = "SessionHandling")
 	void TryCreateSession();
 
 	// Try find session
-	UFUNCTION()
+	UFUNCTION(Category = "SessionHandling")
 	void TryFindSession();
 
 	// Session created event
-	UFUNCTION()
+	UFUNCTION(Category = "SessionHandling")
 	void OnSessionCreatedEvent(bool Success);
 
 	// Session joined event
-	UFUNCTION()
+	UFUNCTION(Category = "SessionHandling")
 	void OnSessionJoinedEvent(EBPOnJoinSessionCompleteResult Result);
 #pragma endregion Functions
 };

@@ -61,8 +61,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "SessionHandling")
 	FOnJoinSessionCompleted OnJoinGameSessionCompleted;
 
-
-
 private:
 	// Internal on session creation completed delegate
 	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
@@ -98,16 +96,26 @@ private:
 	// Last session search
 	TSharedPtr<FOnlineSessionSearch> LastSessionSearch;
 
-public:
-	EMatchPhase GamePhase;
+	// Current game phase
+	EMatchPhase MatchPhase;
 #pragma endregion Variables
 
 #pragma region Initialization
-//Initialization
+// Initialization
 public:
 	// Constructor
 	UUnrealTestGameInstanceSubsystem();
 #pragma endregion Initialization
+
+#pragma region Getters / Setters
+// Getters / Setters
+public:
+	// Get current game phase
+	EMatchPhase GetCurrentMatchPhase() { return MatchPhase; };
+
+	// Set current game phase
+	void SetCurrentMatchPhase(EMatchPhase NewMatchPhase) { MatchPhase = NewMatchPhase; }
+#pragma endregion Getters / Setters
 
 #pragma region Functions
 private:
@@ -117,42 +125,39 @@ private:
 
 protected:
 	// On create session completed event
-	UFUNCTION()
+	UFUNCTION(Category = "SessionHandling")
 	void OnCreateSessionCompletedEvent(FName SessionName, bool Successful);
 
 	// On session start completed event
-	UFUNCTION()
-	void OnStartSessionCompletedEvent(FName SessionName, bool Successful);
+	UFUNCTION(Category = "SessionHandling")
+		void OnStartSessionCompletedEvent(FName SessionName, bool Successful);
 
 	// On session find completed event
-	UFUNCTION()
+	UFUNCTION(Category = "SessionHandling")
 	void OnFindSessionsCompletedEvent(bool Successful);
 
 	// On session join completed event
 	void OnJoinSessionCompletedEvent(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
-	// Add player to session
-
-
 public:
 	// Create game session
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	void CreateSession(int32 MaxPublicConections, bool IsLANMatch);
 
 	// Start game session
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	void StartSession();
 
 	// Find game session
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	void FindSessions(int32 MaxSearchResults, bool IsLANQuery);
 
 	// Join game session
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	void JoinGameSession(const FBlueprintSessionResult& SessionResultStruct);
 
 	// Try travel to current session
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	bool TryTravelToCurrentSession();
 #pragma endregion Functions
 };

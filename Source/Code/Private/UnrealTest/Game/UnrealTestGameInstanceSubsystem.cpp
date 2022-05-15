@@ -16,7 +16,7 @@ UUnrealTestGameInstanceSubsystem::UUnrealTestGameInstanceSubsystem()
 	OnStartSessionCompleteDelegate(FOnStartSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnStartSessionCompletedEvent)),
 	OnFindSessionsCompleteDelegate(FOnFindSessionsCompleteDelegate::CreateUObject(this, &ThisClass::OnFindSessionsCompletedEvent)),
 	OnJoinSessionCompleteDelegate(FOnJoinSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnJoinSessionCompletedEvent)),
-	GamePhase(EMatchPhase::NONE)
+	MatchPhase(EMatchPhase::NONE)
 {
 }
 #pragma endregion Initialization

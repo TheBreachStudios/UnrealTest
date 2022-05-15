@@ -35,15 +35,15 @@ class AUnrealTestGameMode : public AGameModeBase
 // Configuration
 protected:
 	// Max player ammount per session
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="GameMode")
 	int32 MaxPlayerPerSession = 1;
 
 	// Player amount per team
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameMode")
 	int32 PlayersPerTeam = 1;
 
 	// Player max session search results
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SessionHandling")
 	int32 MaxSessionSearchResults = 100;
 #pragma endregion Configuration
 
@@ -51,9 +51,9 @@ protected:
 // Variables
 protected:
 	// Match phase
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameMode")
 	EMatchPhase GamePhase = EMatchPhase::NONE;
-#pragma endregion // Variables
+#pragma endregion Variables
 
 
 #pragma region Initialization
@@ -68,15 +68,15 @@ public:
 // Getters / Setters
 public:
 	// Get max player ammount per session
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "GameMode"))
 	int32 GetMaxPlayerPerSession() { return MaxPlayerPerSession; };
 
 	// Get player amount per team
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "GameMode"))
 	int32 GetPlayersPerTeam() { return PlayersPerTeam; };
 
 	// Get max session search results to find
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	int32 GetMaxSessionSearchResults() { return MaxSessionSearchResults; };
 #pragma endregion Getter / Setters
 
@@ -85,7 +85,5 @@ public:
 protected:
 	// On post login event;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
-#pragma endregion // Overrides
-
-
+#pragma endregion Overrides
 };

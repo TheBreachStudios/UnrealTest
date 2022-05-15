@@ -24,7 +24,7 @@ class UNREALTEST_API AUnrealTestHUD : public AHUD
 // Configuration
 public:
 	// Entry menu template widget
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly Category = "Configuration")
 	TSubclassOf<UPlayerHUDWidget> PlayerHUDWidgetTemplate;
 #pragma endregion Configuration
 

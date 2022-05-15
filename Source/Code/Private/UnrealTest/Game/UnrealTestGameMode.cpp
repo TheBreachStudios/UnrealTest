@@ -32,27 +32,26 @@ void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	AUnrealTestGameState* const gameState = GetWorld() != NULL ? GetWorld()->GetGameState<AUnrealTestGameState>() : NULL;
 	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
 	UUnrealTestGameInstanceSubsystem* gameInstanceSubsystem = gameInstance->GetSubsystem<UUnrealTestGameInstanceSubsystem>();
 
-	switch (gameInstanceSubsystem->GamePhase)
+	EMatchPhase currentGamePhase = gameInstanceSubsystem->GetCurrentMatchPhase();
+	switch (currentGamePhase)
 	{
 	case EMatchPhase::NONE:
-		gameInstanceSubsystem->GamePhase = EMatchPhase::FILLING;
+		gameInstanceSubsystem->SetCurrentMatchPhase(EMatchPhase::FILLING);
 		break;
 
 	case EMatchPhase::FILLING:
-
 		if (GetNumPlayers() == GetMaxPlayerPerSession())
 		{
-			gameInstanceSubsystem->GamePhase = EMatchPhase::WAITING;
+			gameInstanceSubsystem->SetCurrentMatchPhase(EMatchPhase::WAITING);
 			GetWorld()->ServerTravel("/Game/ThirdPerson/Maps/ThirdPersonMap?listen", false);
 		}
 		break;
 
 	case EMatchPhase::WAITING:
-		gameInstanceSubsystem->GamePhase = EMatchPhase::PLAYING;
+		gameInstanceSubsystem->SetCurrentMatchPhase(EMatchPhase::PLAYING);
 		break;
 
 	case EMatchPhase::PLAYING:
@@ -62,10 +61,11 @@ void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 		break;
 	}
 
+	AUnrealTestGameState* const gameState = GetWorld() != NULL ? GetWorld()->GetGameState<AUnrealTestGameState>() : NULL;
 	if (gameState) { 
-		gameState->SetPlayerInSession(GetNumPlayers()); 
-		gameState->SetMaxPlayerInSession(GetMaxPlayerPerSession()); 
-		gameState->SetMatchPhase(gameInstanceSubsystem->GamePhase); 
+		gameState->SetPlayerInSession(GetNumPlayers());
+		gameState->SetMaxPlayerInSession(GetMaxPlayerPerSession());
+		gameState->SetMatchPhase(currentGamePhase);
 	}
 	
 }

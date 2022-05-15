@@ -45,11 +45,11 @@ protected:
 // Variables
 protected:
 	// Button widget reference
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components")
 	UButton* Button = nullptr;
 
 	// Button label widget reference
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components")
 	URichTextBlock* ButtonLabel = nullptr;
 
 #pragma endregion Variables
@@ -58,11 +58,11 @@ protected:
 // Getters / Setters
 public:
 	// Get ButtonLabel content
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "ButtonSettings")
 	FText GetButtonLabelContent();
 
 	// Set ButtonLabel content
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "ButtonSettings")
 	void SetButtonLabelContent(FText LabelContent);
 
 #pragma endregion Getters / Setters
@@ -81,7 +81,7 @@ protected:
 // Functions
 protected:
 	// Broadcasts Button OnClicked event
-	UFUNCTION()
+	UFUNCTION(Category = "Events")
 	void OnButtonClickedEvent();
 #pragma endregion Functions
 };
