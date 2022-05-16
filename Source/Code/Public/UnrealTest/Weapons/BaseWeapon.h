@@ -11,6 +11,7 @@
 
 // Definitions
 class UBoxComponent;
+class UCameraComponent;
 
 UCLASS()
 class UNREALTEST_API ABaseWeapon : public AActor
@@ -82,6 +83,22 @@ protected:
 protected:
 	//Initialize weapons values
 	void InitiliazeWeapon();
+
+	// Server shoot handle
+	/*UFUNCTION(Server, Unreliable, WithValidation)
+	void Server_Shoot(UCameraComponent* CameraRef);
+	void Server_Shoot_Implementation(UCameraComponent* CameraRef);
+	bool Server_Shoot_Validate(UCameraComponent* CameraRef);*/
+
+	// Multicast shoot debug
+	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	void Multicast_ShootDebug(FVector ShootStart, FVector ShootEnd, FColor LineColor, FColor SphereColor);
+	void Multicast_ShootDebug_Implementation(FVector ShootStart, FVector ShootEnd, FColor LineColor, FColor SphereColor);
+	bool Multicast_ShootDebug_Validate(FVector ShootStart, FVector ShootEnd, FColor LineColor, FColor SphereColor);
+
+public:
+	// Server shoot handle
+	void Shoot(UCameraComponent* CameraRef);
 #pragma endregion Functions
 
 };

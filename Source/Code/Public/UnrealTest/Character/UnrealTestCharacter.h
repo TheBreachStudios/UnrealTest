@@ -131,16 +131,11 @@ protected:
 	// Start shooting
 	void StopShoot();
 
+	// Server shoot handle
 	UFUNCTION(Server, Unreliable, WithValidation)
 	void Server_Shoot();
 	void Server_Shoot_Implementation();
 	bool Server_Shoot_Validate();
-
-
-	UFUNCTION(NetMulticast, Reliable, WithValidation)
-	void Multicast_FireDebug(FVector ShootStart, FVector ShootEnd, FColor LineColor, FColor SphereColor);
-	void Multicast_FireDebug_Implementation(FVector ShootStart, FVector ShootEnd, FColor LineColor, FColor SphereColor);
-	bool Multicast_FireDebug_Validate(FVector ShootStart, FVector ShootEnd, FColor LineColor, FColor SphereColor);
 
 public:
 	//Initialize weapons values

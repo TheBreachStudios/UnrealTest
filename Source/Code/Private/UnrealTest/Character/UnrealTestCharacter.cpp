@@ -81,6 +81,7 @@ void AUnrealTestCharacter::BeginPlay()
 	FRotator rotation = WeaponHolder->GetComponentRotation();
 	CurrentWeapon = Cast<ABaseWeapon>(GetWorld()->SpawnActor(InitialWeaponTemplate, &location, &rotation, params));
 	CurrentWeapon->AttachToComponent(WeaponHolder, FAttachmentTransformRules::KeepRelativeTransform);
+	CurrentWeapon->SetOwner(this);
 }
 
 
@@ -175,12 +176,12 @@ void AUnrealTestCharacter::Shoot()
 	Server_Shoot();
 }
 
-
 // Stop shooting
 void AUnrealTestCharacter::StopShoot()
 {
 	UE_LOG(LogTemp, Warning, TEXT("[AUnrealTestCharacter][LocalRole: %s][RemoteRole: %s] Stop SHOOT!"), *UEnum::GetValueAsString(GetLocalRole()), *UEnum::GetValueAsString(GetRemoteRole()));
 }
+
 
 bool AUnrealTestCharacter::Server_Shoot_Validate()
 {
@@ -189,47 +190,7 @@ bool AUnrealTestCharacter::Server_Shoot_Validate()
 
 void AUnrealTestCharacter::Server_Shoot_Implementation()
 {
-
-	// Gets posible aiming point from crosshair position
-	// Use double de weapon range to be sure that it will always impact on something that the weapon an reach
-
-	FHitResult cameraHit;
-	FVector cameraStart = FollowCamera->GetComponentLocation();
-	FVector cameraEnd = cameraStart + (FollowCamera->GetForwardVector() * CurrentWeapon->Range * 2.0f);
-	bool cameraHitSuccess = GetWorld()->LineTraceSingleByChannel(cameraHit, cameraStart, cameraEnd, ECollisionChannel::ECC_Visibility);
-
-	// If camera probing has not hit anything weapon should point to the furthest posible point
-
-	FHitResult shootHit;
-	FVector maxShootPoint = cameraHitSuccess ? cameraHit.Location : cameraEnd;
-	FVector shootStart = CurrentWeapon->WeaponShootPoint->GetComponentLocation();
-	FVector shootDirection = maxShootPoint - shootStart;
-	shootDirection.Normalize(0.0001);
-	FVector shootEnd = shootStart + (shootDirection * CurrentWeapon->Range);
-
-	bool shootHitSuccess = GetWorld()->LineTraceSingleByChannel(shootHit, shootStart, shootEnd, ECollisionChannel::ECC_Visibility);
-
-	Multicast_FireDebug(shootStart, shootHitSuccess ? shootHit.Location : shootEnd, FColor::Cyan, FColor::Green);
-
-	if (shootHitSuccess)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[AUnrealTestCharacter][LocalRole: %s][RemoteRole: %s] %s shot %s!"), *UEnum::GetValueAsString(GetLocalRole()), *UEnum::GetValueAsString(GetRemoteRole()), *GetName(), *shootHit.GetActor()->GetName());
-	}
-}
-
-
-bool AUnrealTestCharacter::Multicast_FireDebug_Validate(FVector ShootStart, FVector ShootEnd, FColor LineColor, FColor SphereColor)
-{
-	return true;
-}
-
-void AUnrealTestCharacter::Multicast_FireDebug_Implementation(FVector ShootStart, FVector ShootEnd, FColor LineColor, FColor SphereColor)
-{
-	DrawDebugLine(GetWorld(), ShootStart, ShootEnd, SphereColor, false, 15.f, 0, 3.f);
-
-	DrawDebugSphere(GetWorld(), ShootEnd, 10.f, 12, LineColor, false, 15.f, 0, 3.f);
-
-	DrawDebugSphere(GetWorld(), ShootStart, 10.f, 12, LineColor, false, 15.f, 0, 3.f );
+	CurrentWeapon->Shoot(FollowCamera);
 }
 
 // Disable controller rotation
