@@ -31,6 +31,26 @@ enum class EBPOnJoinSessionCompleteResult : uint8
 
 enum class EMatchPhase : uint8;
 
+USTRUCT(BlueprintType)
+struct FTeam
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<APlayerController*> TeamMembers;
+};
+
+USTRUCT(BlueprintType)
+struct FTeamList
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FTeam> ListOfTeams;
+};
+
+
+
 /**
  * 
  */
@@ -98,6 +118,9 @@ private:
 
 	// Current game phase
 	EMatchPhase MatchPhase;
+
+	// Current game phase
+	FTeamList TeamList;
 #pragma endregion Variables
 
 #pragma region Initialization
@@ -111,10 +134,20 @@ public:
 // Getters / Setters
 public:
 	// Get current game phase
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "SessionHandling")
 	EMatchPhase GetCurrentMatchPhase() { return MatchPhase; };
+
+	// Get team list
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "SessionHandling")
+	FTeamList GetCurrentListTeam() { return TeamList; };
+
+	// Get team list
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "SessionHandling")
+	int32 GetPlayerTeamID(APlayerController* PlayerController);
 
 	// Set current game phase
 	void SetCurrentMatchPhase(EMatchPhase NewMatchPhase) { MatchPhase = NewMatchPhase; }
+
 #pragma endregion Getters / Setters
 
 #pragma region Functions
@@ -130,7 +163,7 @@ protected:
 
 	// On session start completed event
 	UFUNCTION(Category = "SessionHandling")
-		void OnStartSessionCompletedEvent(FName SessionName, bool Successful);
+	void OnStartSessionCompletedEvent(FName SessionName, bool Successful);
 
 	// On session find completed event
 	UFUNCTION(Category = "SessionHandling")
@@ -159,5 +192,8 @@ public:
 	// Try travel to current session
 	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	bool TryTravelToCurrentSession();
+
+	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
+	void AddPlayerToTeam(int32 TeamID, APlayerController* NewPlayer);
 #pragma endregion Functions
 };

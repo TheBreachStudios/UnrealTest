@@ -9,6 +9,7 @@
 // Game Project
 #include "UnrealTest/Character/UnrealTestCharacter.h"
 #include "UnrealTest/Game/UnrealTestGameState.h"
+#include "UnrealTest/Game/UnrealTestPlayerState.h"
 #include <OnlineSubsystemUtils.h>
 
 #pragma region Initialization
@@ -34,6 +35,7 @@ void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 
 	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
 	UUnrealTestGameInstanceSubsystem* gameInstanceSubsystem = gameInstance->GetSubsystem<UUnrealTestGameInstanceSubsystem>();
+	AUnrealTestGameState* const gameState = GetWorld() != NULL ? GetWorld()->GetGameState<AUnrealTestGameState>() : NULL;
 
 	EMatchPhase currentGamePhase = gameInstanceSubsystem->GetCurrentMatchPhase();
 	switch (currentGamePhase)
@@ -43,6 +45,7 @@ void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 		break;
 
 	case EMatchPhase::FILLING:
+
 		if (GetNumPlayers() == GetMaxPlayerPerSession())
 		{
 			gameInstanceSubsystem->SetCurrentMatchPhase(EMatchPhase::WAITING);
@@ -52,16 +55,21 @@ void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 
 	case EMatchPhase::WAITING:
 		gameInstanceSubsystem->SetCurrentMatchPhase(EMatchPhase::PLAYING);
-		break;
 
 	case EMatchPhase::PLAYING:
+		if (AUnrealTestPlayerState* playerState = Cast<AUnrealTestPlayerState>(NewPlayer->PlayerState))
+		{
+			int32 teamID = (GetNumPlayers() - 1) % GetPlayersPerTeam();
+			UE_LOG(LogTemp, Warning, TEXT("[AUnrealTestGameMode] FILLING Player: %s Tesm: %i"), *NewPlayer->GetName(), teamID);
+			playerState->SetTeamID(teamID);
+			gameInstanceSubsystem->AddPlayerToTeam(teamID, NewPlayer);
+		}
 		break;
 
 	default:
 		break;
 	}
 
-	AUnrealTestGameState* const gameState = GetWorld() != NULL ? GetWorld()->GetGameState<AUnrealTestGameState>() : NULL;
 	if (gameState) { 
 		gameState->SetPlayerInSession(GetNumPlayers());
 		gameState->SetMaxPlayerInSession(GetMaxPlayerPerSession());

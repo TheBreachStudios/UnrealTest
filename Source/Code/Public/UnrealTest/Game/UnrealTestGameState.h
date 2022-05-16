@@ -50,60 +50,59 @@ private:
 
 	// Current players in session
 	UPROPERTY(Replicated)
-	int32 CurrentPlayersInSession = 0;
+		int32 CurrentPlayersInSession = 0;
 
 	// Max players in session
 	UPROPERTY(Replicated)
-	int32 MaxPlayersInSession = 0;
+		int32 MaxPlayersInSession = 0;
 
 	// Match phase
 	UPROPERTY(Replicated)
-	EMatchPhase GamePhase;
+		EMatchPhase MatchPhase;
 
 #pragma endregion Variables
 
 #pragma region Initialization
 	// Override
-
+public:
 	// Constructor
 	AUnrealTestGameState();
 #pragma endregion Initialization
 
 #pragma region Override
 // Override
-
+public:
 	// Replication settings
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 #pragma endregion Override
 
 #pragma region Getters / Setters
-// Getters / Setters
+	// Getters / Setters
 
 public:
 	// Get current player count in session
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "SessionHandling")
-	int32 GetCurrentPlayersInSession() { return CurrentPlayersInSession; }
+		int32 GetCurrentPlayersInSession() { return CurrentPlayersInSession; }
 
 	// Get max player count in session
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "SessionHandling")
-	int32 GetMaxPlayerInSession() { return MaxPlayersInSession; }
+		int32 GetMaxPlayerInSession() { return MaxPlayersInSession; }
 
 	// Get current match phase
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "GameMode")
-	EMatchPhase GetMatchPhase() { return GamePhase; }
-	
+		EMatchPhase GetMatchPhase() { return MatchPhase; }
+
 	// Set current player count in session
 	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
-	void SetPlayerInSession(int32 NewPlayerCount);
+		void SetPlayerInSession(int32 NewPlayerCount);
 
 	// Set max player count in session
 	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
-	void SetMaxPlayerInSession(int32 NewMaxPlayerCount);
+		void SetMaxPlayerInSession(int32 NewMaxPlayerCount);
 
 	// Set current match phase
 	UFUNCTION(BlueprintCallable, Category = "GameMode")
-	void SetMatchPhase(EMatchPhase NewPhase);
+		void SetMatchPhase(EMatchPhase NewPhase);
 
 #pragma endregion Getters / Setters
-
 };

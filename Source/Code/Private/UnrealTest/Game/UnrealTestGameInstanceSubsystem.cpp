@@ -18,8 +18,25 @@ UUnrealTestGameInstanceSubsystem::UUnrealTestGameInstanceSubsystem()
 	OnJoinSessionCompleteDelegate(FOnJoinSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnJoinSessionCompletedEvent)),
 	MatchPhase(EMatchPhase::NONE)
 {
+	TeamList.ListOfTeams.Empty();
 }
 #pragma endregion Initialization
+
+#pragma region Getters / Setters
+int32 UUnrealTestGameInstanceSubsystem::GetPlayerTeamID(APlayerController* PlayerController)
+{
+	bool playerFound = false;
+	for (int i = 0; i < TeamList.ListOfTeams.Num(); i++)
+	{
+		for (APlayerController* tempPlayer : TeamList.ListOfTeams[i].TeamMembers)
+		{
+			if (tempPlayer == PlayerController) { return i; }
+		}
+	}
+
+	return -1;
+}
+#pragma endregion Getters / Setters
 
 #pragma region Functions
 
@@ -207,6 +224,7 @@ void UUnrealTestGameInstanceSubsystem::OnJoinSessionCompletedEvent(FName Session
 	UE_LOG(LogTemp, Warning, TEXT("[UUnrealTestGameInstanceSubsystem] NumSessions: %i"), sessionInterface->GetNumSessions());
 }
 
+// Try travel to current session
 bool UUnrealTestGameInstanceSubsystem::TryTravelToCurrentSession()
 {
 	const IOnlineSessionPtr sessionInterface = Online::GetSessionInterface(GetWorld());
@@ -224,5 +242,19 @@ bool UUnrealTestGameInstanceSubsystem::TryTravelToCurrentSession()
 	APlayerController* playerController = GetWorld()->GetFirstPlayerController();
 	playerController->ClientTravel(connectString, TRAVEL_Absolute);
 	return true;
+}
+
+void UUnrealTestGameInstanceSubsystem::AddPlayerToTeam(int32 TeamID, APlayerController* NewPlayer)
+{
+	if (TeamList.ListOfTeams.IsValidIndex(TeamID))
+	{
+		TeamList.ListOfTeams[TeamID].TeamMembers.AddUnique(NewPlayer);
+	}
+	else
+	{
+		FTeam tempTeam;
+		tempTeam.TeamMembers.AddUnique(NewPlayer);
+		TeamList.ListOfTeams.Add(tempTeam);
+	}
 }
 #pragma endregion Functions

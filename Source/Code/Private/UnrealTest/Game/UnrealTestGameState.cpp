@@ -12,7 +12,7 @@
 #pragma region Initialization
 // Initialization
 AUnrealTestGameState::AUnrealTestGameState() :
-	GamePhase(EMatchPhase::NONE)
+	MatchPhase(EMatchPhase::NONE)
 {
 	bReplicates = true;
 }
@@ -33,19 +33,21 @@ void AUnrealTestGameState::SetMaxPlayerInSession(int32 NewMaxPlayerCount) {
 
 // Set current match phase
 void AUnrealTestGameState::SetMatchPhase(EMatchPhase NewPhase) {
-	GamePhase = NewPhase;
+	MatchPhase = NewPhase;
 	OnMatchPhaseChanged.Broadcast(NewPhase);
 }
 #pragma endregion Getters / Setters
 
 #pragma region Override
 // Override
+
+	// Replication settings
 void AUnrealTestGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AUnrealTestGameState, CurrentPlayersInSession);
 	DOREPLIFETIME(AUnrealTestGameState, MaxPlayersInSession);
-	DOREPLIFETIME(AUnrealTestGameState, GamePhase);
+	DOREPLIFETIME(AUnrealTestGameState, MatchPhase);
 }
 #pragma endregion Override
