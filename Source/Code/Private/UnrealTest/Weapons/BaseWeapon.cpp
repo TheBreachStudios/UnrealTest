@@ -20,9 +20,10 @@ ABaseWeapon::ABaseWeapon()
 
 	WeaponShootPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ShootPoint"));
 	WeaponShootPoint->SetupAttachment(WeaponMeshComponent);
+	WeaponShootPoint->SetIsReplicated(true);
 
 	// Replication
-    SetReplicates(true);
+    bReplicates = true;
     SetReplicatingMovement(true);
 }
 #pragma endregion Initialization
@@ -56,6 +57,6 @@ void ABaseWeapon::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedE
 void ABaseWeapon::InitiliazeWeapon()
 {
 	WeaponMeshComponent->SetStaticMesh(WeaponMesh);
-	WeaponShootPoint->SetWorldLocation(ShootPointPostion);
+	WeaponShootPoint->SetWorldLocation(ShootPointOffset);
 }
 #pragma endregion Functions

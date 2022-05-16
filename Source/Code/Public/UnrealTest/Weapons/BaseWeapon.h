@@ -38,7 +38,7 @@ public:
 
 	// Weapon firerate
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configuration")
-	FVector ShootPointPostion = FVector(0.f);
+	FVector ShootPointOffset = FVector(0.f);
 #pragma endregion Configuration
 
 #pragma region Variables
@@ -71,7 +71,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void PostInitProperties() override;
+
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 #pragma endregion Overrides
 
 #pragma region Functions
