@@ -86,4 +86,10 @@ protected:
 	// On post login event;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 #pragma endregion Overrides
+
+#pragma region Functions
+public:
+	// On any actor died
+	void ActorDied(AActor* DeadActor);
+#pragma endregion Functions
 };

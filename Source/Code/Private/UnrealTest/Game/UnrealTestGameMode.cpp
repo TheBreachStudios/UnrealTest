@@ -78,3 +78,12 @@ void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 	
 }
 #pragma endregion Overrides
+
+#pragma region Functions
+void AUnrealTestGameMode::ActorDied(AActor* DeadActor) {
+	if (AUnrealTestCharacter* deadActor = Cast<AUnrealTestCharacter>(DeadActor)) {
+		GEngine->AddOnScreenDebugMessage(1, 2, FColor::Emerald,
+			FString::Printf(TEXT("[AUnrealTestGameMode][LocalRole: %s][RemoteRole: %s] Actor died %s"), *UEnum::GetValueAsString(GetLocalRole()), *UEnum::GetValueAsString(GetRemoteRole()), *DeadActor->GetName()));
+	}
+}
+#pragma endregion Functions
