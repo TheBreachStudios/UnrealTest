@@ -144,7 +144,7 @@ protected:
 	void StopShoot();
 
 	// Server shoot handle
-	UFUNCTION(Server, Unreliable, WithValidation)
+	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_Shoot();
 	void Server_Shoot_Implementation();
 	bool Server_Shoot_Validate();
@@ -173,6 +173,15 @@ public:
 
 	// Binds aiming inputs
 	void LookUpBinding(UInputComponent* PlayerInputComponent);
+
+	// TODO: For now it will just restore health to max
+	// Respawn player
+	void RespawnPlayer();
+
+	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	void Multicast_Die();
+	void Multicast_Die_Implementation();
+	bool Multicast_Die_Validate();
 
 #pragma endregion Functions
 
