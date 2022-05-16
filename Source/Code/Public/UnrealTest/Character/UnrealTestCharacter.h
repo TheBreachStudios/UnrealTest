@@ -16,6 +16,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UCharacterMovementComponent;
 class UInputComponent;
+class UHealthComponent;
 
 UCLASS(config=Game)
 class AUnrealTestCharacter : public ACharacter
@@ -32,6 +33,10 @@ public:
 	// Weapon that will be spawn with the character
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapons")
 	TSubclassOf<ABaseWeapon> InitialWeaponTemplate;
+
+	// Weapon that will be spawn with the character
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
+	float MaxHealth = 100.f;
 #pragma endregion Configuration
 
 #pragma region Variables
@@ -54,6 +59,10 @@ private:
 	// Scene component in which to attach the weapon
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons", meta = (AllowPrivateAccess = "true"))
 	ABaseWeapon* CurrentWeapon;
+
+	// Health component
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons", meta = (AllowPrivateAccess = "true"))
+	UHealthComponent* HealthComponent;
 
 public:
 	const float TURN_RATE_GAMEPAD = 50.f;
@@ -87,6 +96,9 @@ public:
 
 	// Set Weapon Holder
 	void SetWeaponHolder();
+
+	// Set Health Component
+	void SetHealthComponent();
 #pragma endregion Getters / Setters
 
 #pragma region Overrides
@@ -138,7 +150,7 @@ protected:
 	bool Server_Shoot_Validate();
 
 public:
-	//Initialize weapons values
+	// Initialize weapons values
 	void InitiliazeCharacter();
 
 	// Disable controller rotation

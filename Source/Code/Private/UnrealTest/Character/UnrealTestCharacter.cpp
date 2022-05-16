@@ -12,6 +12,7 @@
 
 // Game Project
 #include "UnrealTest/Weapons/BaseWeapon.h"
+#include "UnrealTest/Components/HealthComponent.h"
 
 
 #pragma region Initialization
@@ -32,6 +33,7 @@ AUnrealTestCharacter::AUnrealTestCharacter()
 	SetCameraBoom();
 	SetFollowCamera();
 	SetWeaponHolder();
+	SetHealthComponent();
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -66,6 +68,14 @@ void AUnrealTestCharacter::SetWeaponHolder()
 	WeaponHolder->SetupAttachment(GetMesh()); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	WeaponHolder->SetIsReplicated(true);
 }
+
+// Set Health Component
+void AUnrealTestCharacter::SetHealthComponent()
+{
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+	HealthComponent->SetIsReplicated(true);
+}
+
 #pragma endregion Getters / Setters
 
 #pragma region Overrides
@@ -82,6 +92,12 @@ void AUnrealTestCharacter::BeginPlay()
 	CurrentWeapon = Cast<ABaseWeapon>(GetWorld()->SpawnActor(InitialWeaponTemplate, &location, &rotation, params));
 	CurrentWeapon->AttachToComponent(WeaponHolder, FAttachmentTransformRules::KeepRelativeTransform);
 	CurrentWeapon->SetOwner(this);
+
+
+	if (GetLocalRole() >= ROLE_Authority) {
+		HealthComponent->InitializeHealth(MaxHealth);
+		UE_LOG(LogTemp, Warning, TEXT("AMultiplayerTechTestCharacter::BeginPlay [LocalRole:%s]: HealthInitlalzed "), *((GetLocalRole() >= ROLE_Authority) ? FString("Auth") : FString("NoAuth")));
+	}
 }
 
 
