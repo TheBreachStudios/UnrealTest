@@ -57,6 +57,9 @@ void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 	case EMatchPhase::WAITING:
 		gameInstanceSubsystem->SetCurrentMatchPhase(EMatchPhase::PLAYING);
 
+		// TODO: Assumes that only exists two teams. A new implementatio will be need for more than two teams
+		gameInstanceSubsystem->OnLastTeamPlayerDied.AddDynamic(this, &AUnrealTestGameMode::OnGameOver);
+
 	case EMatchPhase::PLAYING:
 		if (AUnrealTestPlayerState* playerState = Cast<AUnrealTestPlayerState>(NewPlayer->PlayerState))
 		{
@@ -104,6 +107,8 @@ void AUnrealTestGameMode::ActorDied(AActor* DeadActor) {
 				if (AUnrealTestCharacter* deadPlayer = Cast<AUnrealTestCharacter>(DeadActor))
 				{
 					deadPlayer->Multicast_Die();
+					AUnrealTestPlayerState* damagerPlayerState = Cast<AUnrealTestPlayerState>(deadPlayer->GetPlayerState());
+					gameInstanceSubsystem->OnPlayerDied(damagerPlayerState->GetTeamID());
 				}
 				break;
 			default:
@@ -112,6 +117,7 @@ void AUnrealTestGameMode::ActorDied(AActor* DeadActor) {
 	}
 }
 
+// Checks if player can damage another
 void AUnrealTestGameMode::ProcessDamage(AActor* DamagedActor, float BaseDamage, AController* EventInstigator, AActor* DamageCauser, TSubclassOf<UDamageType> DamageTypeClass)
 {
 	AUnrealTestCharacter* damagedPlayer = Cast<AUnrealTestCharacter>(DamagedActor);
@@ -133,5 +139,11 @@ void AUnrealTestGameMode::ProcessDamage(AActor* DamagedActor, float BaseDamage, 
 	}
 
 	UGameplayStatics::ApplyDamage(DamagedActor, BaseDamage, EventInstigator, DamageCauser, DamageTypeClass);
+}
+
+// On game over event
+void AUnrealTestGameMode::OnGameOver(int32 TeamID)
+{
+	GameOver.Broadcast(TeamID);
 }
 #pragma endregion Functions

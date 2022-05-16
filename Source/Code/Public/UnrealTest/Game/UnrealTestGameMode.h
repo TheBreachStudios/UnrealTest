@@ -31,6 +31,14 @@ class AUnrealTestGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+#pragma region Delegates
+// Delegates
+	// On session creation completed delegate
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameOver, int32, DefeatedTeamID);
+	UPROPERTY(BlueprintAssignable, Category = "SessionHandling")
+	FOnGameOver GameOver;
+#pragma endregion Delegates
+
 #pragma region Configuration
 // Configuration
 protected:
@@ -93,6 +101,10 @@ public:
 	void ActorDied(AActor* DeadActor);
 
 	// Checks if player can damage another
-	void ProcessDamage(AActor* DamagedActor, float BaseDamage, AController* EventInstigator, AActor* DamageCauser, TSubclassOf<UDamageType> DamageTypeClass);
+	void ProcessDamage(AActor* DamagedAtor, float BaseDamage, AController* EventInstigator, AActor* DamageCauser, TSubclassOf<UDamageType> DamageTypeClass);
+
+	// On game over event
+	UFUNCTION()
+	void OnGameOver(int32 TeamID);
 #pragma endregion Functions
 };
