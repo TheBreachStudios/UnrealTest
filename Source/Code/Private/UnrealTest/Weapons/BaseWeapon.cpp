@@ -7,8 +7,11 @@
 #include "Components/SceneComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Camera/CameraComponent.h"
+
+// Game Project
+#include "UnrealTest/Game/UnrealTestGameMode.h"
 
 #pragma region Initialization
 // Sets default values
@@ -92,7 +95,10 @@ void ABaseWeapon::Shoot(UCameraComponent* CameraRef)
 	if (shootHitSuccess)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ABaseWeapon][LocalRole: %s][RemoteRole: %s] %s->%s shot %s!"), *UEnum::GetValueAsString(GetLocalRole()), *UEnum::GetValueAsString(GetRemoteRole()), *GetOwner()->GetName(), *GetName(), *shootHit.GetActor()->GetName());
-		UGameplayStatics::ApplyDamage(shootHit.GetActor(), Damage, GetOwner()->GetInstigatorController(), this, nullptr);
+
+		AUnrealTestGameMode* gameModeRef = Cast<AUnrealTestGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		
+		gameModeRef->ProcessDamage(shootHit.GetActor(), Damage, GetOwner()->GetInstigatorController(), this, nullptr);
 
 	}
 }

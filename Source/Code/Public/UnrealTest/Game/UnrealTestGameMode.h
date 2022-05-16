@@ -91,5 +91,8 @@ protected:
 public:
 	// On any actor died
 	void ActorDied(AActor* DeadActor);
+
+	// Checks if player can damage another
+	void ProcessDamage(AActor* DamagedActor, float BaseDamage, AController* EventInstigator, AActor* DamageCauser, TSubclassOf<UDamageType> DamageTypeClass);
 #pragma endregion Functions
 };

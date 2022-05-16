@@ -5,6 +5,7 @@
 // Unreal Engine
 #include "UObject/ConstructorHelpers.h"
 #include "Code/Public/UnrealTest/Game/UnrealTestGameInstanceSubsystem.h"
+#include "Kismet/GameplayStatics.h"
 
 // Game Project
 #include "UnrealTest/Character/UnrealTestCharacter.h"
@@ -85,5 +86,28 @@ void AUnrealTestGameMode::ActorDied(AActor* DeadActor) {
 		GEngine->AddOnScreenDebugMessage(1, 2, FColor::Emerald,
 			FString::Printf(TEXT("[AUnrealTestGameMode][LocalRole: %s][RemoteRole: %s] Actor died %s"), *UEnum::GetValueAsString(GetLocalRole()), *UEnum::GetValueAsString(GetRemoteRole()), *DeadActor->GetName()));
 	}
+}
+
+void AUnrealTestGameMode::ProcessDamage(AActor* DamagedActor, float BaseDamage, AController* EventInstigator, AActor* DamageCauser, TSubclassOf<UDamageType> DamageTypeClass)
+{
+	AUnrealTestCharacter* damagedPlayer = Cast<AUnrealTestCharacter>(DamagedActor);
+	AUnrealTestCharacter* damagerPlayer = Cast<AUnrealTestCharacter>(EventInstigator->GetPawn());
+
+	if (damagedPlayer && damagerPlayer) {
+		AUnrealTestPlayerState* damagedPlayerState = Cast<AUnrealTestPlayerState>(damagedPlayer->GetPlayerState());
+		AUnrealTestPlayerState* damagerPlayerState = Cast<AUnrealTestPlayerState>(damagerPlayer->GetPlayerState());
+
+		// If players have the different TeamID or their team ID is -1 (i.e.: they are in the waiting room) they can receive damage
+		if (
+			damagedPlayerState->GetTeamID() == damagerPlayerState->GetTeamID()
+			&& (damagedPlayerState->GetTeamID() != -1)
+			&& (damagerPlayerState->GetTeamID() != -1)
+		)
+		{
+			return;
+		}
+	}
+
+	UGameplayStatics::ApplyDamage(DamagedActor, BaseDamage, EventInstigator, DamageCauser, DamageTypeClass);
 }
 #pragma endregion Functions
