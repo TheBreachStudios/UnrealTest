@@ -81,6 +81,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "SessionHandling")
 	FOnJoinSessionCompleted OnJoinGameSessionCompleted;
 
+	// On last player died delegate
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLastTeamPlayerDied, int32, TeamID);
+	UPROPERTY(BlueprintAssignable, Category = "TeamHandling")
+	FOnLastTeamPlayerDied OnLastTeamPlayerDied;
+
 private:
 	// Internal on session creation completed delegate
 	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
@@ -119,8 +124,11 @@ private:
 	// Current game phase
 	EMatchPhase MatchPhase;
 
-	// Current game phase
+	// Current team list
 	FTeamList TeamList;
+
+	// Alive players per team
+	TArray<int32> AlivePlayersPerTeam;
 #pragma endregion Variables
 
 #pragma region Initialization
@@ -193,7 +201,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	bool TryTravelToCurrentSession();
 
+	// Add player to team list
 	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	void AddPlayerToTeam(int32 TeamID, APlayerController* NewPlayer);
+
+	// On player died update info
+	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
+	void OnPlayerDied(int32 TeamID);
 #pragma endregion Functions
 };

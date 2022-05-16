@@ -271,4 +271,30 @@ void AUnrealTestCharacter::LookUpBinding(class UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("Look Up / Down Gamepad", this, &AUnrealTestCharacter::LookUpAtRate);
 }
+
+// Respawn player
+void AUnrealTestCharacter::RespawnPlayer()
+{
+	HealthComponent->InitializeHealth(MaxHealth);
+}
+
+bool AUnrealTestCharacter::Multicast_Die_Validate() {
+	return true;
+}
+
+void AUnrealTestCharacter::Multicast_Die_Implementation() {
+	//Disables input after death
+	if (IsLocallyControlled()) {
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		if (Cast<APlayerController>(GetController())) {
+			DisableInput(PlayerController);
+		}
+	}
+
+	//Hide and disable character
+	SetActorHiddenInGame(true);
+	GetCapsuleComponent()->SetEnableGravity(false);
+	GetCharacterMovement()->GravityScale = 0.f;
+	SetActorEnableCollision(false);
+}
 #pragma endregion Functions

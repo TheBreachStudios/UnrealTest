@@ -90,8 +90,6 @@ void ABaseWeapon::Shoot(UCameraComponent* CameraRef)
 
 	bool shootHitSuccess = GetWorld()->LineTraceSingleByChannel(shootHit, shootStart, shootEnd, ECollisionChannel::ECC_Visibility);
 
-	Multicast_ShootDebug(shootStart, shootHitSuccess ? shootHit.Location : shootEnd, FColor::Cyan, FColor::Green);
-
 	if (shootHitSuccess)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ABaseWeapon][LocalRole: %s][RemoteRole: %s] %s->%s shot %s!"), *UEnum::GetValueAsString(GetLocalRole()), *UEnum::GetValueAsString(GetRemoteRole()), *GetOwner()->GetName(), *GetName(), *shootHit.GetActor()->GetName());
@@ -112,9 +110,7 @@ bool ABaseWeapon::Multicast_ShootDebug_Validate(FVector ShootStart, FVector Shoo
 void ABaseWeapon::Multicast_ShootDebug_Implementation(FVector ShootStart, FVector ShootEnd, FColor LineColor, FColor SphereColor)
 {
 	DrawDebugLine(GetWorld(), ShootStart, ShootEnd, SphereColor, false, 15.f, 0, 3.f);
-
 	DrawDebugSphere(GetWorld(), ShootEnd, 10.f, 12, LineColor, false, 15.f, 0, 3.f);
-
 	DrawDebugSphere(GetWorld(), ShootStart, 10.f, 12, LineColor, false, 15.f, 0, 3.f);
 }
 

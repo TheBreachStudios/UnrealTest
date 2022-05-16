@@ -244,17 +244,34 @@ bool UUnrealTestGameInstanceSubsystem::TryTravelToCurrentSession()
 	return true;
 }
 
+// Add player to team list
 void UUnrealTestGameInstanceSubsystem::AddPlayerToTeam(int32 TeamID, APlayerController* NewPlayer)
 {
 	if (TeamList.ListOfTeams.IsValidIndex(TeamID))
 	{
 		TeamList.ListOfTeams[TeamID].TeamMembers.AddUnique(NewPlayer);
+		AlivePlayersPerTeam[TeamID] = AlivePlayersPerTeam[TeamID] + 1;
 	}
 	else
 	{
 		FTeam tempTeam;
 		tempTeam.TeamMembers.AddUnique(NewPlayer);
 		TeamList.ListOfTeams.Add(tempTeam);
+		AlivePlayersPerTeam.Add(1);
+	}
+}
+
+// On player died update info
+
+void UUnrealTestGameInstanceSubsystem::OnPlayerDied(int32 TeamID)
+{
+	if (AlivePlayersPerTeam.IsValidIndex(TeamID))
+	{
+		AlivePlayersPerTeam[TeamID] = AlivePlayersPerTeam[TeamID] - 1;
+
+		if (AlivePlayersPerTeam[TeamID] == 0) {
+			OnLastTeamPlayerDied.Broadcast(TeamID);
+		}
 	}
 }
 #pragma endregion Functions
