@@ -13,7 +13,6 @@
 // Begin play
 void AUnrealTestHUD::BeginPlay()
 {
-
 	APlayerController* playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	if (!playerController) { return; }
 

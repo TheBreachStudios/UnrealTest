@@ -11,6 +11,7 @@
 #include "UnrealTest/Character/UnrealTestCharacter.h"
 #include "UnrealTest/Game/UnrealTestGameState.h"
 #include "UnrealTest/Game/UnrealTestPlayerState.h"
+#include "UnrealTest/UI/UnrealTestHUD.h"
 #include <OnlineSubsystemUtils.h>
 
 #pragma region Initialization
