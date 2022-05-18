@@ -51,6 +51,9 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
+	/*Shoot the current weapon the way the equiped weapon shoots*/
+	void ShootWeapon();
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -72,6 +75,7 @@ public:
 	void TurnBinding(class UInputComponent* PlayerInputComponent);
 	void LookUpBinding(class UInputComponent* PlayerInputComponent);
 	void TouchBinding(class UInputComponent* PlayerInputComponent);
+	void ShootBinding(class UInputComponent* PlayerInputComponent);
 
 	const float TURN_RATE_GAMEPAD = 50.f;
 	const float JUMP_Z_VELOCITY= 700.f;

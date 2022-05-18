@@ -86,6 +86,8 @@ void AUnrealTestCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 	LookUpBinding(PlayerInputComponent);
 	
 	TouchBinding(PlayerInputComponent);
+
+	ShootBinding(PlayerInputComponent);
 }
 
 void AUnrealTestCharacter::JumpBinding(class UInputComponent* PlayerInputComponent)
@@ -121,6 +123,12 @@ void AUnrealTestCharacter::TouchBinding(class UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindTouch(IE_Released, this, &AUnrealTestCharacter::TouchStopped);
 }
 
+//To shoot the current weapon with the binding key for shoot (left mouse button)
+void AUnrealTestCharacter::ShootBinding(class UInputComponent* PlayerInputComponent) {
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AUnrealTestCharacter::ShootWeapon);
+}
+
+
 void AUnrealTestCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	Jump();
@@ -130,6 +138,7 @@ void AUnrealTestCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector L
 {
 	StopJumping();
 }
+
 
 void AUnrealTestCharacter::TurnAtRate(float Rate)
 {
@@ -170,4 +179,10 @@ void AUnrealTestCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void AUnrealTestCharacter::ShootWeapon()
+{
+	// Shoot the current weapon
+
 }
