@@ -6,6 +6,10 @@
 #include "GameFramework/Character.h"
 #include "UnrealTestCharacter.generated.h"
 
+/*For use only as pointer*/
+class UWeaponComponent;
+class UHealthComponent;
+
 UCLASS(config=Game)
 class AUnrealTestCharacter : public ACharacter
 {
@@ -18,12 +22,19 @@ class AUnrealTestCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
 public:
 	AUnrealTestCharacter();
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	float TurnRateGamepad;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input)
+	UWeaponComponent* WeaponComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input)
+	UHealthComponent* HealthComponent;
 
 protected:
 
@@ -53,6 +64,7 @@ protected:
 
 	/*Shoot the current weapon the way the equiped weapon shoots*/
 	void ShootWeapon();
+
 
 protected:
 	// APawn interface
