@@ -32,6 +32,7 @@ AUnrealTestCharacter::AUnrealTestCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
 
+
 void AUnrealTestCharacter::DisableCotrollerRotation()
 {
 	// Don't rotate when the controller rotates. Let that just affect the camera.
@@ -186,5 +187,5 @@ void AUnrealTestCharacter::MoveRight(float Value)
 void AUnrealTestCharacter::ShootWeapon()
 {
 	// Shoot the current weapon
-
+	WeaponComponent->Shoot();
 }

@@ -9,8 +9,6 @@
 
 
 // Sets default values for this component's properties
-//This weapon will be an implementation of an interface
-//and this will be the "ray weapon"
 
 /*Parent weapon as a component as this is intendet to be attachet to the character
 and in the future may be new weapons with new caracteristics*/
@@ -45,14 +43,35 @@ void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (bShooting) {
-		ShootProjectile();
+		/*
+		* 		const FVector EndTrace = ShootPoint + ShootDirection * Distance; // and trace end is the camera location
+		FCollisionQueryParams TraceParams(FName(TEXT("WeaponTrace")), true, this);
+		TraceParams.bTraceAsyncScene = true;
+		TraceParams.bReturnPhysicalMaterial = true;
+
+
+		FHitResult Hit(ForceInit);
+		GetWorld()->LineTraceSingle(Hit, StartTrace, EndTrace, COLLISION_WEAPON, TraceParams); // simple trace function
+
+
+		IUsable* usable = InterfaceCast<IUsable>(Hit.GetActor()); // we cast the hit actor to the IUsable interface
+		if (usable) // we are looking to a usable object
+		{
+			UseFocus = usable; // as the actor under crosshairs is a usable actor, we store it for the hud.
+		}
+		else
+		{
+			UseFocus = NULL; // nothing, so we set the UseFocus pointer to NULL, so it wont give problems
+		}
+
+		*/
+		
+
 	}
 	// ...
 }
 
-void UWeaponComponent::ShootProjectile() {
-	//If is basicWeapon then is a simply rycast
-	//Will be more weapons that will override this method
+void UWeaponComponent::Raycast() {
 	FHitResult OutHit;
 
 	FVector Start = Cast<AUnrealTestCharacter>(GetOwner())->GetFollowCamera()->GetComponentLocation();
@@ -63,12 +82,10 @@ void UWeaponComponent::ShootProjectile() {
 
 
 void UWeaponComponent::Shoot() {
-	//TO EXTERNAL ACCESS NEEDED GETTERS AND SETTERS
 	bShooting = true;
 
 }
 
 void UWeaponComponent::StopShoot() {
-	//TO EXTERNAL ACCESS NEEDED GETTERS AND SETTERS
 	bShooting = false;
 }

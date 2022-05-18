@@ -20,6 +20,13 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	/*The actual health of the player or bot*/
+	float CurrentHealth;
+	/*Max health that a player or bot can have*/
+	float MaxHealth;
+	/*When CurrentHealth is bellow 0*/
+	bool bIsDead;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

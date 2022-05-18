@@ -35,8 +35,6 @@ public:
 
 protected:
 	// Called when the game starts
-
-	//NEEDS GETTERS AND SETTERS
 	virtual void BeginPlay() override;
 	float Range;
 	float Distance;

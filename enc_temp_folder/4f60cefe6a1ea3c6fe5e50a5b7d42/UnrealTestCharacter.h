@@ -22,14 +22,12 @@ class AUnrealTestCharacter : public ACharacter
 
 	/*For use only as pointers*/
 
-	/*Weapon attached*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 		class UWeaponComponent * WeaponComponent;
 
-	/*For health management*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
 		class UHealthComponent * HealthComponent;
-	/*Point to attach the weapon*/
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 		FVector WeaponSocket;
 
