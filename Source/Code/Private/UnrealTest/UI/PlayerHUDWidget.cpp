@@ -3,3 +3,106 @@
 
 #include "UnrealTest/UI/PlayerHUDWidget.h"
 
+// Unreal Engine
+#include "Components/RichTextBlock.h"
+
+// Game Project
+#include "UnrealTest/Character/UnrealTestCharacter.h"
+#include "UnrealTest/Game/UnrealTestGameState.h"
+#include "UnrealTest/Game/UnrealTestPlayerState.h"
+#include "UnrealTest/Game/UnrealTestGameMode.h"
+#include "UnrealTest/UI/HealthBarWidget.h"
+
+
+#pragma region Initialization
+// Initialization
+	// Constructor 
+	UPlayerHUDWidget::UPlayerHUDWidget() : CurrentMatchPhase(EMatchPhase::NONE) {}
+#pragma endregion Initialization
+
+
+#pragma region Overrides
+// Overrides
+
+// On initialized function
+void UPlayerHUDWidget::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+	
+	// Ensures Player HUD Widget widget text is not visible on start
+	SetVisibility(ESlateVisibility::Hidden);
+
+	GameState = Cast<AUnrealTestGameState>(GetWorld()->GetGameState());
+	if (!GameState) { return; }
+
+	// Bind game state events
+	GameState->OnMatchPhaseChanged.AddDynamic(this, &UPlayerHUDWidget::OnPhaseChangedEvent);
+	GameState->OnPlayerJoined.AddDynamic(this, &UPlayerHUDWidget::OnPlayerJoinedEvent);
+	GameState->OnPlayerMaxChanged.AddDynamic(this, &UPlayerHUDWidget::OnMaxPlayerCountUpdatedEvent);
+
+	// Bind HealtComponent to healtbar
+	AUnrealTestCharacter* Character = Cast<AUnrealTestCharacter>(GetOwningPlayerPawn());
+	if (Character)
+	{
+		HealthBarWidget->HealthComponent = Character->GetHealthComponent();
+	}
+	
+
+	// Initialization
+	OnPhaseChangedEvent(GameState->GetMatchPhase());
+	OnPlayerJoinedEvent(GameState->GetCurrentPlayersInSession());
+	OnMaxPlayerCountUpdatedEvent(GameState->GetMaxPlayersInSession());
+}
+#pragma endregion Overrides
+
+#pragma region Functions
+// Functions
+
+// On Phase changed event
+void UPlayerHUDWidget::OnPhaseChangedEvent(EMatchPhase NewMatchPhase)
+{
+	CurrentMatchPhase = NewMatchPhase;
+
+	if (NewMatchPhase != EMatchPhase::NONE)
+	{
+		// Updates Game phase text widget
+		GamePhaseText->SetText(FText::FromString(UEnum::GetValueAsString(NewMatchPhase)));
+		
+		// Show Player HUD Widget
+		SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
+
+	if (NewMatchPhase == EMatchPhase::PLAYING)
+	{
+		AUnrealTestPlayerState* owningPlayerState = Cast<AUnrealTestPlayerState>(GetOwningPlayerState());
+		if (owningPlayerState)
+		{
+			#define LOCTEXT_NAMESPACE "TechTest"
+			TeamIDText->SetText(FText::Format(LOCTEXT("TeamID","{0}"), owningPlayerState->GetTeamID()));
+			#undef LOCTEXT_NAMESPACE
+		}
+	}
+}
+
+// On player joined event
+void UPlayerHUDWidget::OnPlayerJoinedEvent(int32 CurrentPlayers)
+{
+	CurrentPlayersCount = CurrentPlayers;
+	UpdateCurrentPlayerCountText();
+}
+
+// On max player count updated event
+void UPlayerHUDWidget::OnMaxPlayerCountUpdatedEvent(int32 MaxPlayers)
+{
+	MaxPlayersCount = MaxPlayers;
+	UpdateCurrentPlayerCountText();
+}
+
+// Update current player count text
+void UPlayerHUDWidget::UpdateCurrentPlayerCountText()
+{
+	#define LOCTEXT_NAMESPACE "TechTest"
+	PlayerCountText->SetText(FText::Format(LOCTEXT("CurrentPlayerCountText","{0}/{1}"), CurrentPlayersCount, MaxPlayersCount));
+	#undef LOCTEXT_NAMESPACE
+}
+#pragma endregion Functions

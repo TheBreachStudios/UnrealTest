@@ -44,6 +44,7 @@ protected:
 #pragma endregion Variables
 
 #pragma region Overrides
+protected:
 // Overrides
 	// On initialized function
 	virtual void NativeOnInitialized() override;
@@ -51,6 +52,7 @@ protected:
 
 #pragma region Functions
 // Functions
+protected:
 	// Try create session
 	UFUNCTION(Category = "SessionHandling")
 	void TryCreateSession();

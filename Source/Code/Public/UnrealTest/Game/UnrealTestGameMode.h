@@ -33,10 +33,11 @@ class AUnrealTestGameMode : public AGameModeBase
 
 #pragma region Delegates
 // Delegates
+public:
 	// On session creation completed delegate
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameOver, int32, DefeatedTeamID);
 	UPROPERTY(BlueprintAssignable, Category = "SessionHandling")
-	FOnGameOver GameOver;
+	FOnGameOver OnGameOver;
 #pragma endregion Delegates
 
 #pragma region Configuration
@@ -105,6 +106,6 @@ public:
 
 	// On game over event
 	UFUNCTION()
-	void OnGameOver(int32 TeamID);
+	void OnGameOverEvent(int32 TeamID);
 #pragma endregion Functions
 };

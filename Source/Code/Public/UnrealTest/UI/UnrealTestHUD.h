@@ -11,6 +11,7 @@
 
 // Definitions
 class UPlayerHUDWidget;
+class UGameOverWidget;
 
 /**
  * 
@@ -24,22 +25,57 @@ class UNREALTEST_API AUnrealTestHUD : public AHUD
 // Configuration
 public:
 	// Entry menu template widget
-	UPROPERTY(EditDefaultsOnly, Category = "Configuration")
-	TSubclassOf<UPlayerHUDWidget> PlayerHUDWidgetTemplate;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configuration")
+	TSubclassOf<UPlayerHUDWidget> PlayerHUDWidgetTemplate = nullptr;
+
+	// Entry menu template widget ZOrder
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configuration")
+	int32 PlayerHUDWidgetZOrder = 0;
+
+	// Game over screen widget
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configuration")
+	TSubclassOf<UGameOverWidget> GameOverWidgetTemplate = nullptr;
+
+	// Game over screen widget ZOrder
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configuration")
+	int32 GameOverWidgetZOrder = 0;
+
 #pragma endregion Configuration
 
 #pragma region Variables
 // Variables
+private:
+	// Player controller reference
+	APlayerController* PlayerController;
+
 protected:
 	// Entry Menu reference
 	UPlayerHUDWidget* PlayerHUDWidget;
+
+	// Game Over widget reference
+	UGameOverWidget* GameOverWidget;
 #pragma endregion Variables
 
 #pragma region Overrides
 // Overrides
-
+protected:
 	// Begin play
 	virtual void BeginPlay() override;
 #pragma endregion Overrides
 
+#pragma region Functions
+// Functions
+public:
+	// Adds player HUD widget. It creates, if it did not not exist.
+	void AddPlayerHUDWidget();
+
+	// Adds game over widget. It creates, if it did not not exist.
+	void AddGameOverWidget();
+
+	// Updates Player HUD widget visibility
+	void UpdatePlayerHUDWidgetVisibility(bool bNewVisibility);
+
+	// Updates Game Over widget visibility
+	void UpdateGameOverWidgetVisibility(bool bNewVisibility);
+#pragma endregion Functions
 };

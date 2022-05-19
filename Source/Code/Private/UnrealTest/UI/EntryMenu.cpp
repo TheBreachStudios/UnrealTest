@@ -19,6 +19,8 @@
 #pragma region Overrides
 void UEntryMenu::NativeOnInitialized()
 {
+	Super::NativeOnInitialized();
+
 	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
 	GameInstanceSubsystem = gameInstance->GetSubsystem<UUnrealTestGameInstanceSubsystem>();
 

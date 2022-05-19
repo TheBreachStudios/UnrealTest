@@ -59,7 +59,7 @@ void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 		gameInstanceSubsystem->SetCurrentMatchPhase(EMatchPhase::PLAYING);
 
 		// TODO: Assumes that only exists two teams. A new implementatio will be need for more than two teams
-		gameInstanceSubsystem->OnLastTeamPlayerDied.AddDynamic(this, &AUnrealTestGameMode::OnGameOver);
+		gameInstanceSubsystem->OnLastTeamPlayerDied.AddDynamic(this, &AUnrealTestGameMode::OnGameOverEvent);
 
 	case EMatchPhase::PLAYING:
 		if (AUnrealTestPlayerState* playerState = Cast<AUnrealTestPlayerState>(NewPlayer->PlayerState))
@@ -143,8 +143,8 @@ void AUnrealTestGameMode::ProcessDamage(AActor* DamagedActor, float BaseDamage, 
 }
 
 // On game over event
-void AUnrealTestGameMode::OnGameOver(int32 TeamID)
+void AUnrealTestGameMode::OnGameOverEvent(int32 TeamID)
 {
-	GameOver.Broadcast(TeamID);
+	OnGameOver.Broadcast(TeamID);
 }
 #pragma endregion Functions

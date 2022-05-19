@@ -2,18 +2,16 @@
 
 #pragma once
 
-// Unreal Engine
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
-
-// Game Project
-#include "MasterWidget.generated.h"
+#include "UnrealTest/UI/MasterWidget.h"
+#include "HostPanelWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UNREALTEST_API UMasterWidget : public UUserWidget
+class UNREALTEST_API UHostPanelWidget : public UMasterWidget
 {
 	GENERATED_BODY()
+	
 };

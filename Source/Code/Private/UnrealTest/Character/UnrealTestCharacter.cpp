@@ -5,15 +5,20 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
 
 // Game Project
 #include "UnrealTest/Weapons/BaseWeapon.h"
 #include "UnrealTest/Components/HealthComponent.h"
-
+#include "UnrealTest/Game/UnrealTestGameMode.h"
+#include "UnrealTest/UI/UnrealTestHUD.h"
+#include "UnrealTest/UI/HealthBarWidget.h"
 
 #pragma region Initialization
 // Constructor
@@ -47,8 +52,10 @@ void AUnrealTestCharacter::SetCameraBoom()
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	// The camera follows at this distance behind the character	
+	CameraBoom->TargetArmLength = 400.0f;
+	// Rotate the arm based on the controller
+	CameraBoom->bUsePawnControlRotation = true;
 }
 
 // Set Follow Camera
@@ -56,8 +63,10 @@ void AUnrealTestCharacter::SetFollowCamera()
 {
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	// Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	// Camera does not rotate relative to arm
+	FollowCamera->bUsePawnControlRotation = false;
 }
 
 // Set Follow Camera
@@ -65,7 +74,7 @@ void AUnrealTestCharacter::SetWeaponHolder()
 {
 	// Create a follow camera
 	WeaponHolder = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponHolder"));
-	WeaponHolder->SetupAttachment(GetMesh()); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	WeaponHolder->SetupAttachment(GetMesh());
 	WeaponHolder->SetIsReplicated(true);
 }
 
@@ -74,6 +83,12 @@ void AUnrealTestCharacter::SetHealthComponent()
 {
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	HealthComponent->SetIsReplicated(true);
+
+	if (!IsLocallyControlled())
+	{
+		HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidgetComponent"));
+		HealthWidgetComponent->SetupAttachment(GetMesh());
+	}
 }
 
 #pragma endregion Getters / Setters
@@ -84,6 +99,7 @@ void AUnrealTestCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Spawn weapon
 	FActorSpawnParameters params;
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
@@ -93,10 +109,25 @@ void AUnrealTestCharacter::BeginPlay()
 	CurrentWeapon->AttachToComponent(WeaponHolder, FAttachmentTransformRules::KeepRelativeTransform);
 	CurrentWeapon->SetOwner(this);
 
+	// Set Player HUD reference
+	PlayerHUD = Cast<AUnrealTestHUD>(UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetHUD());
 
+	// If Authority level bind OnGameOver event
 	if (GetLocalRole() >= ROLE_Authority) {
 		HealthComponent->InitializeHealth(MaxHealth);
+		AUnrealTestGameMode* gameMode = Cast<AUnrealTestGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		gameMode->OnGameOver.AddUniqueDynamic(this, &AUnrealTestCharacter::Client_GameOver);
 		UE_LOG(LogTemp, Warning, TEXT("AMultiplayerTechTestCharacter::BeginPlay [LocalRole:%s]: HealthInitlalzed "), *((GetLocalRole() >= ROLE_Authority) ? FString("Auth") : FString("NoAuth")));
+	}
+	
+	// If NOT locally controlled set WorldSpace healthbar
+	if (!IsLocallyControlled())
+	{
+		APlayerController* playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		UHealthBarWidget* healthWidget = CreateWidget<UHealthBarWidget>(playerController, HealthWidgetWorldSpaceTemplate);
+		healthWidget->HealthComponent = HealthComponent;
+		HealthWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+		HealthWidgetComponent->SetWidget(healthWidget);
 	}
 }
 
@@ -198,15 +229,31 @@ void AUnrealTestCharacter::StopShoot()
 	UE_LOG(LogTemp, Warning, TEXT("[AUnrealTestCharacter][LocalRole: %s][RemoteRole: %s] Stop SHOOT!"), *UEnum::GetValueAsString(GetLocalRole()), *UEnum::GetValueAsString(GetRemoteRole()));
 }
 
+// Server shoot handle
 
 bool AUnrealTestCharacter::Server_Shoot_Validate()
 {
 	return true;
 }
 
+// Server shoot handle
 void AUnrealTestCharacter::Server_Shoot_Implementation()
 {
 	CurrentWeapon->Shoot(FollowCamera);
+}
+
+bool AUnrealTestCharacter::Client_GameOver_Validate(int32 DefeatedTeamID)
+{
+	return true;
+}
+
+void AUnrealTestCharacter::Client_GameOver_Implementation(int32 DefeatedTeamID)
+{
+	// Show game over screen
+	if (PlayerHUD) { PlayerHUD->UpdateGameOverWidgetVisibility(true); };
+
+	// Disable input
+	GetController()->DisableInput(Cast<APlayerController>(GetController()));
 }
 
 // Disable controller rotation

@@ -50,20 +50,20 @@ private:
 
 	// Current players in session
 	UPROPERTY(Replicated)
-		int32 CurrentPlayersInSession = 0;
+	int32 CurrentPlayersInSession = 0;
 
 	// Max players in session
 	UPROPERTY(Replicated)
-		int32 MaxPlayersInSession = 0;
+	int32 MaxPlayersInSession = 0;
 
 	// Match phase
 	UPROPERTY(Replicated)
-		EMatchPhase MatchPhase;
+	EMatchPhase MatchPhase;
 
 #pragma endregion Variables
 
 #pragma region Initialization
-	// Override
+// Override
 public:
 	// Constructor
 	AUnrealTestGameState();
@@ -77,32 +77,31 @@ public:
 #pragma endregion Override
 
 #pragma region Getters / Setters
-	// Getters / Setters
-
+// Getters / Setters
 public:
 	// Get current player count in session
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "SessionHandling")
-		int32 GetCurrentPlayersInSession() { return CurrentPlayersInSession; }
+	int32 GetCurrentPlayersInSession() { return CurrentPlayersInSession; }
 
 	// Get max player count in session
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "SessionHandling")
-		int32 GetMaxPlayerInSession() { return MaxPlayersInSession; }
+	int32 GetMaxPlayersInSession() { return MaxPlayersInSession; }
 
 	// Get current match phase
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "GameMode")
-		EMatchPhase GetMatchPhase() { return MatchPhase; }
+	EMatchPhase GetMatchPhase() { return MatchPhase; }
 
 	// Set current player count in session
 	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
-		void SetPlayerInSession(int32 NewPlayerCount);
+	void SetPlayerInSession(int32 NewPlayerCount);
 
 	// Set max player count in session
 	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
-		void SetMaxPlayerInSession(int32 NewMaxPlayerCount);
+	void SetMaxPlayerInSession(int32 NewMaxPlayerCount);
 
 	// Set current match phase
 	UFUNCTION(BlueprintCallable, Category = "GameMode")
-		void SetMatchPhase(EMatchPhase NewPhase);
+	void SetMatchPhase(EMatchPhase NewPhase);
 
 #pragma endregion Getters / Setters
 };
