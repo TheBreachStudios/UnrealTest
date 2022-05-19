@@ -27,24 +27,23 @@ public:
 	// Sets default values for this component's properties
 	UWeaponComponent();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Weapon)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 		FVector ShootPoint;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Weapon)
-		FVector ShootDirection;
+
 
 protected:
-	// Called when the game starts
 
-	//NEEDS GETTERS AND SETTERS
+	// Called when the game starts
 	virtual void BeginPlay() override;
+
 	float Range;
 	float Distance;
 	float MaxAmmo;
 	float CurrentAmmo;
 
-
 	bool bShooting;
+
 
 public:	
 	// Called every frame
@@ -52,5 +51,9 @@ public:
 	void ShootProjectile();
 	void Shoot();
 	void StopShoot();
+
+	void SetShoot(bool shooting);
+	//We only want read in this case
+	bool GetShoot() const;
 		
 };

@@ -28,8 +28,17 @@ AUnrealTestCharacter::AUnrealTestCharacter()
 	SetCameraBoom();
 	SetFollowCamera();
 
+	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+}
+
+void AUnrealTestCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	// to prevent the Unreal network from playing tricks on us we are going to disable replication
+	bReplicates = false;
 }
 
 

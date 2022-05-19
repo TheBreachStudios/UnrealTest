@@ -19,13 +19,14 @@ UWeaponComponent::UWeaponComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	Range = 0.0f;
-	Distance = 0.0f;
-	MaxAmmo = 0.0f;
-	CurrentAmmo = 0.0f;
+	Range = 0.f;
+	Distance = 0.f;
+	MaxAmmo = 0.f;
+	CurrentAmmo = 0.f;
 
 	ShootPoint = FVector::ZeroVector;
-	ShootDirection = FVector::ZeroVector;
+
+	bShooting = false;
 	// ...
 }
 
@@ -34,7 +35,7 @@ UWeaponComponent::UWeaponComponent()
 void UWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	Distance = 5000.f;
 	// ...
 	
 }
@@ -55,20 +56,43 @@ void UWeaponComponent::ShootProjectile() {
 	//Will be more weapons that will override this method
 	FHitResult OutHit;
 
-	FVector Start = Cast<AUnrealTestCharacter>(GetOwner())->GetFollowCamera()->GetComponentLocation();
+	//FVector Start = Cast<AUnrealTestCharacter>(GetOwner())->GetFollowCamera()->GetComponentLocation();
 	FVector ForwardVector = Cast<AUnrealTestCharacter>(GetOwner())->GetFollowCamera()->GetForwardVector();
 
-	Start = Start + (ForwardVector * Cast<AUnrealTestCharacter>(GetOwner())->GetCameraBoom()->TargetArmLength);
+	//Start = Start + (ForwardVector * Cast<AUnrealTestCharacter>(GetOwner())->GetCameraBoom()->TargetArmLength);
+	
+	// Using the weapon distance
+	FVector End = ShootPoint + (ForwardVector * Distance);
+
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(GetOwner());
+
+	// Draw Raycast for debug
+	DrawDebugLine(GetWorld(), ShootPoint, End, FColor::Green, false, 1, 0, 1);
+
+	bool isHit = GetWorld()->LineTraceSingleByChannel(OutHit, ShootPoint, End, ECC_Visibility, CollisionParams);
+
+	/*if (isHit) {
+		OutHit.GetActor()->Destroy();
+	}*/
 }
 
 
 void UWeaponComponent::Shoot() {
-	//TO EXTERNAL ACCESS NEEDED GETTERS AND SETTERS
-	bShooting = true;
+	SetShoot(true);
 
 }
 
 void UWeaponComponent::StopShoot() {
-	//TO EXTERNAL ACCESS NEEDED GETTERS AND SETTERS
-	bShooting = false;
+	SetShoot(false);
+}
+
+void UWeaponComponent::SetShoot(bool shooting)
+{
+	bShooting = shooting;
+}
+
+bool UWeaponComponent::GetShoot() const
+{
+	return bShooting;
 }

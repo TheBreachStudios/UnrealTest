@@ -23,14 +23,15 @@ class AUnrealTestCharacter : public ACharacter
 	/*For use only as pointers*/
 
 	/*Weapon attached*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 		class UWeaponComponent * WeaponComponent;
 
 	/*For health management*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
 		class UHealthComponent * HealthComponent;
+
 	/*Point to attach the weapon*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 		FVector WeaponSocket;
 
 
@@ -40,6 +41,8 @@ public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	float TurnRateGamepad;
+
+
 
 
 protected:
@@ -70,6 +73,9 @@ protected:
 
 	/*Shoot the current weapon the way the equiped weapon shoots*/
 	void ShootWeapon();
+
+	void BeginPlay();
+
 
 
 protected:
