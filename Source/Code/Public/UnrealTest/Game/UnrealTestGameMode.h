@@ -19,6 +19,13 @@ public:
     UFUNCTION(BlueprintCallable, Category = "UMG Game")
         void ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetClass);
 
+    UFUNCTION(BlueprintCallable, Category = UnrealTestNet)
+        void OnServerButtonClick(FString sPort); 
+    UFUNCTION(BlueprintCallable, Category = UnrealTestNet)
+        void OnClientButtonClick(FString sIP, FString sPort);
+    UFUNCTION(BlueprintCallable, Category = UnrealTestNet)
+        void OnServerStartButtonClick();
+
 protected:
     /** Called when the game starts. */
     virtual void BeginPlay() override;

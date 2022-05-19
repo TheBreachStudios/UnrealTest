@@ -8,6 +8,8 @@
 #include "GameFramework/Controller.h"
 #include "UnrealTest/Weapons/WeaponComponent.h"
 #include "UnrealTest/Character/HealthComponent.h"
+#include "Engine/Engine.h"
+#include "Net/UnrealNetwork.h"
 #include "GameFramework/SpringArmComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -48,6 +50,14 @@ void AUnrealTestCharacter::DisableCotrollerRotation()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
+}
+
+// In this case we implement a simple health deduction using SetCurrentHealth for takedamage
+float AUnrealTestCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float damageApplied = HealthComponent->GetCurrentHealth() - DamageTaken;
+	HealthComponent->SetCurrentHealth(damageApplied);
+	return damageApplied;
 }
 
 void AUnrealTestCharacter::ConfigureCharacterMovement(UCharacterMovementComponent* characterMovement)
