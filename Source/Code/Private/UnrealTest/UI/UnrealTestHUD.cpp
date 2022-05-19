@@ -8,15 +8,48 @@
 
 // GameProject
 #include "Code/Public/UnrealTest/UI/PlayerHUDWidget.h"
+#include "Code/Public/UnrealTest/UI/GameOverWidget.h"
 
 #pragma region Overrides
 // Begin play
 void AUnrealTestHUD::BeginPlay()
 {
-	APlayerController* playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (!playerController) { return; }
+	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!PlayerController) { return; }
 
-	PlayerHUDWidget = CreateWidget<UPlayerHUDWidget>(playerController, PlayerHUDWidgetTemplate);
-	PlayerHUDWidget->AddToViewport();
+	AddPlayerHUDWidget();
+	AddGameOverWidget();
 }
 #pragma endregion Overrides
+
+#pragma region Functions
+void AUnrealTestHUD::AddPlayerHUDWidget()
+{
+	if (!PlayerHUDWidget) {
+		PlayerHUDWidget = CreateWidget<UPlayerHUDWidget>(PlayerController, PlayerHUDWidgetTemplate);
+
+	}
+
+	PlayerHUDWidget->AddToViewport(PlayerHUDWidgetZOrder);
+}
+
+void AUnrealTestHUD::AddGameOverWidget()
+{
+	if (!GameOverWidget) {
+		GameOverWidget = CreateWidget<UGameOverWidget>(PlayerController, GameOverWidgetTemplate);
+	}
+
+	UpdateGameOverWidgetVisibility(false);
+	GameOverWidget->AddToViewport(GameOverWidgetZOrder);
+}
+
+void AUnrealTestHUD::UpdatePlayerHUDWidgetVisibility(bool bNewVisibility)
+{
+	PlayerHUDWidget->SetVisibility(bNewVisibility ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
+}
+
+void AUnrealTestHUD::UpdateGameOverWidgetVisibility(bool bNewVisibility)
+{
+	GameOverWidget->SetVisibility(bNewVisibility ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
+}
+#pragma endregion Functions

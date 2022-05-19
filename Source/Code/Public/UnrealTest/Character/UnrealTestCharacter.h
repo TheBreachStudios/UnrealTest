@@ -17,6 +17,9 @@ class UCameraComponent;
 class UCharacterMovementComponent;
 class UInputComponent;
 class UHealthComponent;
+class UWidgetComponent;
+class UHealthBarWidget;
+class AUnrealTestHUD;
 
 UCLASS(config=Game)
 class AUnrealTestCharacter : public ACharacter
@@ -37,6 +40,10 @@ public:
 	// Weapon that will be spawn with the character
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
 	float MaxHealth = 100.f;
+
+	// Weapon that will be spawn with the character
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
+	TSubclassOf<UHealthBarWidget> HealthWidgetWorldSpaceTemplate;
 #pragma endregion Configuration
 
 #pragma region Variables
@@ -44,25 +51,33 @@ public:
 private:
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* CameraBoom;
+	USpringArmComponent* CameraBoom = nullptr;
 
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* FollowCamera;
+	UCameraComponent* FollowCamera = nullptr;
 
 	// TODO: Once animations has been implemented removed this and attach weapo to hand sokket
 	// Scene component in which to attach the weapon
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* WeaponHolder;
+	USceneComponent* WeaponHolder = nullptr;
 
 	// TODO: Once animations has been implemented removed this and attach weapo to hand sokket
 	// Scene component in which to attach the weapon
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons", meta = (AllowPrivateAccess = "true"))
-	ABaseWeapon* CurrentWeapon;
+	ABaseWeapon* CurrentWeapon = nullptr;
 
 	// Health component
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons", meta = (AllowPrivateAccess = "true"))
-	UHealthComponent* HealthComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
+	UHealthComponent* HealthComponent = nullptr;
+
+	// Widget component for health display on simulated players
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
+	UWidgetComponent* HealthWidgetComponent = nullptr;
+	
+	// HUD reference
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	AUnrealTestHUD* PlayerHUD = nullptr;
 
 public:
 	const float TURN_RATE_GAMEPAD = 50.f;
@@ -99,6 +114,10 @@ public:
 
 	// Set Health Component
 	void SetHealthComponent();
+
+
+	// Get Health Component
+	UHealthComponent* GetHealthComponent() { return HealthComponent; };
 #pragma endregion Getters / Setters
 
 #pragma region Overrides
@@ -148,6 +167,13 @@ protected:
 	void Server_Shoot();
 	void Server_Shoot_Implementation();
 	bool Server_Shoot_Validate();
+
+	// Call game over event
+	// Server shoot handle
+	UFUNCTION(Client, Reliable, WithValidation)
+	void Client_GameOver(int32 DefeatedTeamID);
+	void Client_GameOver_Implementation(int32 DefeatedTeamID);
+	bool Client_GameOver_Validate(int32 DefeatedTeamID);
 
 public:
 	// Initialize weapons values

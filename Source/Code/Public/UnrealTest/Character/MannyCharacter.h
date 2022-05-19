@@ -2,18 +2,16 @@
 
 #pragma once
 
-// Unreal Engine
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
-
-// Game Project
-#include "MasterWidget.generated.h"
+#include "UnrealTest/Character/UnrealTestCharacter.h"
+#include "MannyCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UNREALTEST_API UMasterWidget : public UUserWidget
+class UNREALTEST_API AMannyCharacter : public AUnrealTestCharacter
 {
 	GENERATED_BODY()
+	
 };
