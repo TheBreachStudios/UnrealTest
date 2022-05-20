@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UnrealTest/HUD/UnrealTestUserWidget.h"
-#include "IngameHUD.generated.h"
+#include "IngameWidget.generated.h"
 
 class UTextBlock;
 
@@ -12,7 +12,7 @@ class UTextBlock;
  * 
  */
 UCLASS()
-class UNREALTEST_API UIngameHUD : public UUnrealTestUserWidget
+class UNREALTEST_API UIngameWidget : public UUnrealTestUserWidget
 {
 	GENERATED_BODY()
 

@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UnrealTest/HUD/UnrealTestUserWidget.h"
-#include "PreMatchMenuHUD.generated.h"
+#include "PreMatchMenuWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UNREALTEST_API UPreMatchMenuHUD : public UUnrealTestUserWidget
+class UNREALTEST_API UPreMatchMenuWidget : public UUnrealTestUserWidget
 {
 	GENERATED_BODY()
 	

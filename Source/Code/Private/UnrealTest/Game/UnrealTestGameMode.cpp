@@ -31,6 +31,7 @@ as well as a current widgetand an initial one.This function will be responsible 
 
 void AUnrealTestGameMode::ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetClass)
 {
+    
     if (CurrentWidget != nullptr)
     {
         CurrentWidget->RemoveFromViewport();

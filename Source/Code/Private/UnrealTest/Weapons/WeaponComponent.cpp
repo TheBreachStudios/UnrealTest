@@ -4,7 +4,6 @@
 #include "UnrealTest/Weapons/WeaponComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "UnrealTest/Character/UnrealTestCharacter.h"
 
 
 
@@ -16,83 +15,41 @@
 and in the future may be new weapons with new caracteristics*/
 UWeaponComponent::UWeaponComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
+
 	PrimaryComponentTick.bCanEverTick = true;
-	Range = 0.f;
-	Distance = 0.f;
-	MaxAmmo = 0.f;
-	CurrentAmmo = 0.f;
 
-	ShootPoint = FVector::ZeroVector;
-
-	bShooting = false;
-	// ...
+	//Initialize projectile class
+	ProjectileClass = AUnrealTestProjectile::StaticClass();
+	//Initialize fire rate
+	FireRate = 0.25f;
+	bIsFiringWeapon = false;
 }
 
-
-// Called when the game starts
-void UWeaponComponent::BeginPlay()
+void UWeaponComponent::StartFire()
 {
-	Super::BeginPlay();
-	Distance = 5000.f;
-	// ...
-	
-}
-
-
-// Called every frame
-void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if (bShooting) {
-		ShootProjectile();
+	if (!bIsFiringWeapon)
+	{
+		bIsFiringWeapon = true;
+		UWorld* World = GetWorld();
+		World->GetTimerManager().SetTimer(FiringTimer, this, &UWeaponComponent::StopFire, FireRate, false);
+		HandleFire();
 	}
-	// ...
 }
 
-void UWeaponComponent::ShootProjectile() {
-	//If is basicWeapon then is a simply rycast
-	//Will be more weapons that will override this method
-	FHitResult OutHit;
+void UWeaponComponent::StopFire()
+{
+	bIsFiringWeapon = false;
+}
 
-	//FVector Start = Cast<AUnrealTestCharacter>(GetOwner())->GetFollowCamera()->GetComponentLocation();
-	FVector ForwardVector = Cast<AUnrealTestCharacter>(GetOwner())->GetFollowCamera()->GetForwardVector();
+void UWeaponComponent::HandleFire_Implementation()
+{
+	FVector spawnLocation = GetOwner()->GetActorLocation() + (Cast<AUnrealTestCharacter>(GetOwner())->GetControlRotation().Vector() * 100.0f) + (GetOwner()->GetActorUpVector() * 50.0f);
+	FRotator spawnRotation = Cast<AUnrealTestCharacter>(GetOwner())->GetControlRotation();
 
-	//Start = Start + (ForwardVector * Cast<AUnrealTestCharacter>(GetOwner())->GetCameraBoom()->TargetArmLength);
+	FActorSpawnParameters spawnParameters;
+	spawnParameters.Instigator = Cast<AUnrealTestCharacter>(GetOwner())->GetInstigator();
+	spawnParameters.Owner = GetOwner();
+
+	AUnrealTestProjectile* spawnedProjectile = GetWorld()->SpawnActor<AUnrealTestProjectile>(spawnLocation, spawnRotation, spawnParameters);
 	
-	// Using the weapon distance
-	FVector End = ShootPoint + (ForwardVector * Distance);
-
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(GetOwner());
-
-	// Draw Raycast for debug
-	DrawDebugLine(GetWorld(), ShootPoint, End, FColor::Green, false, 1, 0, 1);
-
-	bool isHit = GetWorld()->LineTraceSingleByChannel(OutHit, ShootPoint, End, ECC_Visibility, CollisionParams);
-
-	/*if (isHit) {
-		OutHit.GetActor()->Destroy();
-	}*/
-}
-
-
-void UWeaponComponent::Shoot() {
-	SetShoot(true);
-
-}
-
-void UWeaponComponent::StopShoot() {
-	SetShoot(false);
-}
-
-void UWeaponComponent::SetShoot(bool shooting)
-{
-	bShooting = shooting;
-}
-
-bool UWeaponComponent::GetShoot() const
-{
-	return bShooting;
 }

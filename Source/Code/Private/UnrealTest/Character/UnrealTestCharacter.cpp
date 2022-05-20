@@ -31,6 +31,9 @@ AUnrealTestCharacter::AUnrealTestCharacter()
 	SetFollowCamera();
 
 	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	bReplicates = true;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -40,7 +43,10 @@ void AUnrealTestCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	// to prevent the Unreal network from playing tricks on us we are going to disable replication
-	bReplicates = false;
+
+	if(Cast<APlayerController>(Controller))
+		Cast<APlayerController>(Controller)->SetInputMode(FInputModeGameAndUI());
+	
 }
 
 
@@ -55,7 +61,9 @@ void AUnrealTestCharacter::DisableCotrollerRotation()
 // In this case we implement a simple health deduction using SetCurrentHealth for takedamage
 float AUnrealTestCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	float damageApplied = HealthComponent->GetCurrentHealth() - DamageTaken;
+
+	float currentHealth = HealthComponent->GetCurrentHealth();
+	float damageApplied = currentHealth - DamageTaken;
 	HealthComponent->SetCurrentHealth(damageApplied);
 	return damageApplied;
 }
@@ -206,5 +214,5 @@ void AUnrealTestCharacter::MoveRight(float Value)
 void AUnrealTestCharacter::ShootWeapon()
 {
 	// Shoot the current weapon
-	WeaponComponent->Shoot();
+	WeaponComponent->StartFire();
 }

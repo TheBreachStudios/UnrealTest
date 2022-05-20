@@ -8,6 +8,8 @@
 #include "CollisionQueryParams.h"
 #include "Engine/EngineTypes.h"
 #include "DrawDebugHelpers.h"
+#include "UnrealTest/Character/UnrealTestCharacter.h"
+#include "UnrealTest/Weapons/UnrealTestProjectile.h"
 #include "WeaponComponent.generated.h"
 
 
@@ -35,7 +37,7 @@ public:
 protected:
 
 	// Called when the game starts
-	virtual void BeginPlay() override;
+	//virtual void BeginPlay() override;
 
 	float Range;
 	float Distance;
@@ -44,16 +46,33 @@ protected:
 
 	bool bShooting;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay|Projectile")
+		TSubclassOf<class AUnrealTestProjectile> ProjectileClass;
+
+	/** Delay between shots in seconds. Used to control fire rate for our test projectile, but also to prevent an overflow of server functions from binding SpawnProjectile directly to input.*/
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
+		float FireRate;
+
+	/** If true, we are in the process of firing projectiles. */
+	bool bIsFiringWeapon;
+
+
+	/** Function for ending weapon fire. Once this is called, the player can use StartFire again.*/
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+		void StopFire();
+
+	/** Server function for spawning projectiles.*/
+	UFUNCTION(Server, Reliable)
+		void HandleFire();
+
+	/** A timer handle used for providing the fire rate delay in-between spawns.*/
+	FTimerHandle FiringTimer;
+
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	void ShootProjectile();
-	void Shoot();
-	void StopShoot();
 
-	void SetShoot(bool shooting);
-	//We only want read in this case
-	bool GetShoot() const;
+	/** Function for beginning weapon fire that the unrealtestChracter will call with left click*/
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+		void StartFire();
 		
 };
