@@ -21,20 +21,23 @@ protected:
 	UPROPERTY()
 		FString MatchGame = "";
 
+	UPROPERTY()
+		int teamNumber = 0;
+
 	/*
+	UPROPERTY()
+		EHero CurrentHero = EHero::EXPLOSIVEBALLSHERO;
 	UPROPERTY()
 		ECurrentState GameState = ECurrentState::WAITING;
 	*/
 
 	virtual void BeginPlay() override;
 
-	/* TO-DO: Get copy of info from GameMode */
-	/*
+	/* Get copy of info from GameMode */
 	bool GetIsMatchEnd();
 	bool GetIsMatchInitiated();
 	bool GetIsPlayerTeamWinner();
 	bool GetIsLastPlayerInTeamAlive();
-	*/
 
 
 };

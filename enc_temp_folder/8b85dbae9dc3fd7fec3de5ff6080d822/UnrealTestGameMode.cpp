@@ -57,4 +57,32 @@ void AUnrealTestGameMode::ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetCla
 }
 
 
+void AUnrealTestGameMode::OnHostButtonClick(FString name)
+{
 
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, *FString("Server"));
+    MatchGame = name;
+
+    OnServerStartButtonClick(name);
+
+}
+
+void AUnrealTestGameMode::OnClientButtonClick(FString name)
+{
+
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, *FString("Client"));
+    if (MatchGame.Equals(name)) {
+
+
+        OnServerStartButtonClick(name);
+ 
+    }
+}
+
+void AUnrealTestGameMode::OnServerStartButtonClick(FString name)
+{
+
+    //const char* sName = "ThirdPersonMap";
+    //UGameplayStatics::OpenLevel(GetWorld(), sName);
+
+}

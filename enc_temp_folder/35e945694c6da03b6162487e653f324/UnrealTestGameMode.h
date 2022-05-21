@@ -22,15 +22,17 @@ public:
         void ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetClass);
 
     UFUNCTION(BlueprintCallable, Category = "UnrealTestNet")
+        void OnHostButtonClick(FString name); 
+    UFUNCTION(BlueprintCallable, Category = "UnrealTestNet")
+        void OnClientButtonClick(FString name);
+    UFUNCTION(BlueprintCallable, Category = "UnrealTestNet")
+        void OnServerStartButtonClick(FString name);
+
+    UFUNCTION(BlueprintCallable, Category = "UnrealTestNet")
         FORCEINLINE FString GetMatchName() const { return MatchGame; }
 
     UFUNCTION(BlueprintCallable, Category = "UnrealTestNet")
         void SetMatchName(FString name);
-
-    /*TO-DO: Heroes enum and match state enum*/
-
-    /*TO-DO: Team matchmaking based in player's level*/
-
 
 
 protected:
