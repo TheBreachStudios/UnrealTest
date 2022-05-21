@@ -4,7 +4,7 @@
 
 // Unreal Engine
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameMode.h"
 
 // Game Project
 #include "UnrealTestGameMode.generated.h"
@@ -27,7 +27,7 @@ enum class EMatchPhase : uint8
 };
 
 UCLASS(minimalapi)
-class AUnrealTestGameMode : public AGameModeBase
+class AUnrealTestGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
@@ -54,6 +54,10 @@ protected:
 	// Player max session search results
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SessionHandling")
 	int32 MaxSessionSearchResults = 100;
+
+	// Champions data table
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Champions")
+	class UDataTable* ChampionsDataTable;
 #pragma endregion Configuration
 
 #pragma region Variables
@@ -69,7 +73,8 @@ protected:
 // Initialization
 
 public:
-	AUnrealTestGameMode();
+	// Constructor
+	AUnrealTestGameMode(const FObjectInitializer& ObjectInitializer);
 #pragma endregion Initialization
 
 
@@ -92,8 +97,19 @@ public:
 #pragma region Overrides
 // Overrides
 protected:
-	// On post login event;
+	// On pre login event
+	virtual void PreLogin( const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMe) override;
+	
+	// On login event
+	virtual APlayerController* Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
+
+	// On post login event
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+
+public:
+	// Overrides default pawn class
+	UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
+
 #pragma endregion Overrides
 
 #pragma region Functions

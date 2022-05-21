@@ -14,6 +14,7 @@ void AUnrealTestPlayerState::CopyProperties(APlayerState* PlayerState)
     if (ensure(playerState))
     {
         TeamID = playerState->TeamID;
+        OnPlayerTeamIDChanged.Broadcast(TeamID);
     }
 }
 

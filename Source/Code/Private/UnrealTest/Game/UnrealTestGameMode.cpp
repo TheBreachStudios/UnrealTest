@@ -8,36 +8,69 @@
 #include "Kismet/GameplayStatics.h"
 
 // Game Project
+#include "UnrealTest/Controller/UnrealTestPlayerController.h"
 #include "UnrealTest/Character/UnrealTestCharacter.h"
 #include "UnrealTest/Game/UnrealTestGameState.h"
 #include "UnrealTest/Game/UnrealTestPlayerState.h"
+#include "UnrealTest/Game/UnrealTestGameInstance.h"
 #include "UnrealTest/UI/UnrealTestHUD.h"
+#include "UnrealTest/Data/SChampionDefinition.h"
 #include <OnlineSubsystemUtils.h>
 
 #pragma region Initialization
-AUnrealTestGameMode::AUnrealTestGameMode()
+// Constructor
+AUnrealTestGameMode::AUnrealTestGameMode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	// set default pawn class to our Blueprinted character
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/ThirdPerson/Blueprints/Character/BP_ThirdPersonCharacter"));
-	//bUseSeamlessTravel = true;
-	if (PlayerPawnBPClass.Class != NULL)
-	{
-		DefaultPawnClass = PlayerPawnBPClass.Class;
-	}
+	// Set Player Controller class 
+	PlayerControllerClass = AUnrealTestPlayerController::StaticClass();
 }
 #pragma endregion Initialization
 
 #pragma region Overrides
 // Overrides
 
+// On pre login event
+void AUnrealTestGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMe)
+{
+	Super::PreLogin(Options, Address, UniqueId, ErrorMe);
+	UE_LOG(LogTemp, Warning, TEXT("AUnrealTestGameMode::PreLogin %s"), *Options);
+}
+
+// On login event
+APlayerController* AUnrealTestGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
+{
+	AUnrealTestPlayerController* newPlayerController = Cast<AUnrealTestPlayerController>(Super::Login(NewPlayer, InRemoteRole, Portal, Options, UniqueId, ErrorMessage));
+	static const FString ContextString(TEXT("Champion"));
+	FString champOption = UGameplayStatics::ParseOption(Options, "champ");
+
+	if (champOption != "") {
+		FChampionDefinition* Champion = ChampionsDataTable->FindRow<FChampionDefinition>(FName(champOption), ContextString, true);
+		
+		UUnrealTestGameInstance* gameInstance = Cast<UUnrealTestGameInstance>(newPlayerController->GetGameInstance());
+		gameInstance->DefaultPawn = Champion->ChampionClass;
+		gameInstance->DefaultPawnName = FName(champOption);
+		newPlayerController->Server_SetPawn(Champion->ChampionClass, FName(champOption));
+		UE_LOG(LogTemp, Warning, TEXT("AUnrealTestGameMode::Login %s"), *Options);
+	}
+
+	return newPlayerController;
+}
+
 // On post login event;
 void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	UGameInstance* gameInstance = GetWorld()->GetGameInstance();
+	
+	UUnrealTestGameInstance* gameInstance = Cast<UUnrealTestGameInstance>(NewPlayer->GetGameInstance());
 	UUnrealTestGameInstanceSubsystem* gameInstanceSubsystem = gameInstance->GetSubsystem<UUnrealTestGameInstanceSubsystem>();
 	AUnrealTestGameState* const gameState = GetWorld() != NULL ? GetWorld()->GetGameState<AUnrealTestGameState>() : NULL;
+
+	if (gameInstance->DefaultPawn)
+	{
+		AUnrealTestPlayerController* newPlayerController = Cast<AUnrealTestPlayerController>(NewPlayer);
+		newPlayerController->Server_SetPawn(gameInstance->DefaultPawn, gameInstance->DefaultPawnName);
+	}
 
 	EMatchPhase currentGamePhase = gameInstanceSubsystem->GetCurrentMatchPhase();
 	switch (currentGamePhase)
@@ -66,8 +99,12 @@ void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 		{
 			int32 teamID = (GetNumPlayers() - 1) % GetPlayersPerTeam();
 			UE_LOG(LogTemp, Warning, TEXT("[AUnrealTestGameMode] FILLING Player: %s Tesm: %i"), *NewPlayer->GetName(), teamID);
-			playerState->SetTeamID(teamID);
 			gameInstanceSubsystem->AddPlayerToTeam(teamID, NewPlayer);
+			playerState->SetTeamID(teamID);
+		}
+		else 
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[AUnrealTestGameMode] No player state"));
 		}
 		break;
 
@@ -82,9 +119,27 @@ void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 	}
 	
 }
+
+// Overrides default pawn class
+UClass* AUnrealTestGameMode::GetDefaultPawnClassForController_Implementation(AController* InController)
+{
+	UClass* defaultPawnClass = Super::GetDefaultPawnClassForController_Implementation(InController);
+
+	
+	// Try to get the player pawn set on AUnrealTestPlayerController
+	AUnrealTestPlayerController* PlayerController = Cast<AUnrealTestPlayerController>(InController);
+	if (PlayerController && PlayerController->GetPlayerPawnClass())
+	{
+		defaultPawnClass = PlayerController->GetPlayerPawnClass();
+	}
+
+	return defaultPawnClass;
+
+}
 #pragma endregion Overrides
 
 #pragma region Functions
+// On any actor died
 void AUnrealTestGameMode::ActorDied(AActor* DeadActor) {
 	if (AUnrealTestCharacter* deadActor = Cast<AUnrealTestCharacter>(DeadActor)) {
 		GEngine->AddOnScreenDebugMessage(1, 2, FColor::Emerald,
@@ -124,7 +179,7 @@ void AUnrealTestGameMode::ProcessDamage(AActor* DamagedActor, float BaseDamage, 
 	AUnrealTestCharacter* damagedPlayer = Cast<AUnrealTestCharacter>(DamagedActor);
 	AUnrealTestCharacter* damagerPlayer = Cast<AUnrealTestCharacter>(EventInstigator->GetPawn());
 
-	if (damagedPlayer && damagerPlayer) {
+	if (damagedPlayer && damagerPlayer && damagerPlayer != damagedPlayer) {
 		AUnrealTestPlayerState* damagedPlayerState = Cast<AUnrealTestPlayerState>(damagedPlayer->GetPlayerState());
 		AUnrealTestPlayerState* damagerPlayerState = Cast<AUnrealTestPlayerState>(damagerPlayer->GetPlayerState());
 

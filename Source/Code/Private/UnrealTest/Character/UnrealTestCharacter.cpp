@@ -120,8 +120,13 @@ void AUnrealTestCharacter::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("AMultiplayerTechTestCharacter::BeginPlay [LocalRole:%s]: HealthInitlalzed "), *((GetLocalRole() >= ROLE_Authority) ? FString("Auth") : FString("NoAuth")));
 	}
 	
+	// If locally controlled set healthbar widget
+	if (IsLocallyControlled())
+	{
+		PlayerHUD->SetHealthComponent(HealthComponent);
+	}
 	// If NOT locally controlled set WorldSpace healthbar
-	if (!IsLocallyControlled())
+	else
 	{
 		APlayerController* playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 		UHealthBarWidget* healthWidget = CreateWidget<UHealthBarWidget>(playerController, HealthWidgetWorldSpaceTemplate);
@@ -325,10 +330,12 @@ void AUnrealTestCharacter::RespawnPlayer()
 	HealthComponent->InitializeHealth(MaxHealth);
 }
 
+// Die event validation
 bool AUnrealTestCharacter::Multicast_Die_Validate() {
 	return true;
 }
 
+// Die event
 void AUnrealTestCharacter::Multicast_Die_Implementation() {
 	//Disables input after death
 	if (IsLocallyControlled()) {

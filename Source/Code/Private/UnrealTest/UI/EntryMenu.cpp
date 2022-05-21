@@ -29,7 +29,6 @@ void UEntryMenu::NativeOnInitialized()
 	GameInstanceSubsystem->OnJoinGameSessionCompleted.AddDynamic(this, &UEntryMenu::OnSessionJoinedEvent);
 
 	// Bind button events
-	HostSessionButton->OnButtonClicked.AddUniqueDynamic(this, &UEntryMenu::TryCreateSession);
 	FindSessionButton->OnButtonClicked.AddUniqueDynamic(this, &UEntryMenu::TryFindSession);
 }
 #pragma endregion Overrides

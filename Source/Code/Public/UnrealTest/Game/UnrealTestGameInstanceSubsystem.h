@@ -12,6 +12,9 @@
 #include "UnrealTestGameInstanceSubsystem.generated.h"
 
 // Definitions
+class AUnrealTestCharacter;
+enum class EMatchPhase : uint8;
+
 UENUM(BlueprintType)
 enum class EBPOnJoinSessionCompleteResult : uint8
 {
@@ -28,8 +31,6 @@ enum class EBPOnJoinSessionCompleteResult : uint8
 	/** An error not covered above occurred */
 	UnknownError
 };
-
-enum class EMatchPhase : uint8;
 
 USTRUCT(BlueprintType)
 struct FTeam

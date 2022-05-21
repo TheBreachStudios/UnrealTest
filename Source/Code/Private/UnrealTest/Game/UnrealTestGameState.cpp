@@ -11,6 +11,8 @@
 
 #pragma region Initialization
 // Initialization
+
+// Constructor
 AUnrealTestGameState::AUnrealTestGameState() :
 	MatchPhase(EMatchPhase::NONE)
 {

@@ -4,7 +4,7 @@
 
 // Unreal Engine
 #include "CoreMinimal.h"
-#include "GameFramework/GameStateBase.h"
+#include "GameFramework/GameState.h"
 
 // Game Project
 #include "UnrealTestGameState.generated.h"
@@ -17,7 +17,7 @@ enum class EMatchPhase : uint8;
  * 
  */
 UCLASS()
-class UNREALTEST_API AUnrealTestGameState : public AGameStateBase
+class UNREALTEST_API AUnrealTestGameState : public AGameState
 {
 	GENERATED_BODY()
 

@@ -14,6 +14,16 @@ class UNREALTEST_API AUnrealTestPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 
+#pragma region Delegates
+// Delegates
+public:
+	// On player team ID changed
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerTeamIDChanged, int32, TeamID);
+	UPROPERTY(BlueprintAssignable, Category = "SessionHandling")
+	FOnPlayerTeamIDChanged OnPlayerTeamIDChanged;
+
+#pragma endregion Delegates
+
 #pragma region Variables
 // Variables
 private:

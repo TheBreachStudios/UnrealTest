@@ -10,6 +10,16 @@
 #include "Code/Public/UnrealTest/UI/PlayerHUDWidget.h"
 #include "Code/Public/UnrealTest/UI/GameOverWidget.h"
 
+#pragma region Getters / Setters
+// Getters / Setters
+
+// Set Healthbar widget health component
+void AUnrealTestHUD::SetHealthComponent(UHealthComponent* HealthComponent)
+{
+	PlayerHUDWidget->SetHealthComponent(HealthComponent);
+}
+#pragma endregion Getters / Setters
+
 #pragma region Overrides
 // Begin play
 void AUnrealTestHUD::BeginPlay()

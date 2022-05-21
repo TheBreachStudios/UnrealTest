@@ -8,6 +8,7 @@
 
 // Game Project
 #include "Code/Public/UnrealTest/Game/UnrealTestGameMode.h"
+#include "Code/Public/UnrealTest/Controller/UnrealTestPlayerController.h"
 
 #pragma region Initialization
 // Constructor
@@ -73,6 +74,8 @@ void UUnrealTestGameInstanceSubsystem::CreateSession(int32 MaxPublicConections, 
 	LastSessionSettings->bShouldAdvertise = true;
 
 	LastSessionSettings->Set(SETTING_MAPNAME, FString("TestMap"), EOnlineDataAdvertisementType::ViaOnlineService);
+	LastSessionSettings->Set("prueba", FString("ojo"), EOnlineDataAdvertisementType::ViaOnlineService);
+
 
 	CreateSessionCompleteDelegateHandle = sessionInterface->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
 
@@ -239,8 +242,8 @@ bool UUnrealTestGameInstanceSubsystem::TryTravelToCurrentSession()
 		return false;
 	}
 
-	APlayerController* playerController = GetWorld()->GetFirstPlayerController();
-	playerController->ClientTravel(connectString, TRAVEL_Absolute);
+	AUnrealTestPlayerController* playerController = Cast<AUnrealTestPlayerController>(GetWorld()->GetFirstPlayerController());
+	playerController->ClientTravel(connectString + "?champ=" + playerController->GetPlayerPawnClassName().ToString(), TRAVEL_Absolute);
 	return true;
 }
 

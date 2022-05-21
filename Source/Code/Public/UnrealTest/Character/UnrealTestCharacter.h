@@ -115,7 +115,6 @@ public:
 	// Set Health Component
 	void SetHealthComponent();
 
-
 	// Get Health Component
 	UHealthComponent* GetHealthComponent() { return HealthComponent; };
 #pragma endregion Getters / Setters

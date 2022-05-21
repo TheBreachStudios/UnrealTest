@@ -13,6 +13,7 @@
 class URichTextBlock;
 class UHealthBarWidget;
 class AUnrealTestGameState;
+class UHealthComponent;
 enum class EMatchPhase : uint8;
 
 /**
@@ -41,6 +42,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MatchInfo", meta = (AllowPrivateAccess = "true"))
 	int32 MaxPlayersCount = 0;
 
+	// TeamID
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MatchInfo", meta = (AllowPrivateAccess = "true"))
+	int32 TeamID = -1;
+
 protected:
 	// Current Game Phase widget reference
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components")
@@ -66,6 +71,15 @@ public:
 	UPlayerHUDWidget();
 #pragma endregion Initialization
 
+
+#pragma region Getters / Setters
+// Getters / Setters
+public:
+	// On initialized function
+	void SetHealthComponent(UHealthComponent* HealthComponent);
+#pragma endregion Getters / Setters
+
+
 #pragma region Overrides
 // Overrides
 protected:
@@ -75,6 +89,10 @@ protected:
 
 #pragma region Functions
 public:
+	// Try get Player state
+	UFUNCTION()
+	void TryBindToPlayerStateTeamIDChanged();
+	
 	// On Phase changed event
 	UFUNCTION()
 	void OnPhaseChangedEvent(EMatchPhase NewMatchPhase);
@@ -87,9 +105,17 @@ public:
 	UFUNCTION()
 	void OnMaxPlayerCountUpdatedEvent(int32 MaxPlayers);
 
+	// On player team ID updated event
+	UFUNCTION()
+	void OnPlayerTeamIDUpdatedEvent(int32 NewTeamID);
+
 	// Update current player count text
 	UFUNCTION()
 	void UpdateCurrentPlayerCountText();
+	
+	// Update current player team ID text
+	UFUNCTION()
+	void UpdateTeamIDText();
 		
 #pragma endregion Functions
 };

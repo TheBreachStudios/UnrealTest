@@ -12,6 +12,7 @@
 // Definitions
 class UPlayerHUDWidget;
 class UGameOverWidget;
+class UHealthComponent;
 
 /**
  * 
@@ -55,6 +56,13 @@ protected:
 	// Game Over widget reference
 	UGameOverWidget* GameOverWidget;
 #pragma endregion Variables
+
+#pragma region Getters / Setters
+// Getters / Setters
+public:
+	// Set Healthbar widget health component
+	void SetHealthComponent(UHealthComponent* HealthComponent);
+#pragma endregion Getters / Setters
 
 #pragma region Overrides
 // Overrides

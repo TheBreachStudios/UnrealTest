@@ -25,7 +25,11 @@ void UHealthBarWidget::NativeOnInitialized()
 // Function binded to health progress var percentage
 float UHealthBarWidget::GetHealthPercentage()
 {
-	return HealthComponent->GetNormalizedHealth();
+	if (HealthComponent) {
+		return HealthComponent->GetNormalizedHealth();
+	}
+
+	return 0.f;
 }
 
 #pragma endregion Functions

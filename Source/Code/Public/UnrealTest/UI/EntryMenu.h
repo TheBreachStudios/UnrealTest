@@ -54,11 +54,11 @@ protected:
 // Functions
 protected:
 	// Try create session
-	UFUNCTION(Category = "SessionHandling")
+	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	void TryCreateSession();
 
 	// Try find session
-	UFUNCTION(Category = "SessionHandling")
+	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	void TryFindSession();
 
 	// Session created event
