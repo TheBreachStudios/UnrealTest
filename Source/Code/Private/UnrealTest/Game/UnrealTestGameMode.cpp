@@ -15,7 +15,16 @@ AUnrealTestGameMode::AUnrealTestGameMode()
 	}
 
     PrimaryActorTick.bCanEverTick = true;
+
+
+    
 }
+
+void AUnrealTestGameMode::SetMatchName(FString name)
+{
+    MatchGame = name;
+}
+
 
 void AUnrealTestGameMode::BeginPlay()
 {
@@ -47,27 +56,33 @@ void AUnrealTestGameMode::ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetCla
     }
 }
 
-void AUnrealTestGameMode::OnServerButtonClick(FString sPort)
+
+void AUnrealTestGameMode::OnHostButtonClick(FString name)
 {
+
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, *FString("Server"));
-    //m_pManager->activateAsServer(FCString::Atoi(*sPort));
-    //TO-DO: SERVER ACTIVATION PASSING PORT 
+    MatchGame = name;
+
+    OnServerStartButtonClick(name);
+
 }
 
-void AUnrealTestGameMode::OnClientButtonClick(FString sIP, FString sPort)
+void AUnrealTestGameMode::OnClientButtonClick(FString name)
 {
+
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, *FString("Client"));
-    //TO-DO: CLIENT CONNECTION PASSING IP AND PORT
+    if (MatchGame.Equals(name)) {
+
+
+        OnServerStartButtonClick(name);
+ 
+    }
 }
 
-void AUnrealTestGameMode::OnServerStartButtonClick()
+void AUnrealTestGameMode::OnServerStartButtonClick(FString name)
 {
-    //TO-DO: Map where the lobby is and then map with four player starts
-    const char* sName = "ThirdPersonMap";
-    UGameplayStatics::OpenLevel(GetWorld(), sName);
-    //GameBuffer data;
-    //NetMessageType type = NetMessageType::LOAD_MAP;
-    //data.write(type);
-    //data.write(sName);
-    //m_pManager->send(data.getbuffer(), data.getSize());
+
+    //const char* sName = "ThirdPersonMap";
+    //UGameplayStatics::OpenLevel(GetWorld(), sName);
+
 }
