@@ -2,8 +2,11 @@
 
 #pragma once
 
+// Unreal Engine
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+
+// Game Project
 #include "UnrealTestPlayerState.generated.h"
 
 /**
@@ -17,17 +20,24 @@ class UNREALTEST_API AUnrealTestPlayerState : public APlayerState
 #pragma region Delegates
 // Delegates
 public:
-	// On player team ID changed
+	// On player team ID changed.
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerTeamIDChanged, int32, TeamID);
 	UPROPERTY(BlueprintAssignable, Category = "SessionHandling")
 	FOnPlayerTeamIDChanged OnPlayerTeamIDChanged;
 
 #pragma endregion Delegates
 
+#pragma region Initialization
+// Initialization
+public:
+	// Setup replicated properties.
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+#pragma region Initialization
+
 #pragma region Variables
 // Variables
 private:
-	// Team identifier
+	// Team identifier.
 	UPROPERTY(Replicated)
 	int32 TeamID = -1;
 #pragma endregion Variables
@@ -35,19 +45,12 @@ private:
 #pragma region Getters / Setters
 // Getters / Setters
 public:
-	// Get team identifier
+	// Get team identifier.
 	UFUNCTION(BlueprintCallable, Category = "TeamHandling")
-	int32 GetTeamID() { return TeamID; }
+	FORCEINLINE int32 GetTeamID() const { return TeamID; }
 
-	// Set team identifier
+	// Set team identifier.
 	UFUNCTION(BlueprintCallable, Category = "TeamHandling")
 	void SetTeamID(int32 NewTeamID) { TeamID = NewTeamID; }
 #pragma endregion Getters / Setters
-
-#pragma region Overrides
-// Overrides
-	void CopyProperties(APlayerState* PlayerState) override;
-
-	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-#pragma endregion Overrides
 };

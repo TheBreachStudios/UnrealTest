@@ -17,6 +17,7 @@
 #include "Code/Public/UnrealTest/Game/UnrealTestGameMode.h"
 
 #pragma region Overrides
+// On initialized function.
 void UEntryMenu::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -34,7 +35,7 @@ void UEntryMenu::NativeOnInitialized()
 #pragma endregion Overrides
 
 #pragma region Functions
-// Try create session
+// Try create session.
 void UEntryMenu::TryCreateSession()
 {
 	GameMode = Cast<AUnrealTestGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -44,7 +45,7 @@ void UEntryMenu::TryCreateSession()
 	GameInstanceSubsystem->CreateSession(GameMode->GetMaxPlayerPerSession(), false);
 }
 
-// Try find session
+// Try find session.
 void UEntryMenu::TryFindSession()
 {
 	GameMode = Cast<AUnrealTestGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -54,13 +55,13 @@ void UEntryMenu::TryFindSession()
 	GameInstanceSubsystem->FindSessions(GameMode->GetMaxSessionSearchResults(), false);
 }
 
-// Session created event
+// Session created event.
 void UEntryMenu::OnSessionCreatedEvent(bool Success)
 {
 	if (Success)
 	{
 		// TODO: Move values to data asset
-		UGameplayStatics::OpenLevel(this, TEXT("TestLevel"), false, "?listen");
+		UGameplayStatics::OpenLevel(this, TEXT("WaitingRoom"), false, "?listen");
 	}
 	else
 	{

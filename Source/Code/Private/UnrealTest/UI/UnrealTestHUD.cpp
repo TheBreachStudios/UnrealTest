@@ -11,9 +11,7 @@
 #include "Code/Public/UnrealTest/UI/GameOverWidget.h"
 
 #pragma region Getters / Setters
-// Getters / Setters
-
-// Set Healthbar widget health component
+// Set Healthbar widget health component.
 void AUnrealTestHUD::SetHealthComponent(UHealthComponent* HealthComponent)
 {
 	PlayerHUDWidget->SetHealthComponent(HealthComponent);
@@ -21,7 +19,7 @@ void AUnrealTestHUD::SetHealthComponent(UHealthComponent* HealthComponent)
 #pragma endregion Getters / Setters
 
 #pragma region Overrides
-// Begin play
+// Called when the game starts.
 void AUnrealTestHUD::BeginPlay()
 {
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
@@ -33,6 +31,7 @@ void AUnrealTestHUD::BeginPlay()
 #pragma endregion Overrides
 
 #pragma region Functions
+// Adds player HUD widget. It creates, if it did not not exist.
 void AUnrealTestHUD::AddPlayerHUDWidget()
 {
 	if (!PlayerHUDWidget) {
@@ -43,6 +42,7 @@ void AUnrealTestHUD::AddPlayerHUDWidget()
 	PlayerHUDWidget->AddToViewport(PlayerHUDWidgetZOrder);
 }
 
+// Adds game over widget. It creates, if it did not not exist.
 void AUnrealTestHUD::AddGameOverWidget()
 {
 	if (!GameOverWidget) {
@@ -53,11 +53,19 @@ void AUnrealTestHUD::AddGameOverWidget()
 	GameOverWidget->AddToViewport(GameOverWidgetZOrder);
 }
 
+// Updates Player HUD widget visibility
 void AUnrealTestHUD::UpdatePlayerHUDWidgetVisibility(bool bNewVisibility)
 {
 	PlayerHUDWidget->SetVisibility(bNewVisibility ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
 }
 
+// Updates Defeated Team ID on GameOver widget.
+void AUnrealTestHUD::UpdateDefeatedTeamID(int32 DefeatedTeamID)
+{
+	GameOverWidget->UpdateDefeatedTeamID(DefeatedTeamID);
+}
+
+// Updates Game Over widget visibility.
 void AUnrealTestHUD::UpdateGameOverWidgetVisibility(bool bNewVisibility)
 {
 	GameOverWidget->SetVisibility(bNewVisibility ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);

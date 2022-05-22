@@ -23,11 +23,11 @@ class UNREALTEST_API UUnrealTestGameInstance : public UGameInstance
 #pragma region Variables
 // Variables
 public:
-	// Default pawn class
+	// Default pawn class.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Champion")
 	TSubclassOf<AUnrealTestCharacter> DefaultPawn = nullptr;
 	
-	// Default pawn name
+	// Default pawn name.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Champion")
 	FName DefaultPawnName = NAME_None;
 #pragma endregion Variables
@@ -36,7 +36,7 @@ public:
 // Functions
 public:
 
-	// Server change default pawn definition
+	// Server change default pawn definition.
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 	void Server_SetDefaultPawn(TSubclassOf<AUnrealTestCharacter> NewDefaultPawn, FName NewDefaultPawnName);
 	void Server_SetDefaultPawn_Implementation(TSubclassOf<AUnrealTestCharacter> NewDefaultPawn, FName NewDefaultPawnName);

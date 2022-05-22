@@ -7,15 +7,13 @@
 #include "UnrealTest/Character/UnrealTestCharacter.h"
 
 #pragma region Functions
-// Functions
-
-// Server change default pawn definition
+// Server change default pawn definition validation.
 bool UUnrealTestGameInstance::Server_SetDefaultPawn_Validate(TSubclassOf<AUnrealTestCharacter> NewDefaultPawn, FName NewDefaultPawnName)
 {
 	return true;
 }
 
-// Server change default pawn definition
+// Server change default pawn definition.
 void UUnrealTestGameInstance::Server_SetDefaultPawn_Implementation(TSubclassOf<AUnrealTestCharacter> NewDefaultPawn, FName NewDefaultPawnName) {
 	DefaultPawn = NewDefaultPawn;
 	DefaultPawnName = NewDefaultPawnName;

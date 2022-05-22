@@ -26,46 +26,45 @@ class UNREALTEST_API UEntryMenu : public UMasterWidget
 #pragma region Variables
 // Vriables
 private:
-	// Game Instance Subsystem reference
+	// Game Instance Subsystem reference.
 	UUnrealTestGameInstanceSubsystem* GameInstanceSubsystem = nullptr;
 
-	// Game mode reference
-	AUnrealTestGameMode* GameMode;
+	// Game mode reference.
+	AUnrealTestGameMode* GameMode = nullptr;
 
 protected:
-	// Button widget reference
+	// Button widget reference.
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category="Components")
 	UMasterButton* HostSessionButton = nullptr;
 
-	// Button label widget reference
+	// Button label widget reference.
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components")
 	UMasterButton* FindSessionButton = nullptr;
-
 #pragma endregion Variables
 
 #pragma region Overrides
 protected:
 // Overrides
-	// On initialized function
+	// On initialized function.
 	virtual void NativeOnInitialized() override;
 #pragma endregion Overrides
 
 #pragma region Functions
 // Functions
 protected:
-	// Try create session
+	// Try create session.
 	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	void TryCreateSession();
 
-	// Try find session
+	// Try find session.
 	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
 	void TryFindSession();
 
-	// Session created event
+	// Session created event.
 	UFUNCTION(Category = "SessionHandling")
 	void OnSessionCreatedEvent(bool Success);
 
-	// Session joined event
+	// Session joined event.
 	UFUNCTION(Category = "SessionHandling")
 	void OnSessionJoinedEvent(EBPOnJoinSessionCompleteResult Result);
 #pragma endregion Functions

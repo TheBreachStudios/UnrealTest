@@ -25,19 +25,19 @@ class UNREALTEST_API AUnrealTestHUD : public AHUD
 #pragma region Configuration
 // Configuration
 public:
-	// Entry menu template widget
+	// Entry menu template widget.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configuration")
 	TSubclassOf<UPlayerHUDWidget> PlayerHUDWidgetTemplate = nullptr;
 
-	// Entry menu template widget ZOrder
+	// Entry menu template widget ZOrder.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configuration")
 	int32 PlayerHUDWidgetZOrder = 0;
 
-	// Game over screen widget
+	// Game over screen widget.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configuration")
 	TSubclassOf<UGameOverWidget> GameOverWidgetTemplate = nullptr;
 
-	// Game over screen widget ZOrder
+	// Game over screen widget ZOrder.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configuration")
 	int32 GameOverWidgetZOrder = 0;
 
@@ -46,28 +46,28 @@ public:
 #pragma region Variables
 // Variables
 private:
-	// Player controller reference
+	// Player controller reference.
 	APlayerController* PlayerController;
 
 protected:
-	// Entry Menu reference
+	// Player HUD widget reference.
 	UPlayerHUDWidget* PlayerHUDWidget;
 
-	// Game Over widget reference
+	// Game Over widget reference.
 	UGameOverWidget* GameOverWidget;
 #pragma endregion Variables
 
 #pragma region Getters / Setters
 // Getters / Setters
 public:
-	// Set Healthbar widget health component
+	// Set Healthbar widget health component.
 	void SetHealthComponent(UHealthComponent* HealthComponent);
 #pragma endregion Getters / Setters
 
 #pragma region Overrides
 // Overrides
 protected:
-	// Begin play
+	// Begin play.
 	virtual void BeginPlay() override;
 #pragma endregion Overrides
 
@@ -83,7 +83,10 @@ public:
 	// Updates Player HUD widget visibility
 	void UpdatePlayerHUDWidgetVisibility(bool bNewVisibility);
 
-	// Updates Game Over widget visibility
+	// Updates Defeated Team ID on GameOver widget.
+	void UpdateDefeatedTeamID(int32 DefeatedTeamID);
+
+	// Updates Game Over widget visibility.
 	void UpdateGameOverWidgetVisibility(bool bNewVisibility);
 #pragma endregion Functions
 };

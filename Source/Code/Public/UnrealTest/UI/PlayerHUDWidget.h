@@ -27,39 +27,39 @@ class UNREALTEST_API UPlayerHUDWidget : public UMasterWidget
 #pragma region Variables
 // Variables
 private:
-	// Game state reference
+	// Game state reference.
 	AUnrealTestGameState* GameState = nullptr;
 
-	// Current game phase
+	// Current game phase.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MatchInfo", meta = (AllowPrivateAccess = "true"))
 	EMatchPhase CurrentMatchPhase;
 
-	// Current players count
+	// Current players count.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MatchInfo", meta = (AllowPrivateAccess = "true"))
 	int32 CurrentPlayersCount = 0;
 
-	// Max players count
+	// Max players count.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MatchInfo", meta = (AllowPrivateAccess = "true"))
 	int32 MaxPlayersCount = 0;
 
-	// TeamID
+	// TeamID.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "MatchInfo", meta = (AllowPrivateAccess = "true"))
 	int32 TeamID = -1;
 
 protected:
-	// Current Game Phase widget reference
+	// Current Game Phase widget reference.
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components")
 	URichTextBlock* GamePhaseText = nullptr;
 
-	// Player count widget reference
+	// Player count widget reference.
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components")
 	URichTextBlock* PlayerCountText = nullptr;
 
-	// Team ID widget refernce
+	// Team ID widget reference.
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components")
 	URichTextBlock* TeamIDText = nullptr;
 
-	// Health bar widget reference
+	// Health bar widget reference.
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components")
 	UHealthBarWidget* HealthBarWidget = nullptr;
 #pragma endregion Variables
@@ -67,7 +67,7 @@ protected:
 #pragma region Initialization
 // Initialization
 public:
-	// Constructor 
+	// Constructor.
 	UPlayerHUDWidget();
 #pragma endregion Initialization
 
@@ -75,7 +75,7 @@ public:
 #pragma region Getters / Setters
 // Getters / Setters
 public:
-	// On initialized function
+	// Set health component for Health bar.
 	void SetHealthComponent(UHealthComponent* HealthComponent);
 #pragma endregion Getters / Setters
 
@@ -83,37 +83,37 @@ public:
 #pragma region Overrides
 // Overrides
 protected:
-	// On initialized function
+	// On initialized function.
 	virtual void NativeOnInitialized() override;
 #pragma endregion Overrides
 
 #pragma region Functions
 public:
-	// Try get Player state
+	// Try get Player state.
 	UFUNCTION()
 	void TryBindToPlayerStateTeamIDChanged();
 	
-	// On Phase changed event
+	// On Phase changed event.
 	UFUNCTION()
 	void OnPhaseChangedEvent(EMatchPhase NewMatchPhase);
 
-	// On player joined event
+	// On player joined event.
 	UFUNCTION()
 	void OnPlayerJoinedEvent(int32 CurrentPlayers);
 
-	// On max player count updated event
+	// On max player count updated event.
 	UFUNCTION()
 	void OnMaxPlayerCountUpdatedEvent(int32 MaxPlayers);
 
-	// On player team ID updated event
+	// On player team ID updated event.
 	UFUNCTION()
 	void OnPlayerTeamIDUpdatedEvent(int32 NewTeamID);
 
-	// Update current player count text
+	// Update current player count text.
 	UFUNCTION()
 	void UpdateCurrentPlayerCountText();
 	
-	// Update current player team ID text
+	// Update current player team ID text.
 	UFUNCTION()
 	void UpdateTeamIDText();
 		

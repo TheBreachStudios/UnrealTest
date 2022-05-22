@@ -22,11 +22,22 @@ class UNREALTEST_API UGameOverWidget : public UMasterWidget
 
 #pragma region Variables
 // Variables
+public:
+	// Defeated team ID.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "TeamHandling")
+	int32 DefeatedTeamID = -1;
+
 protected:
-	// Button widget reference
+	// Button widget reference.
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components")
 	URichTextBlock* GameOverText = nullptr;
 
 #pragma endregion Variables
+
+#pragma region Functions
+public:
+	// Updates Defeated Team ID.
+	void UpdateDefeatedTeamID(int32 NewDefeatedTeamID);
+#pragma endregion Functions
 
 };

@@ -10,6 +10,7 @@
 #include "UnrealTest/Components/HealthComponent.h"
 
 #pragma region Overrides
+// On initialized function.
 void UHealthBarWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -22,7 +23,7 @@ void UHealthBarWidget::NativeOnInitialized()
 #pragma endregion Overrides
 
 #pragma region Functions
-// Function binded to health progress var percentage
+// Function binded to health progress var percentage.
 float UHealthBarWidget::GetHealthPercentage()
 {
 	if (HealthComponent) {
@@ -31,5 +32,4 @@ float UHealthBarWidget::GetHealthPercentage()
 
 	return 0.f;
 }
-
 #pragma endregion Functions

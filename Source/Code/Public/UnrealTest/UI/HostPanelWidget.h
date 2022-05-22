@@ -2,7 +2,10 @@
 
 #pragma once
 
+// Unreal Engine
 #include "CoreMinimal.h"
+
+// Game Project
 #include "UnrealTest/UI/MasterWidget.h"
 #include "HostPanelWidget.generated.h"
 

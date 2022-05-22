@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 
+
 // Game Project
 #include "UnrealTest/Weapons/BaseWeapon.h"
 #include "UnrealTest/Components/HealthComponent.h"
@@ -21,7 +22,7 @@
 #include "UnrealTest/UI/HealthBarWidget.h"
 
 #pragma region Initialization
-// Constructor
+// Constructor.
 AUnrealTestCharacter::AUnrealTestCharacter()
 {
 	// Set size for collision capsule
@@ -31,46 +32,49 @@ AUnrealTestCharacter::AUnrealTestCharacter()
 	// set our turn rate for input
 	TurnRateGamepad = TURN_RATE_GAMEPAD;
 
-	DisableCotrollerRotation();
-
+	// Setup character movement
 	ConfigureCharacterMovement(GetCharacterMovement());
 	
-	SetCameraBoom();
-	SetFollowCamera();
-	SetWeaponHolder();
-	SetHealthComponent();
+
+	// Initialize components
+	InitializeCameraBoom();
+	InitializeFollowCamera();
+	InitializeWeaponHolder();
+	InitializeHealthComponent();
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
-#pragma endregion Initialization
 
-#pragma region Getters / Setters
-// Set Camera BoomConstructor
-void AUnrealTestCharacter::SetCameraBoom()
+// Initialize Camera Boom.
+void AUnrealTestCharacter::InitializeCameraBoom()
 {
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	// The camera follows at this distance behind the character	
+
 	CameraBoom->TargetArmLength = 400.0f;
+
 	// Rotate the arm based on the controller
 	CameraBoom->bUsePawnControlRotation = true;
 }
 
-// Set Follow Camera
-void AUnrealTestCharacter::SetFollowCamera()
+// Initialize Follow Camera.
+void AUnrealTestCharacter::InitializeFollowCamera()
 {
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+
 	// Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+
 	// Camera does not rotate relative to arm
 	FollowCamera->bUsePawnControlRotation = false;
 }
 
-// Set Follow Camera
-void AUnrealTestCharacter::SetWeaponHolder()
+// Initialize Weapon Holder.
+void AUnrealTestCharacter::InitializeWeaponHolder()
 {
 	// Create a follow camera
 	WeaponHolder = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponHolder"));
@@ -78,23 +82,24 @@ void AUnrealTestCharacter::SetWeaponHolder()
 	WeaponHolder->SetIsReplicated(true);
 }
 
-// Set Health Component
-void AUnrealTestCharacter::SetHealthComponent()
+// Initialize Health Component.
+void AUnrealTestCharacter::InitializeHealthComponent()
 {
+	// Creates Health component
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	HealthComponent->SetIsReplicated(true);
 
+	// If character is simulated attach Health Widget component
 	if (!IsLocallyControlled())
 	{
 		HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidgetComponent"));
 		HealthWidgetComponent->SetupAttachment(GetMesh());
 	}
 }
-
-#pragma endregion Getters / Setters
+#pragma endregion Initialization
 
 #pragma region Overrides
-// Called when the game starts or when spawned
+// Called when the game starts or when spawned.
 void AUnrealTestCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -103,8 +108,10 @@ void AUnrealTestCharacter::BeginPlay()
 	FActorSpawnParameters params;
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
+
+	// Attach weapon to weapon holder
 	FVector location = FVector();
-	FRotator rotation = WeaponHolder->GetComponentRotation();
+	FRotator rotation = FRotator();
 	CurrentWeapon = Cast<ABaseWeapon>(GetWorld()->SpawnActor(InitialWeaponTemplate, &location, &rotation, params));
 	CurrentWeapon->AttachToComponent(WeaponHolder, FAttachmentTransformRules::KeepRelativeTransform);
 	CurrentWeapon->SetOwner(this);
@@ -120,7 +127,7 @@ void AUnrealTestCharacter::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("AMultiplayerTechTestCharacter::BeginPlay [LocalRole:%s]: HealthInitlalzed "), *((GetLocalRole() >= ROLE_Authority) ? FString("Auth") : FString("NoAuth")));
 	}
 	
-	// If locally controlled set healthbar widget
+	// If locally controlled set health bar widget
 	if (IsLocallyControlled())
 	{
 		PlayerHUD->SetHealthComponent(HealthComponent);
@@ -136,8 +143,7 @@ void AUnrealTestCharacter::BeginPlay()
 	}
 }
 
-
-// APawn interface
+// Binds inputs.
 void AUnrealTestCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
@@ -152,31 +158,10 @@ void AUnrealTestCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 
 	ShootBinding(PlayerInputComponent);
 }
-
-void AUnrealTestCharacter::PostInitProperties()
-{
-	Super::PostInitProperties();
-
-	InitiliazeCharacter();
-}
-
-#if WITH_EDITOR
-void AUnrealTestCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
-{
-	InitiliazeCharacter();
-
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-}
-#endif
 #pragma endregion Overrides
 
 #pragma region Functions
-//Initialize weapons values
-void AUnrealTestCharacter::InitiliazeCharacter()
-{
-}
-
-// Called for forwards/backward input
+// Called for forwards/backward input.
 void AUnrealTestCharacter::MoveForward(float Value)
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
@@ -191,7 +176,7 @@ void AUnrealTestCharacter::MoveForward(float Value)
 	}
 }
 
-// Called for side to side input
+// Called for side to side input.
 void AUnrealTestCharacter::MoveRight(float Value)
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
@@ -207,74 +192,65 @@ void AUnrealTestCharacter::MoveRight(float Value)
 	}
 }
 
-//Called via input to turn at a given rate
+// Called via input to turn at a given rate.
 void AUnrealTestCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
 }
 
-//Called via input to turn look up / down at a given rate.
+// CCalled via input to turn look up/down at a given rate.
 void AUnrealTestCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
 }
 
-// Start shooting
+// Start shooting.
 void AUnrealTestCharacter::Shoot()
 {
-	UE_LOG(LogTemp, Warning, TEXT("[AUnrealTestCharacter][LocalRole: %s][RemoteRole: %s] Start SHOOT!"), *UEnum::GetValueAsString(GetLocalRole()), *UEnum::GetValueAsString(GetRemoteRole()));
 	Server_Shoot();
 }
 
-// Stop shooting
-void AUnrealTestCharacter::StopShoot()
-{
-	UE_LOG(LogTemp, Warning, TEXT("[AUnrealTestCharacter][LocalRole: %s][RemoteRole: %s] Stop SHOOT!"), *UEnum::GetValueAsString(GetLocalRole()), *UEnum::GetValueAsString(GetRemoteRole()));
-}
+// Stop shooting.
+void AUnrealTestCharacter::StopShoot() { }
 
-// Server shoot handle
+// Server shoot handle validation.
 
 bool AUnrealTestCharacter::Server_Shoot_Validate()
 {
 	return true;
 }
 
-// Server shoot handle
+// Server shoot handle.
 void AUnrealTestCharacter::Server_Shoot_Implementation()
 {
 	CurrentWeapon->Shoot(FollowCamera);
 }
 
+// Call game over event validation.
 bool AUnrealTestCharacter::Client_GameOver_Validate(int32 DefeatedTeamID)
 {
 	return true;
 }
 
+// Call game over event.
 void AUnrealTestCharacter::Client_GameOver_Implementation(int32 DefeatedTeamID)
 {
 	// Show game over screen
-	if (PlayerHUD) { PlayerHUD->UpdateGameOverWidgetVisibility(true); };
+	if (PlayerHUD) {
+		PlayerHUD->UpdateDefeatedTeamID(true);
+		PlayerHUD->UpdateGameOverWidgetVisibility(true); 
+	};
 
 	// Disable input
 	GetController()->DisableInput(Cast<APlayerController>(GetController()));
 }
 
-// Disable controller rotation
-void AUnrealTestCharacter::DisableCotrollerRotation()
-{
-	// Don't rotate when the controller rotates. Let that just affect the camera.
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
-}
-
-// Set up character movement component
+// Set up character movement component.
 void AUnrealTestCharacter::ConfigureCharacterMovement(UCharacterMovementComponent* characterMovement)
 {
 	// Configure character movement
-	characterMovement->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	characterMovement->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
@@ -286,28 +262,28 @@ void AUnrealTestCharacter::ConfigureCharacterMovement(UCharacterMovementComponen
 	characterMovement->BrakingDecelerationWalking = BRAKING_DECELERATION_WALKING;
 }
 
-// Set up character movement component
+// Binds jump inputs.
 void AUnrealTestCharacter::JumpBinding(class UInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 }
 
-// Binds movement inputs
+// Binds movement inputs.
 void AUnrealTestCharacter::MovementBinding(class UInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAxis("Move Forward / Backward", this, &AUnrealTestCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("Move Right / Left", this, &AUnrealTestCharacter::MoveRight);
 }
 
-// Binds shoot inputs
+// Binds shoot inputs.
 void AUnrealTestCharacter::ShootBinding(class UInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AUnrealTestCharacter::Shoot);
 	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &AUnrealTestCharacter::StopShoot);
 }
 
-// Binds turning inputs
+// Binds turning inputs.
 void AUnrealTestCharacter::TurnBinding(class UInputComponent* PlayerInputComponent)
 {
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
@@ -317,25 +293,25 @@ void AUnrealTestCharacter::TurnBinding(class UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("Turn Right / Left Gamepad", this, &AUnrealTestCharacter::TurnAtRate);
 }
 
-// Binds aiming inputs
+// Binds aiming inputs.
 void AUnrealTestCharacter::LookUpBinding(class UInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("Look Up / Down Gamepad", this, &AUnrealTestCharacter::LookUpAtRate);
 }
 
-// Respawn player
+// Respawn player.
 void AUnrealTestCharacter::RespawnPlayer()
 {
 	HealthComponent->InitializeHealth(MaxHealth);
 }
 
-// Die event validation
+// Die event validation.
 bool AUnrealTestCharacter::Multicast_Die_Validate() {
 	return true;
 }
 
-// Die event
+// Die event.
 void AUnrealTestCharacter::Multicast_Die_Implementation() {
 	//Disables input after death
 	if (IsLocallyControlled()) {
