@@ -22,46 +22,45 @@ class UNREALTEST_API AUnrealTestPlayerController : public APlayerController
 
 #pragma region Variables
 protected:
-	// Actual Pawn class we want to use
+	// Actual Pawn class we want to use.
 	UPROPERTY(Replicated)
 	TSubclassOf<APawn> PawnToUse;
 
-	// Actual Pawn name we want to use
+	// Actual Pawn name we want to use.
 	UPROPERTY(Replicated)
 	FName PawnToUseName;
 #pragma endregion Variables
 
 #pragma region Initialization
-	// Initialization
+// Initialization
 public:
-	// Constructor
+	// Constructor.
 	AUnrealTestPlayerController(const FObjectInitializer& ObjectInitializer);
-#pragma endregion Initialization
 
+	// Setup replicated properties.
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+#pragma endregion Initialization
 
 #pragma region Getters / Setters
 // Getters / Setters
 public:
-	// Get the player pawn class
+	// Get the player pawn class.
 	FORCEINLINE UClass* GetPlayerPawnClass() { return PawnToUse; }
 
-	// Get the player pawn name
+	// Get the player pawn name.
 	FORCEINLINE FName GetPlayerPawnClassName() { return PawnToUseName; }
 #pragma endregion Getters / Setters
 
 #pragma region Overrides
 protected:
-	// Use BeginPlay to start the functionality
+	// Called when the game starts or when spawned.
 	virtual void BeginPlay() override;
-
-	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
-
 #pragma endregion Overrides
 
 #pragma region Functions
 // Functions
 public:
-	// Set Pawn Class On Server For This Controller
+	// Set Pawn Class On Server For This Controller.
 	UFUNCTION(Reliable, Server, WithValidation, BlueprintCallable)
 	virtual void Server_SetPawn(TSubclassOf<APawn> InPawnClass, FName InPawnName);
 	virtual void Server_SetPawn_Implementation(TSubclassOf<APawn> InPawnClass, FName InPawnName);

@@ -24,6 +24,7 @@ class UNREALTEST_API UMasterButton : public UMasterWidget
 #pragma region Delegates
 // Delegates
 public:
+	// On buton clicked.
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnButtonClicked);
 	UPROPERTY(BlueprintAssignable, Category = "ButtonSettings")
 	FOnButtonClicked OnButtonClicked;
@@ -34,9 +35,8 @@ public:
 // Configuration
 protected:
 #define LOCTEXT_NAMESPACE "TechTest"
-	
-	// Button label content
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ButtonSettings")
+	// Button label content.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration|ButtonSettings")
 	FText ButtonLabelContent = LOCTEXT("ButtonPlaceholder", "Button");
 #undef LOCTEXT_NAMESPACE
 #pragma endregion Configuration
@@ -44,11 +44,11 @@ protected:
 #pragma region Variables
 // Variables
 protected:
-	// Button widget reference
+	// Button widget reference.
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components")
 	UButton* Button = nullptr;
 
-	// Button label widget reference
+	// Button label widget reference.
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Components")
 	URichTextBlock* ButtonLabel = nullptr;
 
@@ -57,11 +57,11 @@ protected:
 #pragma region Getters / Setters
 // Getters / Setters
 public:
-	// Get ButtonLabel content
+	// Get ButtonLabel content.
 	UFUNCTION(BlueprintCallable, Category = "ButtonSettings")
 	FText GetButtonLabelContent();
 
-	// Set ButtonLabel content
+	// Set ButtonLabel content.
 	UFUNCTION(BlueprintCallable, Category = "ButtonSettings")
 	void SetButtonLabelContent(FText LabelContent);
 
@@ -70,17 +70,17 @@ public:
 #pragma region Overrides
 // Overrides
 protected:
-	// On initialized function
+	// On initialized function.
 	virtual void NativeOnInitialized() override;
 
-	// Pre construct function
+	// Pre construct function.
 	virtual void NativePreConstruct() override;
 #pragma endregion Overrides
 
 #pragma region Functions
 // Functions
 protected:
-	// Broadcasts Button OnClicked event
+	// Broadcasts Button OnClicked event.
 	UFUNCTION(Category = "Events")
 	void OnButtonClickedEvent();
 #pragma endregion Functions

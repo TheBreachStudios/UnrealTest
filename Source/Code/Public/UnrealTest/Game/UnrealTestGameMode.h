@@ -16,13 +16,13 @@ class APlayerCharacter;
 UENUM(BlueprintType)
 enum class EMatchPhase : uint8
 {
-	/** No state */
+	// No state.
 	NONE,
-	/** Session was created and needs players to join */
+	// Session was created and needs players to join.
 	FILLING,
-	/** Session was created and all players have joined and are waiting to travel */
+	// Session was created and all players have joined and are waiting to travel.
 	WAITING,
-	/** Session was created and all players have traveled to actual game level */
+	// Session was created and all players have traveled to actual game level.
 	PLAYING
 };
 
@@ -34,7 +34,7 @@ class AUnrealTestGameMode : public AGameMode
 #pragma region Delegates
 // Delegates
 public:
-	// On session creation completed delegate
+	// On session creation completed delegate.
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameOver, int32, DefeatedTeamID);
 	UPROPERTY(BlueprintAssignable, Category = "SessionHandling")
 	FOnGameOver OnGameOver;
@@ -43,27 +43,27 @@ public:
 #pragma region Configuration
 // Configuration
 protected:
-	// Max player ammount per session
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="GameMode")
+	// Max player ammount per session.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Configuration|GameMode")
 	int32 MaxPlayerPerSession = 1;
 
-	// Player amount per team
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameMode")
+	// Player amount per team.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configuration|GameMode")
 	int32 PlayersPerTeam = 1;
 
-	// Player max session search results
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SessionHandling")
+	// Player max session search results.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configuration|SessionHandling")
 	int32 MaxSessionSearchResults = 100;
 
-	// Champions data table
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Champions")
+	// Champions data table.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configuration|Champions")
 	class UDataTable* ChampionsDataTable;
 #pragma endregion Configuration
 
 #pragma region Variables
 // Variables
 protected:
-	// Match phase
+	// Match phase.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameMode")
 	EMatchPhase GamePhase = EMatchPhase::NONE;
 #pragma endregion Variables
@@ -73,7 +73,7 @@ protected:
 // Initialization
 
 public:
-	// Constructor
+	// Constructor.
 	AUnrealTestGameMode(const FObjectInitializer& ObjectInitializer);
 #pragma endregion Initialization
 
@@ -81,46 +81,46 @@ public:
 #pragma region Getter / Setters
 // Getters / Setters
 public:
-	// Get max player ammount per session
+	// Get max player ammount per session.
 	UFUNCTION(BlueprintCallable, Category = "GameMode")
-	int32 GetMaxPlayerPerSession() { return MaxPlayerPerSession; };
+	FORCEINLINE int32 GetMaxPlayerPerSession() const { return MaxPlayerPerSession; };
 
-	// Get player amount per team
+	// Get player amount per team.
 	UFUNCTION(BlueprintCallable, Category = "GameMode")
-	int32 GetPlayersPerTeam() { return PlayersPerTeam; };
+	FORCEINLINE int32 GetPlayersPerTeam() const { return PlayersPerTeam; };
 
-	// Get max session search results to find
+	// Get max session search results to find.
 	UFUNCTION(BlueprintCallable, Category = "SessionHandling")
-	int32 GetMaxSessionSearchResults() { return MaxSessionSearchResults; };
+	FORCEINLINE int32 GetMaxSessionSearchResults() const { return MaxSessionSearchResults; };
 #pragma endregion Getter / Setters
 
 #pragma region Overrides
 // Overrides
 protected:
-	// On pre login event
+	// On pre login event.
 	virtual void PreLogin( const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMe) override;
 	
-	// On login event
+	// On login event.
 	virtual APlayerController* Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
 
-	// On post login event
+	// On post login event.
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 public:
-	// Overrides default pawn class
+	// Overrides default pawn class.
 	UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
 
 #pragma endregion Overrides
 
 #pragma region Functions
 public:
-	// On any actor died
+	// On any actor died.
 	void ActorDied(AActor* DeadActor);
 
-	// Checks if player can damage another
+	// Checks if player can damage another.
 	void ProcessDamage(AActor* DamagedAtor, float BaseDamage, AController* EventInstigator, AActor* DamageCauser, TSubclassOf<UDamageType> DamageTypeClass);
 
-	// On game over event
+	// On game over event.
 	UFUNCTION()
 	void OnGameOverEvent(int32 TeamID);
 #pragma endregion Functions

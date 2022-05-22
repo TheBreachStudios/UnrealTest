@@ -38,6 +38,8 @@ public:
 
 #pragma region Override
 // Override
+protected:
+	// On initialized function.
 	virtual void NativeOnInitialized() override;
 #pragma endregion Override
 

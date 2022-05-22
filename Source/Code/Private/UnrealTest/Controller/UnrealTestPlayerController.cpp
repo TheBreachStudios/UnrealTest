@@ -13,20 +13,25 @@
 
 
 #pragma region Initialization
-// Initialization
-
-// Constructor
+// Constructor.
 AUnrealTestPlayerController::AUnrealTestPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// Ensures replication
 	bReplicates = true;
 }
+
+// Setup replicated properties.
+void AUnrealTestPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AUnrealTestPlayerController, PawnToUse);
+	DOREPLIFETIME(AUnrealTestPlayerController, PawnToUseName);
+}
 #pragma endregion Initialization
 
 #pragma region Overrides
-// Overrides
-
-// Begin play
+// Called when the game starts or when spawned.
 void AUnrealTestPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -34,30 +39,19 @@ void AUnrealTestPlayerController::BeginPlay()
 #pragma endregion Overrides
 
 #pragma region Functions
-//Functions
-
-// Set Pawn Class On Server For This Controller validation
+// Set Pawn Class On Server For This Controller validation.
 bool AUnrealTestPlayerController::Server_SetPawn_Validate(TSubclassOf<APawn> InPawnClass, FName InPawnName)
 {
 	return true;
 }
 
-// Set Pawn Class On Server For This Controller
+// Set Pawn Class On Server For This Controller.
 void AUnrealTestPlayerController::Server_SetPawn_Implementation(TSubclassOf<APawn> InPawnClass, FName InPawnName)
 {
 	PawnToUse = InPawnClass;
 	PawnToUseName = InPawnName;
 
-	// Just in case we didn't get the PawnClass on the Server in time... 
+	// Ensure actor has the propper info by forcing a restart. 
 	GetWorld()->GetAuthGameMode()->RestartPlayer(this);
-}
-
-// Replication
-void AUnrealTestPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(AUnrealTestPlayerController, PawnToUse);
-	DOREPLIFETIME(AUnrealTestPlayerController, PawnToUseName);
 }
 #pragma endregion Functions

@@ -111,7 +111,7 @@ void AUnrealTestCharacter::BeginPlay()
 
 	// Attach weapon to weapon holder
 	FVector location = FVector();
-	FRotator rotation = WeaponHolder->GetComponentRotation();
+	FRotator rotation = FRotator();
 	CurrentWeapon = Cast<ABaseWeapon>(GetWorld()->SpawnActor(InitialWeaponTemplate, &location, &rotation, params));
 	CurrentWeapon->AttachToComponent(WeaponHolder, FAttachmentTransformRules::KeepRelativeTransform);
 	CurrentWeapon->SetOwner(this);
@@ -238,7 +238,10 @@ bool AUnrealTestCharacter::Client_GameOver_Validate(int32 DefeatedTeamID)
 void AUnrealTestCharacter::Client_GameOver_Implementation(int32 DefeatedTeamID)
 {
 	// Show game over screen
-	if (PlayerHUD) { PlayerHUD->UpdateGameOverWidgetVisibility(true); };
+	if (PlayerHUD) {
+		PlayerHUD->UpdateDefeatedTeamID(true);
+		PlayerHUD->UpdateGameOverWidgetVisibility(true); 
+	};
 
 	// Disable input
 	GetController()->DisableInput(Cast<APlayerController>(GetController()));

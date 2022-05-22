@@ -4,10 +4,24 @@
 #include "Components/RichTextBlock.h"
 #include "Components/Button.h"
 
-#pragma region Overrides
-// Overrides
 
-// On initialized function
+#pragma region Getters / Setters
+// Get ButtonLabel content.
+FText UMasterButton::GetButtonLabelContent()
+{
+	return ButtonLabel->GetText();
+}
+
+// Set ButtonLabel content.
+void UMasterButton::SetButtonLabelContent(FText LabelContent)
+{
+	ButtonLabelContent = LabelContent;
+	ButtonLabel->SetText(ButtonLabelContent);
+}
+#pragma endregion Getters / Setters
+
+#pragma region Overrides
+// On initialized function.
 void UMasterButton::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -15,7 +29,7 @@ void UMasterButton::NativeOnInitialized()
 	Button->OnClicked.AddUniqueDynamic(this, &UMasterButton::OnButtonClickedEvent);
 }
 
-// Pre construct function
+// Pre construct function.
 void UMasterButton::NativePreConstruct()
 {
 	Super::NativePreConstruct();
@@ -25,25 +39,8 @@ void UMasterButton::NativePreConstruct()
 }
 #pragma endregion Overrides
 
-#pragma region Getters / Setters
-// Get ButtonLabel content
-FText UMasterButton::GetButtonLabelContent() 
-{
-	return ButtonLabel->GetText();
-}
-
-// Set ButtonLabel content
-void UMasterButton::SetButtonLabelContent(FText LabelContent)
-{
-	ButtonLabelContent = LabelContent;
-	ButtonLabel->SetText(ButtonLabelContent);
-}
-#pragma endregion Getters / Setters
-
 #pragma region Functions
-// Functions
-
-// Broadcasts Button OnClicked event
+// Broadcasts Button OnClicked event.
 void UMasterButton::OnButtonClickedEvent()
 {
 	OnButtonClicked.Broadcast();

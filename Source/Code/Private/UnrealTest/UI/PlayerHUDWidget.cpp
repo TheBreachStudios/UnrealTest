@@ -17,13 +17,12 @@
 #include "UnrealTest/UI/HealthBarWidget.h"
 
 #pragma region Initialization
-// Initialization
-// Constructor 
+// Constructor .
 UPlayerHUDWidget::UPlayerHUDWidget() : CurrentMatchPhase(EMatchPhase::NONE) {}
 #pragma endregion Initialization
 
 #pragma region Getters / Setters
-	// Set health component for Health bar
+// Set health component for Health bar
 void UPlayerHUDWidget::SetHealthComponent(UHealthComponent* HealthComponent)
 {
 	HealthBarWidget->HealthComponent = HealthComponent;
@@ -31,9 +30,7 @@ void UPlayerHUDWidget::SetHealthComponent(UHealthComponent* HealthComponent)
 #pragma endregion Getters / Setters
 
 #pragma region Overrides
-// Overrides
-
-// On initialized function
+// On initialized function.
 void UPlayerHUDWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -70,9 +67,6 @@ void UPlayerHUDWidget::NativeOnInitialized()
 #pragma endregion Overrides
 
 #pragma region Functions
-// Functions
-
-
 // Try get Player state
 void UPlayerHUDWidget::TryBindToPlayerStateTeamIDChanged()
 {
@@ -151,8 +145,6 @@ void UPlayerHUDWidget::UpdateCurrentPlayerCountText()
 // Update current player count text
 void UPlayerHUDWidget::UpdateTeamIDText()
 {
-	UE_LOG(LogTemp, Warning, TEXT("[UpdateTeamIDText] FILLING Player: %s Tesm: %i"), *GetOwningPlayer()->GetName(), TeamID);
-
 	#define LOCTEXT_NAMESPACE "TechTest"
 	TeamIDText->SetText(FText::Format(LOCTEXT("TeamID", "{0}"), TeamID));
 	#undef LOCTEXT_NAMESPACE

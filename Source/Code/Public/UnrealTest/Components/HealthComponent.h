@@ -28,7 +28,7 @@ public:
 // Configuration
 private:
 	// Default maximum health 
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = "Health", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = "Configuration|Health", meta = (AllowPrivateAccess = true))
 	float MaxHealth = 100.f;
 #pragma endregion Configuration
 
