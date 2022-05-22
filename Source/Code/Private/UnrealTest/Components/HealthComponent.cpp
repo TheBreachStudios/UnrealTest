@@ -11,47 +11,52 @@
 #include "UnrealTest/Game/UnrealTestGameMode.h"
 
 #pragma region Initialization
-
-// Sets default values for this component's properties
-UHealthComponent::UHealthComponent()
-{
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-}
-
+// Setup replicated properties.
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	// Here we list the variables we want to replicate + a condition if wanted
+
 	DOREPLIFETIME(UHealthComponent, MaxHealth);
 	DOREPLIFETIME(UHealthComponent, CurrentHealth);
 }
 #pragma endregion Initialization
 
 #pragma region Override
-// Called when the game starts
+// Called when the game starts.
 void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Auto bind self to owner's damge events
 	GetOwner()->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::TakeDamage);
-	
 }
 #pragma endregion Override
 
 #pragma region Functions
-
+// Response for owner's on any damage event.
 void UHealthComponent::TakeDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) {
 	if (GetOwner()->GetLocalRole() >= ROLE_Authority) {
 		RemoveHealth(Damage);
 	}
 }
 
+// Finds and set game mode.
+AUnrealTestGameMode* UHealthComponent::FindGameMode() {
+	if (!GameModeRef) {
+		GameModeRef = Cast<AUnrealTestGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	}
+
+	return GameModeRef;
+}
+
+// Initialize health values.
 void UHealthComponent::InitializeHealth(float NewHealthValue)
 {
 	MaxHealth = NewHealthValue;
 	CurrentHealth = MaxHealth;
 }
 
+// Adds HealthChange to CurrentHealth (to a maximum of MaxHealth).
 void UHealthComponent::AddHealth(float HealthChange)
 {
 	// Checks that HealthChange is positive and is not already at MaxHealth
@@ -60,6 +65,7 @@ void UHealthComponent::AddHealth(float HealthChange)
 	}
 }
 
+// Removes HealthChange to CurrentHealth (to a minimum of 0.f).
 void UHealthComponent::RemoveHealth(float HealthChange)
 {
 	// Check HealthChange is positive and is not dead already
@@ -77,22 +83,15 @@ void UHealthComponent::RemoveHealth(float HealthChange)
 	}
 }
 
+// Get CurrentHealth.
 float UHealthComponent::GetCurrentHealth()
 {
 	return CurrentHealth;
 }
 
+// Get CurrentHealth normalized.
 float UHealthComponent::GetNormalizedHealth()
 {
 	return CurrentHealth / MaxHealth;
 }
-
-AUnrealTestGameMode* UHealthComponent::FindGameMode() {
-	if (!GameModeRef) {
-		GameModeRef = Cast<AUnrealTestGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	}
-
-	return GameModeRef;
-}
-
 #pragma endregion Functions

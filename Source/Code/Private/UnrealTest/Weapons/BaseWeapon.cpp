@@ -87,8 +87,10 @@ void ABaseWeapon::Shoot(UCameraComponent* CameraRef)
 	FVector shootDirection = maxShootPoint - shootStart;
 	shootDirection.Normalize(0.0001);
 	FVector shootEnd = shootStart + (shootDirection * Range);
+	FCollisionQueryParams collisionQueryParams = FCollisionQueryParams::DefaultQueryParam;
+	collisionQueryParams.AddIgnoredActor(GetOwner());
 
-	bool shootHitSuccess = GetWorld()->LineTraceSingleByChannel(shootHit, shootStart, shootEnd, ECollisionChannel::ECC_Visibility);
+	bool shootHitSuccess = GetWorld()->LineTraceSingleByChannel(shootHit, shootStart, shootEnd, ECollisionChannel::ECC_Visibility, collisionQueryParams);
 
 	if (shootHitSuccess)
 	{

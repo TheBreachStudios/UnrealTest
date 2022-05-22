@@ -60,7 +60,7 @@ void UEntryMenu::OnSessionCreatedEvent(bool Success)
 	if (Success)
 	{
 		// TODO: Move values to data asset
-		UGameplayStatics::OpenLevel(this, TEXT("TestLevel"), false, "?listen");
+		UGameplayStatics::OpenLevel(this, TEXT("MatchLevel"), false, "?listen");
 	}
 	else
 	{
