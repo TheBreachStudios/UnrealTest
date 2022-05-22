@@ -6,6 +6,10 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
+#include "UnrealTest/Weapons/WeaponComponent.h"
+#include "UnrealTest/Character/HealthComponent.h"
+#include "Engine/Engine.h"
+#include "Net/UnrealNetwork.h"
 #include "GameFramework/SpringArmComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,9 +30,25 @@ AUnrealTestCharacter::AUnrealTestCharacter()
 	SetCameraBoom();
 	SetFollowCamera();
 
+	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	bReplicates = true;
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
+
+void AUnrealTestCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	// to prevent the Unreal network from playing tricks on us we are going to disable replication
+
+	if(Cast<APlayerController>(Controller))
+		Cast<APlayerController>(Controller)->SetInputMode(FInputModeGameAndUI());
+	
+}
+
 
 void AUnrealTestCharacter::DisableCotrollerRotation()
 {
@@ -36,6 +56,16 @@ void AUnrealTestCharacter::DisableCotrollerRotation()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
+}
+
+// In this case we implement a simple health deduction using SetCurrentHealth for takedamage
+float AUnrealTestCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+
+	float currentHealth = HealthComponent->GetCurrentHealth();
+	float damageApplied = currentHealth - DamageTaken;
+	HealthComponent->SetCurrentHealth(damageApplied);
+	return damageApplied;
 }
 
 void AUnrealTestCharacter::ConfigureCharacterMovement(UCharacterMovementComponent* characterMovement)
@@ -86,6 +116,8 @@ void AUnrealTestCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 	LookUpBinding(PlayerInputComponent);
 	
 	TouchBinding(PlayerInputComponent);
+
+	ShootBinding(PlayerInputComponent);
 }
 
 void AUnrealTestCharacter::JumpBinding(class UInputComponent* PlayerInputComponent)
@@ -121,6 +153,12 @@ void AUnrealTestCharacter::TouchBinding(class UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindTouch(IE_Released, this, &AUnrealTestCharacter::TouchStopped);
 }
 
+//To shoot the current weapon with the binding key for shoot (left mouse button)
+void AUnrealTestCharacter::ShootBinding(class UInputComponent* PlayerInputComponent) {
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AUnrealTestCharacter::ShootWeapon);
+}
+
+
 void AUnrealTestCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	Jump();
@@ -130,6 +168,7 @@ void AUnrealTestCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector L
 {
 	StopJumping();
 }
+
 
 void AUnrealTestCharacter::TurnAtRate(float Rate)
 {
@@ -170,4 +209,10 @@ void AUnrealTestCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void AUnrealTestCharacter::ShootWeapon()
+{
+	// Shoot the current weapon
+	WeaponComponent->StartFire();
 }

@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "UnrealTestCharacter.generated.h"
 
+
 UCLASS(config=Game)
 class AUnrealTestCharacter : public ACharacter
 {
@@ -18,12 +19,33 @@ class AUnrealTestCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	/*For use only as pointers*/
+
+	/*Weapon attached*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+		class UWeaponComponent * WeaponComponent;
+
+	/*For health management*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health, meta = (AllowPrivateAccess = "true"))
+		class UHealthComponent * HealthComponent;
+
+	/*Point to attach the weapon*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+		FVector WeaponSocket;
+
+
 public:
 	AUnrealTestCharacter();
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	float TurnRateGamepad;
+
+	/** Event for taking damage. Overridden from APawn.*/
+	UFUNCTION(BlueprintCallable, Category = "Health")
+		float TakeDamage(float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 
 protected:
 
@@ -51,6 +73,13 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
+	/*Shoot the current weapon the way the equiped weapon shoots*/
+	void ShootWeapon();
+
+	void BeginPlay();
+
+
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -72,6 +101,7 @@ public:
 	void TurnBinding(class UInputComponent* PlayerInputComponent);
 	void LookUpBinding(class UInputComponent* PlayerInputComponent);
 	void TouchBinding(class UInputComponent* PlayerInputComponent);
+	void ShootBinding(class UInputComponent* PlayerInputComponent);
 
 	const float TURN_RATE_GAMEPAD = 50.f;
 	const float JUMP_Z_VELOCITY= 700.f;
