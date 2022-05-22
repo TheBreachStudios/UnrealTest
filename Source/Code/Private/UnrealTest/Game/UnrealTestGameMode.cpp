@@ -45,10 +45,6 @@ APlayerController* AUnrealTestGameMode::Login(UPlayer* NewPlayer, ENetRole InRem
 
 	if (champOption != "") {
 		FChampionDefinition* Champion = ChampionsDataTable->FindRow<FChampionDefinition>(FName(champOption), ContextString, true);
-		
-		UUnrealTestGameInstance* gameInstance = Cast<UUnrealTestGameInstance>(newPlayerController->GetGameInstance());
-		gameInstance->DefaultPawn = Champion->ChampionClass;
-		gameInstance->DefaultPawnName = FName(champOption);
 		newPlayerController->Server_SetPawn(Champion->ChampionClass, FName(champOption));
 		UE_LOG(LogTemp, Warning, TEXT("AUnrealTestGameMode::Login %s"), *Options);
 	}
@@ -84,7 +80,7 @@ void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 		if (GetNumPlayers() == GetMaxPlayerPerSession())
 		{
 			gameInstanceSubsystem->SetCurrentMatchPhase(EMatchPhase::WAITING);
-			GetWorld()->ServerTravel("/Game/ThirdPerson/Maps/ThirdPersonMap?listen", false);
+			GetWorld()->ServerTravel("/Game/ThirdPerson/Maps/WaitingRoom?listen", false);
 		}
 		break;
 
@@ -179,15 +175,18 @@ void AUnrealTestGameMode::ProcessDamage(AActor* DamagedActor, float BaseDamage, 
 	AUnrealTestCharacter* damagedPlayer = Cast<AUnrealTestCharacter>(DamagedActor);
 	AUnrealTestCharacter* damagerPlayer = Cast<AUnrealTestCharacter>(EventInstigator->GetPawn());
 
-	if (damagedPlayer && damagerPlayer && damagerPlayer != damagedPlayer) {
+	if (damagedPlayer && damagerPlayer) {
 		AUnrealTestPlayerState* damagedPlayerState = Cast<AUnrealTestPlayerState>(damagedPlayer->GetPlayerState());
 		AUnrealTestPlayerState* damagerPlayerState = Cast<AUnrealTestPlayerState>(damagerPlayer->GetPlayerState());
 
 		// If players have the different TeamID or their team ID is -1 (i.e.: they are in the waiting room) they can receive damage
 		if (
-			damagedPlayerState->GetTeamID() == damagerPlayerState->GetTeamID()
-			&& (damagedPlayerState->GetTeamID() != -1)
-			&& (damagerPlayerState->GetTeamID() != -1)
+			(
+				damagedPlayerState->GetTeamID() == damagerPlayerState->GetTeamID()
+				&& (damagedPlayerState->GetTeamID() != -1)
+				&& (damagerPlayerState->GetTeamID() != -1)
+			)
+			|| damagerPlayer == damagedPlayer
 		)
 		{
 			return;
