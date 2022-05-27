@@ -95,14 +95,13 @@ void AUnrealTestCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 
 void AUnrealTestCharacter::RespawnCharacter()
 {
-	if (GetWorld())
-	{
-		if (AUnrealTestGameMode* GameMode = Cast<AUnrealTestGameMode>(GetWorld()->GetAuthGameMode()))
-		{
-			if (GetController())
-				GameMode->RestartPlayer(GetController());
-		}
-	}
+	//Reenable movement and collision
+	EnableMovement();
+	EnableCapsuleCollision();
+	//Enable Player Input again
+	EnablePlayerInput();
+	//Reattach mesh after doing Ragdoll
+	ReAttachRagdoll();
 }
 
 void AUnrealTestCharacter::JumpBinding(class UInputComponent* PlayerInputComponent)
@@ -211,23 +210,16 @@ void AUnrealTestCharacter::Die(AActor* ActorToDie)
 		//Disable Movement
 		DisableMovement();
 
+		//Disable Player Input
+		DisablePlayerInput();
+
 		//DoRagdoll
 		ApplyRagdoll();
 
 		//SetTimer To respawn
 		FTimerHandle timerHandle;
-		GetWorldTimerManager().SetTimer(timerHandle, this, &AUnrealTestCharacter::RespawnCharacter, TimeToRespawn, true);
+		GetWorldTimerManager().SetTimer(timerHandle, this, &AUnrealTestCharacter::RespawnCharacter, TimeToRespawn, false);
 	}
-}
-
-void AUnrealTestCharacter::SetCharacterCollide(bool bShouldCollide)
-{
-	bShouldCollide ? EnableCapsuleCollision() : DisableCapsuleCollision();
-}
-
-void AUnrealTestCharacter::SetCharacterMovement(bool bShouldMove)
-{
-	bShouldMove ? EnableMovement() : DisableMovement();
 }
 
 void AUnrealTestCharacter::ApplyRagdoll()
@@ -249,6 +241,27 @@ void AUnrealTestCharacter::ApplyRagdoll()
 	GetMesh()->AddImpulseAtLocation(GetActorForwardVector() * -1000, GetActorLocation());
 }
 
+void AUnrealTestCharacter::ReAttachRagdoll()
+{
+	if (!GetMesh())
+	{
+		return;
+	}
+
+	GetMesh()->SetSimulatePhysics(false);
+
+	//Default Relative Loc of the player in viewport
+	FVector relativeLoc = GetCapsuleComponent()->GetComponentLocation();
+	relativeLoc.Z -= 90.f;
+
+	//Default Relative Rot the player in viewport
+	FQuat4d relativeRot = GetCapsuleComponent()->GetComponentQuat();
+	FQuat4d rotationAmount = FQuat4d::MakeFromEuler(FVector3d(0, 0, 270));
+
+	GetMesh()->SetRelativeLocationAndRotation(relativeLoc, (relativeRot * rotationAmount));
+	GetMesh()->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepWorldTransform);
+}
+
 void AUnrealTestCharacter::EnableMovement()
 {
 	if (UCharacterMovementComponent* CharacterComp = Cast<UCharacterMovementComponent>(GetMovementComponent()))
@@ -266,12 +279,33 @@ void AUnrealTestCharacter::DisableMovement()
 	}
 }
 
+void AUnrealTestCharacter::EnablePlayerInput()
+{
+	if (GetWorld())
+	{
+		if (APlayerController* playerCont = GetWorld()->GetFirstPlayerController())
+		{
+			EnableInput(playerCont);
+		}
+	}
+}
+
+void AUnrealTestCharacter::DisablePlayerInput()
+{
+	if (GetWorld())
+	{
+		if (APlayerController* playerCont = GetWorld()->GetFirstPlayerController())
+		{
+			DisableInput(playerCont);
+		}
+	}
+}
+
 void AUnrealTestCharacter::EnableCapsuleCollision()
 {
 	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
 	{
 		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		CapsuleComp->SetCollisionProfileName(TEXT("Pawn"));
 	}
 }
 
@@ -280,7 +314,6 @@ void AUnrealTestCharacter::DisableCapsuleCollision()
 	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
 	{
 		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	}
 }
 

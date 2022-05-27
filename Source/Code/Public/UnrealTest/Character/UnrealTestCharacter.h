@@ -104,11 +104,6 @@ public:
 	UFUNCTION()
 	void Die(AActor* ActorToDie);
 
-	//Set Collision Enabled or disables¡d
-	void SetCharacterCollide(bool bShouldCollide);
-
-	//Set Charaacter move to be enabled/disabled
-	void SetCharacterMovement(bool bShouldMove);
 
 private:
 	//Functions tp Enable/Disable Capsule collision
@@ -119,9 +114,14 @@ private:
 	void EnableMovement();
 	void DisableMovement();
 
+	//Functions to Enable/Disable Input
+	void EnablePlayerInput();
+	void DisablePlayerInput();
+
 	//Do Ragdoll Anim
 	void ApplyRagdoll();
-
+	//Reattach Ragdoll to capsule
+	void ReAttachRagdoll();
 
 };
 
