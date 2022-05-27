@@ -6,11 +6,14 @@
 #include "GameFramework/Character.h"
 #include "UnrealTestCharacter.generated.h"
 
+class UUT_HealthComponent;
+
 UCLASS(config=Game)
 class AUnrealTestCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+private:
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
@@ -18,6 +21,15 @@ class AUnrealTestCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	//Health Component
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health, meta = (AllowPrivateAccess = "true"))
+	UUT_HealthComponent* HealthComponent;
+
+	//Time To respawn
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Death, meta = (AllowPrivateAccess = "true"))
+	float TimeToRespawn;
+
 public:
 	AUnrealTestCharacter();
 
@@ -56,6 +68,8 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
+	void RespawnCharacter();
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -79,5 +93,35 @@ public:
 	const float MAX_WALK_SPEED = 500.f;
 	const float MIN_ANALOG_WALK_SPEED = 20.f;
 	const float BRAKING_DECELERATION_WALKING = 2000.f;
+
+	//Getter of the Health Component
+	UFUNCTION(BlueprintCallable)
+	UUT_HealthComponent* GetHealthComponent() const;
+
+	void SetHealthComponent();
+
+	//Die Function called when health component send the event
+	UFUNCTION()
+	void Die(AActor* ActorToDie);
+
+	//Set Collision Enabled or disables¡d
+	void SetCharacterCollide(bool bShouldCollide);
+
+	//Set Charaacter move to be enabled/disabled
+	void SetCharacterMovement(bool bShouldMove);
+
+private:
+	//Functions tp Enable/Disable Capsule collision
+	void EnableCapsuleCollision();
+	void DisableCapsuleCollision();
+
+	//Functions to Enable/Disable movement
+	void EnableMovement();
+	void DisableMovement();
+
+	//Do Ragdoll Anim
+	void ApplyRagdoll();
+
+
 };
 

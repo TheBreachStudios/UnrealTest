@@ -7,6 +7,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "UnrealTest/Components/UT_HealthComponent.h"
+#include "UnrealTest/Game/UnrealTestGameMode.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AUnrealTestCharacter
@@ -25,6 +27,9 @@ AUnrealTestCharacter::AUnrealTestCharacter()
 	
 	SetCameraBoom();
 	SetFollowCamera();
+
+	//HealthComponent
+	SetHealthComponent();
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -86,6 +91,18 @@ void AUnrealTestCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 	LookUpBinding(PlayerInputComponent);
 	
 	TouchBinding(PlayerInputComponent);
+}
+
+void AUnrealTestCharacter::RespawnCharacter()
+{
+	if (GetWorld())
+	{
+		if (AUnrealTestGameMode* GameMode = Cast<AUnrealTestGameMode>(GetWorld()->GetAuthGameMode()))
+		{
+			if (GetController())
+				GameMode->RestartPlayer(GetController());
+		}
+	}
 }
 
 void AUnrealTestCharacter::JumpBinding(class UInputComponent* PlayerInputComponent)
@@ -171,3 +188,99 @@ void AUnrealTestCharacter::MoveRight(float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
+
+UUT_HealthComponent* AUnrealTestCharacter::GetHealthComponent() const
+{
+	return HealthComponent;
+}
+
+void AUnrealTestCharacter::SetHealthComponent()
+{
+	// Create a healthComp
+	HealthComponent = CreateDefaultSubobject<UUT_HealthComponent>(TEXT("HealthComponent"));
+	HealthComponent->OnActorDieEvent.AddUniqueDynamic(this, &AUnrealTestCharacter::Die);
+}
+
+void AUnrealTestCharacter::Die(AActor* ActorToDie)
+{
+	if (ActorToDie == this)
+	{
+		// Disable all collision on capsule
+		DisableCapsuleCollision();
+
+		//Disable Movement
+		DisableMovement();
+
+		//DoRagdoll
+		ApplyRagdoll();
+
+		//SetTimer To respawn
+		FTimerHandle timerHandle;
+		GetWorldTimerManager().SetTimer(timerHandle, this, &AUnrealTestCharacter::RespawnCharacter, TimeToRespawn, true);
+	}
+}
+
+void AUnrealTestCharacter::SetCharacterCollide(bool bShouldCollide)
+{
+	bShouldCollide ? EnableCapsuleCollision() : DisableCapsuleCollision();
+}
+
+void AUnrealTestCharacter::SetCharacterMovement(bool bShouldMove)
+{
+	bShouldMove ? EnableMovement() : DisableMovement();
+}
+
+void AUnrealTestCharacter::ApplyRagdoll()
+{
+	if (!GetMesh())
+	{
+		return;
+	}
+
+	//Set Collison Preset to Ragdoll
+	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+	SetActorEnableCollision(true);
+
+	//Ragdoll
+	GetMesh()->SetAllBodiesSimulatePhysics(true);
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->WakeAllRigidBodies();
+	GetMesh()->bBlendPhysics = true;
+	GetMesh()->AddImpulseAtLocation(GetActorForwardVector() * -1000, GetActorLocation());
+}
+
+void AUnrealTestCharacter::EnableMovement()
+{
+	if (UCharacterMovementComponent* CharacterComp = Cast<UCharacterMovementComponent>(GetMovementComponent()))
+	{
+		CharacterComp->SetDefaultMovementMode();
+	}
+}
+
+void AUnrealTestCharacter::DisableMovement()
+{
+	if (UCharacterMovementComponent* CharacterComp = Cast<UCharacterMovementComponent>(GetMovementComponent()))
+	{
+		CharacterComp->StopMovementImmediately();
+		CharacterComp->DisableMovement();
+	}
+}
+
+void AUnrealTestCharacter::EnableCapsuleCollision()
+{
+	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
+	{
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		CapsuleComp->SetCollisionProfileName(TEXT("Pawn"));
+	}
+}
+
+void AUnrealTestCharacter::DisableCapsuleCollision()
+{
+	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
+	{
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	}
+}
+
