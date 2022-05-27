@@ -6,10 +6,12 @@
 
 AUnrealTestGameMode::AUnrealTestGameMode()
 {
-	// set default pawn class to our Blueprinted character
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter"));
-	if (PlayerPawnBPClass.Class != NULL)
-	{
-		DefaultPawnClass = PlayerPawnBPClass.Class;
-	}
+	//Removed due to an error in packaging.
+	//// set default pawn class to our Blueprinted character
+	//static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter"));
+	//if (PlayerPawnBPClass.Class != NULL)
+	//{
+	//	DefaultPawnClass = PlayerPawnBPClass.Class;
+	//}
+	
 }
