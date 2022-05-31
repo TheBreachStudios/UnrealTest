@@ -12,6 +12,5 @@ AUnrealTestGameMode::AUnrealTestGameMode()
 	//if (PlayerPawnBPClass.Class != NULL)
 	//{
 	//	DefaultPawnClass = PlayerPawnBPClass.Class;
-	//}
-	
+	//}	
 }
