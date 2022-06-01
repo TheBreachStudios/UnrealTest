@@ -31,8 +31,6 @@ public:
 	int32 NumDeaths;
 
 	// Player Died
-	void ScoreDeath(const int32 Team);
-
 	void AddDeath(const int32 Team);
 	
 	//Sets Team
@@ -43,8 +41,5 @@ public:
 	int32 GetTeamNum() const;
 	
 	//Updates Mesh Colors With the team id -- Red or Blue
-	void UpdateTeamColors();
-
-	virtual void ClientInitialize(class AController* InController) override;
-	
+	void UpdateTeamColors();	
 };

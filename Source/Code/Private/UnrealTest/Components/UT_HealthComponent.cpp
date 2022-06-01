@@ -15,7 +15,6 @@ UUT_HealthComponent::UUT_HealthComponent()
 	//Replicated by default in case the owner doesnt replicates it
 	SetIsReplicatedByDefault(true);
 	MaxHealthAmount = 100.0f;
-	//StartingLives = 3;
 
 	//SetHealth to MaxAmount
 	ResetHealthToMax();
@@ -26,11 +25,6 @@ void UUT_HealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME(UUT_HealthComponent, HealthAmount);
-	//DOREPLIFETIME(UUT_HealthComponent, CurrentLives);
-}
-
-void UUT_HealthComponent::OnRep_HealthAmount()
-{
 }
 
 void UUT_HealthComponent::ResetHealthToMax()
@@ -53,11 +47,6 @@ float UUT_HealthComponent::GetCurrentHealthPercentage() const
 	return (HealthAmount/MaxHealthAmount);
 }
 
-uint8 UUT_HealthComponent::GetCurrentLive() const
-{
-	return uint8();
-}
-
 void UUT_HealthComponent::SetHealth(const float NewHealth)
 {
 	if (GetOwnerRole() == ROLE_Authority)
@@ -71,25 +60,7 @@ void UUT_HealthComponent::SetHealth(const float NewHealth)
 			if (GetOwner())
 			{
 				OnActorDieEvent.Broadcast(GetOwner());
-				//Decrease one live once dead
-				//SetLives(CurrentLives - 1);
 			}
 		}
 	}
-}
-
-void UUT_HealthComponent::SetLives(const uint8 NewLive)
-{
-	//if (GetOwnerRole() == ROLE_Authority)
-	//{
-	//	OnLivesTotalChangedEvent.Broadcast(CurrentLives, NewLive);
-	//	//Copied from Clamp 
-	//	CurrentLives = (NewLive < 0) ? 0 : (NewLive < StartingLives) ? NewLive : StartingLives;
-
-	//	if (CurrentLives > 0 && CurrentLives <= StartingLives)
-	//	{
-	//		if (GetOwner())
-	//			OnOwnerRespawnEvent.Broadcast(GetOwner());
-	//	}
-	//}
 }

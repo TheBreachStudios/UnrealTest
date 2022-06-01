@@ -47,8 +47,6 @@ AUnrealTestCharacter::AUnrealTestCharacter()
 	ProjectileForwardOffset = 100.0f;
 	ProjectileUpwardOffset = 25.0f;
 
-	//Team None By default
-
 	bReplicates = true;
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -174,11 +172,6 @@ void AUnrealTestCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
 }
 
-void AUnrealTestCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-}
-
 void AUnrealTestCharacter::PossessedBy(AController* C)
 {
 	Super::PossessedBy(C);
@@ -194,7 +187,7 @@ void AUnrealTestCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	// As soon as PlayerState is assigned, set team colors of this pawn for local player
+	// As soon as PlayerState is assigned, set team colors for local player
 	if (GetPlayerState() != NULL)
 	{
 		if (AUT_PlayerState* playerState = Cast<AUT_PlayerState>(GetPlayerState()))
@@ -243,7 +236,6 @@ void AUnrealTestCharacter::SetHealthComponent()
 	// Create a healthComp
 	HealthComponent = CreateDefaultSubobject<UUT_HealthComponent>(TEXT("HealthComponent"));
 	HealthComponent->OnActorDieEvent.AddUniqueDynamic(this, &AUnrealTestCharacter::Die);
-	HealthComponent->OnActorDieEvent.AddUniqueDynamic(this, &AUnrealTestCharacter::TimeToRespawnCharacter);
 	HealthComponent->SetIsReplicated(true);
 }
 
@@ -275,6 +267,10 @@ void AUnrealTestCharacter::Die(AActor* ActorToDie)
 
 		//DoRagdoll
 		Multicast_ApplyRagdoll();
+
+		//Respawn Character after delay
+		FTimerHandle timerHandle;
+		GetWorldTimerManager().SetTimer(timerHandle, this, &AUnrealTestCharacter::RespawnCharacter, TimeToRespawn, false);
 	}
 }
 
@@ -287,32 +283,25 @@ void AUnrealTestCharacter::NotifyGameModeDeath()
 	}
 }
 
-void AUnrealTestCharacter::TimeToRespawnCharacter(AActor* ActorToRespawn)
-{
-	//SetTimer To respawn
-	if (ActorToRespawn == this)
-	{
-		FTimerHandle timerHandle;
-		GetWorldTimerManager().SetTimer(timerHandle, this, &AUnrealTestCharacter::RespawnCharacter, TimeToRespawn, false);
-	}
-}
-
 void AUnrealTestCharacter::RespawnCharacter()
 {
-	//Reset Health to MAX
-	if (HealthComponent)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		HealthComponent->ResetHealthToMax();
+		//Reset Health to MAX
+		if (HealthComponent)
+		{
+			HealthComponent->ResetHealthToMax();
+		}
+
+		//Reenable movement and collision
+		EnableMovement();
+		EnableCapsuleCollision();
+
+		//Enable Player Input again
+		EnablePlayerInput();
+		//Reattach mesh after doing Ragdoll
+		Multicast_ReAttachRagdoll();
 	}
-
-	//Reenable movement and collision
-	EnableMovement();
-	EnableCapsuleCollision();
-
-	//Enable Player Input again
-	EnablePlayerInput();
-	//Reattach mesh after doing Ragdoll
-	Multicast_ReAttachRagdoll();
 }
 
 void AUnrealTestCharacter::UseMainAction()

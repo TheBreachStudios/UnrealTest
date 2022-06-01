@@ -23,18 +23,19 @@ AUT_DeathMatchGameMode::AUT_DeathMatchGameMode(const FObjectInitializer& ObjectI
 
 	NumTeams = 2;
 	NumberOfKillsNeededToEndMatch = 10;
-	
 }
 
 AActor* AUT_DeathMatchGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {
-	TArray<APlayerStart*> posibleSpawns;
-	APlayerStart* bestStart = nullptr;
 
-	//TODO Cambiar
+	//Set Team
 	AUT_PlayerState* NewPlayerState = Cast<AUT_PlayerState>(Player->PlayerState);
 	const int32 TeamNum = ChooseTeam(NewPlayerState);
 	NewPlayerState->SetTeamNum(TeamNum);
+	
+	//Choose start
+	TArray<APlayerStart*> posibleSpawns;
+	APlayerStart* bestStart = nullptr;
 
 	//Get All SpawnPoints from map
 	for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)

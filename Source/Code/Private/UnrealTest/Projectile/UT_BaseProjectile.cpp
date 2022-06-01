@@ -42,7 +42,7 @@ void AUT_BaseProjectile::Tick(float DeltaTime)
 
 void AUT_BaseProjectile::OnProjectileImpact(UPrimitiveComponent* newComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor != this)
+	if (OtherActor && OtherActor != this)
 	{
 		//Apply Damage to Char and check is other team
 		if (AUnrealTestCharacter* otherAsUTChar = Cast<AUnrealTestCharacter>(OtherActor))
@@ -56,19 +56,17 @@ void AUT_BaseProjectile::OnProjectileImpact(UPrimitiveComponent* newComp, AActor
 			}
 		}
 
+		//Destroy projectile when hitting something
 		ProjectileMovementComponent->StopMovementImmediately();
 		Destroy();
 	}
-
 }
 
 void AUT_BaseProjectile::SetSphere()
 {
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("RootComponent"));
 	SphereComponent->InitSphereRadius(32.f);
-	SphereComponent->SetCollisionProfileName(TEXT("OverlapAll"));
-	SphereComponent->SetHiddenInGame(false);
-
+	SphereComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	RootComponent = SphereComponent;
 
 	//Registering the Projectile Impact function on a Hit event.

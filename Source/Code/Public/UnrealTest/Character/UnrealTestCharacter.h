@@ -40,12 +40,15 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile", meta = (AllowPrivateAccess = "true"))
 	float AbilityFireRate;
 
+	//Projectile spawning position offset
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile", meta = (AllowPrivateAccess = "true"))
 	float ProjectileForwardOffset;	
-	
+
+	//Projectile spawning position Offset
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile", meta = (AllowPrivateAccess = "true"))
 	float ProjectileUpwardOffset;
 
+	//Montage to play when using ability
 	UPROPERTY(EditDefaultsOnly, Category = "AbilityMonatge", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* AbilityMontage;
 
@@ -54,11 +57,6 @@ public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	float TurnRateGamepad;
-
-protected:
-	//Unreal Basic Overrides
-	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 
 protected:
 	//UNREALOVERRIDES
@@ -135,8 +133,8 @@ public:
 	UFUNCTION()
 	void Die(AActor* ActorToDie);
 
-	UFUNCTION()
-	void TimeToRespawnCharacter(AActor* ActorToRespawn);
+	//Notify GM that player has died to update GameState
+	void NotifyGameModeDeath();
 
 	UFUNCTION()
 	void RespawnCharacter();

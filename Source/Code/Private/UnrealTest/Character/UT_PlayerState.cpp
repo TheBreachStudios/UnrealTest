@@ -61,10 +61,3 @@ void AUT_PlayerState::UpdateTeamColors()
 		}
 	}
 }
-
-void AUT_PlayerState::ClientInitialize(AController* InController)
-{
-	Super::ClientInitialize(InController);
-
-	UpdateTeamColors();
-}

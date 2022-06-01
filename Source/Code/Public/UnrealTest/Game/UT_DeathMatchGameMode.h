@@ -36,8 +36,6 @@ protected:
 	//Number of teams
 	int32 NumTeams;
 
-	//TArray<int32>TeamKills;
-
 	UPROPERTY(BlueprintAssignable)
 	FOnMatchStart OnMatchStart;
 

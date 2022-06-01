@@ -26,6 +26,8 @@ public:
 	UPROPERTY(Replicated)
 	TArray<int32> TeamScores;
 
+	// Returns current macth scores
+	// Useful for UI
 	UFUNCTION(BlueprintCallable)
 	TArray<int32> GetTeamScores() const;
 };

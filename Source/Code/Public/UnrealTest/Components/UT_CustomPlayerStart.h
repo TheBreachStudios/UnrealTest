@@ -19,8 +19,4 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "Team")
 	int32 SpawnTeam;
-
-	UPROPERTY(EditAnywhere, Category = "Team")
-	bool bIsOccuppied;
-
 };

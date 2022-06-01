@@ -7,5 +7,4 @@ AUT_CustomPlayerStart::AUT_CustomPlayerStart(const FObjectInitializer& ObjectIni
 	: Super(ObjectInitializer)
 {
 	SpawnTeam = -1;
-	bIsOccuppied = false;
 }

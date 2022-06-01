@@ -24,10 +24,6 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USphereComponent* SphereComponent;
 
-	// Static Mesh used to provide a visual representation of the object.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UStaticMeshComponent* StaticMesh;
-
 	// Movement component for handling projectile movement.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UProjectileMovementComponent* ProjectileMovementComponent;
