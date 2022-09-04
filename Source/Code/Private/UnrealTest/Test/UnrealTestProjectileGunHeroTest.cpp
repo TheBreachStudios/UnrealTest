@@ -7,7 +7,7 @@
 #include "UnrealTest/Weapon/UnrealTestWeaponBase.h"
 #include "UnrealTest/Weapon/UnrealTestProjectileGun.h"
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProjectileGunHeroTest, "Hero.ProjectileGunHero", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProjectileGunHeroTest, "UnrealTest.ProjectileGunHero", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FProjectileGunHeroTest::RunTest(const FString& Parameters)
 {
@@ -63,10 +63,9 @@ bool FProjectileGunHeroTest::RunTest(const FString& Parameters)
 		AUnrealTestProjectileGunHero* Hero = World->SpawnActor<AUnrealTestProjectileGunHero>();
 
 		AUnrealTestWeaponBase* Weapon = Hero->GetWeapon();
-		if (Weapon == nullptr)
+		if (!Weapon)
 		{
 			AddError(TEXT("Newly-spawned projectile gun hero has no weapon"));
-
 		}
 		else if (!Weapon->IsA(AUnrealTestProjectileGun::StaticClass()))
 		{
