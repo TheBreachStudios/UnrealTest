@@ -2,9 +2,13 @@
 
 AUnrealTestHeroBase::AUnrealTestHeroBase()
 {
+	CurrentHealth = MaxHealth;
 }
 
 float AUnrealTestHeroBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	return 0.0f;
+	CurrentHealth -= DamageAmount;
+	if (CurrentHealth < 0) CurrentHealth = 0;
+
+	return DamageAmount;
 }

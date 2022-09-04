@@ -18,4 +18,7 @@ class UNREALTEST_API AUnrealTestProjectileGunHero : public AUnrealTestHeroBase
 
 public:
 	AUnrealTestProjectileGunHero();
+
+protected:
+	void SetupWeapon();
 };

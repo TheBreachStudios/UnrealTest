@@ -3,4 +3,12 @@
 
 AUnrealTestProjectileGunHero::AUnrealTestProjectileGunHero()
 {
+	SetupWeapon();
+}
+
+void AUnrealTestProjectileGunHero::SetupWeapon()
+{
+	Weapon = CreateDefaultSubobject<AUnrealTestProjectileGun>(TEXT("ProjectileGun"));
+
+	// Attach to socket...
 }

@@ -19,7 +19,7 @@ bool FProjectileGunHeroTest::RunTest(const FString& Parameters)
 		*/
 		AUnrealTestProjectileGunHero* Hero = World->SpawnActor<AUnrealTestProjectileGunHero>();
 
-		if (Hero->GetMaxHealth() > 0)
+		if (Hero->GetMaxHealth() <= 0)
 		{
 			/*
 			* This ideally would compare the value to the one specified in a data table to make it more accesible to game designers.
@@ -45,9 +45,13 @@ bool FProjectileGunHeroTest::RunTest(const FString& Parameters)
 		FDamageEvent damageEvent;
 		float damageTaken = Hero->TakeDamage(1, damageEvent, nullptr, nullptr);
 
-		if (Hero->GetMaxHealth() != (previousHealth - damageTaken))
+		if (Hero->GetCurrentHealth() != (previousHealth - damageTaken))
 		{ 
 			AddError(TEXT("Newly-spawned projectile gun hero's current health did not decrease after taking damage not equal to 0"));
+		}
+		else if(Hero->GetCurrentHealth() < 0)
+		{
+			AddError(TEXT("Newly-spawned projectile gun hero's current health is lower than 0 after applying damage"));
 		}
 		Hero->Destroy();
 	}
@@ -64,7 +68,7 @@ bool FProjectileGunHeroTest::RunTest(const FString& Parameters)
 			AddError(TEXT("Newly-spawned projectile gun hero has no weapon"));
 
 		}
-		else if (Weapon->IsA(AUnrealTestProjectileGun::StaticClass()))
+		else if (!Weapon->IsA(AUnrealTestProjectileGun::StaticClass()))
 		{
 			AddError(TEXT("Newly-spawned projectile gun hero's weapon is not a projectile gun"));
 		}

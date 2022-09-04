@@ -57,5 +57,5 @@ protected:
 	AUnrealTestWeaponBase* Weapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<AUnrealTestWeaponBase> DefaultWeaponClass;
+	TSubclassOf<class AUnrealTestWeaponBase> DefaultWeaponClass;
 };
