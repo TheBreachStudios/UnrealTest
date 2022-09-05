@@ -1,5 +1,25 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "UnrealTest/Weapon/UnrealTestProjectileGun.h"
+#include "UnrealTest/Weapon/Projectile/UnrealTestProjectile.h"
 
+void AUnrealTestProjectileGun::Fire()
+{
+	if (ensureMsgf(ProjectileClass, TEXT("Tried to fire projectile gun, but ProjectileClass is null")))
+	{ return; }
+
+	if (ensureMsgf(MuzzleLocation, TEXT("Tried to fire projectile gun, but muzzle location was null")))
+	{ return; }
+
+	UWorld* const World = GetWorld();
+	if(ensureMsgf(ProjectileClass, TEXT("Tried to fire projectile gun, but World was null")))
+	{ return; }
+
+	const FRotator SpawnRotation = MuzzleLocation->GetComponentRotation();
+	const FVector SpawnLocation = MuzzleLocation->GetComponentLocation();
+
+	FActorSpawnParameters ProjectileSpawnParams;
+	ProjectileSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	ProjectileSpawnParams.Instigator = GetOwner<APawn>();
+	ProjectileSpawnParams.Owner = this;
+
+	World->SpawnActor<AUnrealTestProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ProjectileSpawnParams);
+}

@@ -5,4 +5,11 @@
 
 AUnrealTestWeaponBase::AUnrealTestWeaponBase()
 {
+	PrimaryActorTick.bCanEverTick = false;
+	FPWeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FPWeapon"));
+
+	FPWeaponMesh->SetOnlyOwnerSee(false); // otherwise won't be visible in the multiplayer
+	FPWeaponMesh->bCastDynamicShadow = false;
+	FPWeaponMesh->CastShadow = false;
+	FPWeaponMesh->SetupAttachment(RootComponent);
 }

@@ -3,7 +3,6 @@
 #include "Tests/AutomationEditorCommon.h"
 
 #include "UnrealTest/Character/Hero/UnrealTestProjectileGunHero.h"
-
 #include "UnrealTest/Weapon/UnrealTestWeaponBase.h"
 #include "UnrealTest/Weapon/UnrealTestProjectileGun.h"
 
@@ -11,12 +10,12 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProjectileGunHeroTest, "UnrealTest.ProjectileG
 
 bool FProjectileGunHeroTest::RunTest(const FString& Parameters)
 {
-	UWorld* World = FAutomationEditorCommonUtils::CreateNewMap();
+	UWorld* const World = FAutomationEditorCommonUtils::CreateNewMap();
 
+	/**
+	* Checks if a newly-spawned hero correctly initializes its health values
+	*/
 	{
-		/**
-		* Checks if a newly-spawned hero correctly initializes its health values
-		*/
 		AUnrealTestProjectileGunHero* Hero = World->SpawnActor<AUnrealTestProjectileGunHero>();
 
 		if (Hero->GetMaxHealth() <= 0)
@@ -34,11 +33,11 @@ bool FProjectileGunHeroTest::RunTest(const FString& Parameters)
 		Hero->Destroy();
 	}
 
+	/**
+	* Checks if a hero correctly takes damage.
+	* (Considering that the hero could be avoiding damage using some kind of ability)
+	*/
 	{
-		/**
-		* Checks if a hero correctly takes damage.
-		* (Considering that the hero could be avoiding damage using some kind of ability)
-		*/
 		AUnrealTestProjectileGunHero* Hero = World->SpawnActor<AUnrealTestProjectileGunHero>();
 
 		float previousHealth = Hero->GetMaxHealth();
@@ -56,10 +55,10 @@ bool FProjectileGunHeroTest::RunTest(const FString& Parameters)
 		Hero->Destroy();
 	}
 
+	/**
+	* Checks if a projectile gun is spawned when spawning a projectile gun hero
+	*/
 	{
-		/**
-		* Checks if a projectile gun is spawned when spawning a projectile gun hero
-		*/
 		AUnrealTestProjectileGunHero* Hero = World->SpawnActor<AUnrealTestProjectileGunHero>();
 
 		AUnrealTestWeaponBase* Weapon = Hero->GetWeapon();

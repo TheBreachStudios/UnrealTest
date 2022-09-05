@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -13,5 +11,11 @@ UCLASS()
 class UNREALTEST_API AUnrealTestProjectileGun : public AUnrealTestGunBase
 {
 	GENERATED_BODY()
-	
+
+public:
+	virtual void Fire();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	TSubclassOf<class AUnrealTestProjectile> ProjectileClass;
 };

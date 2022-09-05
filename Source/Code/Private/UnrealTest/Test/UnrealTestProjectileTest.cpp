@@ -8,12 +8,12 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProjectileTest, "UnrealTest.Projectile", EAuto
 
 bool FProjectileTest::RunTest(const FString& Parameters)
 {
-	UWorld* World = FAutomationEditorCommonUtils::CreateNewMap();
+	UWorld* const World = FAutomationEditorCommonUtils::CreateNewMap();
 
-	{
-		/**
-		* Checks if a newly-spawned projectile has a valid components
-		*/
+	/**
+	* Checks if a newly-spawned projectile has a valid components
+	*/
+	{	
 		AUnrealTestProjectile* Projectile = World->SpawnActor<AUnrealTestProjectile>();
 
 		if(!Projectile->GetProjectileMovement())

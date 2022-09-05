@@ -9,6 +9,7 @@ AUnrealTestProjectileGunHero::AUnrealTestProjectileGunHero()
 void AUnrealTestProjectileGunHero::SetupWeapon()
 {
 	Weapon = CreateDefaultSubobject<AUnrealTestProjectileGun>(TEXT("ProjectileGun"));
+	Weapon->SetInstigator(this);
 
 	// Attach to socket...
 }
