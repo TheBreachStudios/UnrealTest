@@ -53,7 +53,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	float CurrentHealth;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AUnrealTestWeaponBase* Weapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")

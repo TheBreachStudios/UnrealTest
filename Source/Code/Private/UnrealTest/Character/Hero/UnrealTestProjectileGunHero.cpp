@@ -3,13 +3,24 @@
 
 AUnrealTestProjectileGunHero::AUnrealTestProjectileGunHero()
 {
-	SetupWeapon();
+
 }
 
-void AUnrealTestProjectileGunHero::SetupWeapon()
+void AUnrealTestProjectileGunHero::BeginPlay()
 {
-	Weapon = CreateDefaultSubobject<AUnrealTestProjectileGun>(TEXT("ProjectileGun"));
-	Weapon->SetInstigator(this);
+	Super::BeginPlay();
 
-	// Attach to socket...
+	SpawnWeapon();
+}
+
+void AUnrealTestProjectileGunHero::SpawnWeapon()
+{
+	UWorld* World = GetWorld();
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Name = "ProjectileGun";
+	SpawnParameters.Owner = SpawnParameters.Instigator = this;
+
+	Weapon = World->SpawnActor<AUnrealTestProjectileGun>(DefaultWeaponClass, SpawnParameters);
+	Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("HeadSocket"));
 }

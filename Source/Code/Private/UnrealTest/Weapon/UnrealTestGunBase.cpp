@@ -6,7 +6,7 @@
 AUnrealTestGunBase::AUnrealTestGunBase()
 {
 	MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
-	MuzzleLocation->SetupAttachment(FPWeaponMesh);
+	MuzzleLocation->SetupAttachment(WeaponMesh);
 	MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
 }
 

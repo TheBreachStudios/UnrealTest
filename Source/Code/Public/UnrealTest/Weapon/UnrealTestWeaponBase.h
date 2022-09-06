@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -19,45 +17,23 @@ public:
 	AUnrealTestWeaponBase();
 
 public:
-	/**
-	* Get this weapon's animation class
-	*/
-	UFUNCTION(BlueprintCallable)
-	UClass* GetWeaponAnimClass() { return WeaponAnimClass; }
 
-	/**
-	* Get this weapon's animation montage
-	*/
+	/** Get this weapon's mesh */
 	UFUNCTION(BlueprintCallable)
-	UAnimMontage* GetWeaponAnimMontage() { return WeaponUseAnimMontage; }
+	UStaticMeshComponent* GetWeaponMesh() { return WeaponMesh; }
 
+	/** Get this weapon's damage */
 	UFUNCTION(BlueprintCallable)
 	float GetDamage() { return Damage; }
 
 	virtual void OnAttack() {}
 
 protected:
-	/**
-	* Gun mesh
-	*/
-	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
-	USkeletalMeshComponent* FPWeaponMesh;
+	/** Weapon mesh */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
+	UStaticMeshComponent* WeaponMesh;
 
-	/**
-	* Anim class to use when this weapon is equipped
-	*/
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	UClass* WeaponAnimClass;
-
-	/**
-	* AnimMontage to play each time the weapon is used
-	*/
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	UAnimMontage* WeaponUseAnimMontage;
-
-	/**
-	* This weapon's damage
-	*/
+	/** This weapon's damage */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float Damage;
 };
