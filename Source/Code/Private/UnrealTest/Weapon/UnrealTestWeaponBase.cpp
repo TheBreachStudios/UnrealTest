@@ -8,5 +8,7 @@ AUnrealTestWeaponBase::AUnrealTestWeaponBase()
 	WeaponMesh->bCastDynamicShadow = false;
 	WeaponMesh->CastShadow = false;
 
-	WeaponMesh->SetupAttachment(RootComponent);
+	RootComponent = WeaponMesh;
+	
+	WeaponMesh->SetCollisionProfileName(TEXT("NoCollision"), true);
 }

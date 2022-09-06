@@ -16,4 +16,10 @@ void AUnrealTestProjectileGunHero::SpawnWeapon()
 
 	Weapon = World->SpawnActor<AUnrealTestProjectileGun>(DefaultWeaponClass, SpawnParameters);
 	Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("HeadSocket"));
+
+	FVector Location(0, 50, 0);
+	Weapon->SetActorRelativeLocation(Location);
+
+	FRotator Rotator(270, 0, 0);
+	Weapon->SetActorRelativeRotation(Rotator);
 }
