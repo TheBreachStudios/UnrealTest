@@ -17,7 +17,7 @@ class UNREALTEST_API AUnrealTestGunBase : public AUnrealTestWeaponBase
 public:
 	AUnrealTestGunBase();
 
-	void OnAttack() override;
+	void Use();
 
 	/**
 	* Fire this weapon

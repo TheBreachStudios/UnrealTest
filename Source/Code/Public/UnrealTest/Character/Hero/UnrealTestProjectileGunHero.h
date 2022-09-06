@@ -22,6 +22,4 @@ public:
 
 protected:
 	void SpawnWeapon();
-
-	virtual void BeginPlay() override;
 };

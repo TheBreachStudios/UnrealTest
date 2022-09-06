@@ -26,7 +26,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetDamage() { return Damage; }
 
-	virtual void OnAttack() {}
+	UFUNCTION()
+	virtual void Use() PURE_VIRTUAL(AMSGunBase::Use, );
 
 protected:
 	/** Weapon mesh */

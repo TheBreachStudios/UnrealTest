@@ -19,6 +19,11 @@ class UNREALTEST_API AUnrealTestHeroBase : public AUnrealTestCharacter
 public:
 	AUnrealTestHeroBase();
 
+	virtual void SpawnWeapon() PURE_VIRTUAL(AMSGunBase::SpawnWeapon, );
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void UseWeapon();
+
 	/**
 	 * Get the current health of this hero
 	 */
@@ -58,4 +63,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<class AUnrealTestWeaponBase> DefaultWeaponClass;
+
+protected:
+	virtual void BeginPlay() override;
 };

@@ -1,8 +1,21 @@
 #include "UnrealTest/Character/Hero/UnrealTestHeroBase.h"
+#include "UnrealTest/Weapon/UnrealTestWeaponBase.h"
 
 AUnrealTestHeroBase::AUnrealTestHeroBase()
 {
 	CurrentHealth = MaxHealth;
+}
+
+void AUnrealTestHeroBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SpawnWeapon();
+}
+
+void AUnrealTestHeroBase::UseWeapon()
+{
+	Weapon->Use();
 }
 
 float AUnrealTestHeroBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

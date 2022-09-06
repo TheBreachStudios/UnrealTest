@@ -6,13 +6,6 @@ AUnrealTestProjectileGunHero::AUnrealTestProjectileGunHero()
 
 }
 
-void AUnrealTestProjectileGunHero::BeginPlay()
-{
-	Super::BeginPlay();
-
-	SpawnWeapon();
-}
-
 void AUnrealTestProjectileGunHero::SpawnWeapon()
 {
 	UWorld* World = GetWorld();

@@ -10,7 +10,7 @@ AUnrealTestGunBase::AUnrealTestGunBase()
 	MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
 }
 
-void AUnrealTestGunBase::OnAttack()
+void AUnrealTestGunBase::Use()
 {
 	Fire();
 }
