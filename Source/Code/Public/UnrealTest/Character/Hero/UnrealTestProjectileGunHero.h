@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -19,7 +17,6 @@ class UNREALTEST_API AUnrealTestProjectileGunHero : public AUnrealTestHeroBase
 public:
 	AUnrealTestProjectileGunHero();
 
-
 protected:
-	void SpawnWeapon();
+	virtual void SpawnWeapon() override;
 };

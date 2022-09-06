@@ -20,9 +20,7 @@ AUnrealTestCharacter::AUnrealTestCharacter()
 	TurnRateGamepad = TURN_RATE_GAMEPAD;
 
 	DisableCotrollerRotation();
-
 	ConfigureCharacterMovement(GetCharacterMovement());
-	
 	SetCameraBoom();
 	SetFollowCamera();
 
@@ -79,12 +77,10 @@ void AUnrealTestCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 	check(PlayerInputComponent);
 
 	JumpBinding(PlayerInputComponent);
-
+	UseWeaponBinding(PlayerInputComponent);
 	MovementBinding(PlayerInputComponent);
-
 	TurnBinding(PlayerInputComponent);
 	LookUpBinding(PlayerInputComponent);
-	
 	TouchBinding(PlayerInputComponent);
 }
 
@@ -92,6 +88,11 @@ void AUnrealTestCharacter::JumpBinding(class UInputComponent* PlayerInputCompone
 {
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+}
+
+void AUnrealTestCharacter::UseWeaponBinding(UInputComponent* PlayerInputComponent)
+{
+	PlayerInputComponent->BindAction("Action", IE_Pressed, this, &AUnrealTestCharacter::UseWeapon);
 }
 
 void AUnrealTestCharacter::MovementBinding(class UInputComponent* PlayerInputComponent)

@@ -22,6 +22,8 @@ public:
 public:
 	AUnrealTestCharacter();
 
+	virtual void UseWeapon() PURE_VIRTUAL(AUnrealTestCharacter::UseWeapon, );
+
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
@@ -38,6 +40,7 @@ public:
 	void TurnBinding(class UInputComponent* PlayerInputComponent);
 	void LookUpBinding(class UInputComponent* PlayerInputComponent);
 	void TouchBinding(class UInputComponent* PlayerInputComponent);
+	void UseWeaponBinding(class UInputComponent* PlayerInputComponent);
 
 protected:
 	/** Camera boom positioning the camera behind the character */

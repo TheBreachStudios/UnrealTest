@@ -11,7 +11,6 @@ void AUnrealTestProjectileGunHero::SpawnWeapon()
 	UWorld* World = GetWorld();
 
 	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.Name = "ProjectileGun";
 	SpawnParameters.Owner = SpawnParameters.Instigator = this;
 
 	Weapon = World->SpawnActor<AUnrealTestProjectileGun>(DefaultWeaponClass, SpawnParameters);

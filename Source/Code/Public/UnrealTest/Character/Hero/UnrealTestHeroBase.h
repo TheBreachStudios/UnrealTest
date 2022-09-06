@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -19,10 +17,9 @@ class UNREALTEST_API AUnrealTestHeroBase : public AUnrealTestCharacter
 public:
 	AUnrealTestHeroBase();
 
-	virtual void SpawnWeapon() PURE_VIRTUAL(AMSGunBase::SpawnWeapon, );
+	virtual void SpawnWeapon() PURE_VIRTUAL(AUnrealTestHeroBase::SpawnWeapon, );
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void UseWeapon();
+	virtual void UseWeapon();
 
 	/**
 	 * Get the current health of this hero

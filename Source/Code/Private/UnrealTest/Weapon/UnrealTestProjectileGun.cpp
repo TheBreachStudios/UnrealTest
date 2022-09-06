@@ -3,14 +3,11 @@
 
 void AUnrealTestProjectileGun::Fire()
 {
-	if (ensureMsgf(ProjectileClass, TEXT("Tried to fire projectile gun, but ProjectileClass is null")))
-	{ return; }
-
-	if (ensureMsgf(MuzzleLocation, TEXT("Tried to fire projectile gun, but muzzle location was null")))
+	if (!ensureMsgf(ProjectileClass, TEXT("Tried to fire projectile gun, but ProjectileClass is null")))
 	{ return; }
 
 	UWorld* const World = GetWorld();
-	if(ensureMsgf(ProjectileClass, TEXT("Tried to fire projectile gun, but World was null")))
+	if(!ensureMsgf(World, TEXT("Tried to fire projectile gun, but World was null")))
 	{ return; }
 
 	const FRotator SpawnRotation = MuzzleLocation->GetComponentRotation();

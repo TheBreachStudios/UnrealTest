@@ -16,8 +16,11 @@ AUnrealTestProjectile::AUnrealTestProjectile()
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AUnrealTestProjectile::OnProjectileBeginOverlap);
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
-
 	RootComponent = CollisionComp;
+
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
+	MeshComp->SetCollisionProfileName("NoCollision");
+	MeshComp->SetupAttachment(RootComponent);
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
