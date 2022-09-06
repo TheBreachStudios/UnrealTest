@@ -92,7 +92,7 @@ void AUnrealTestCharacter::JumpBinding(class UInputComponent* PlayerInputCompone
 
 void AUnrealTestCharacter::UseWeaponBinding(UInputComponent* PlayerInputComponent)
 {
-	PlayerInputComponent->BindAction("Action", IE_Pressed, this, &AUnrealTestCharacter::UseWeapon);
+	PlayerInputComponent->BindAction("UseWeapon", IE_Pressed, this, &AUnrealTestCharacter::UseWeapon);
 }
 
 void AUnrealTestCharacter::MovementBinding(class UInputComponent* PlayerInputComponent)

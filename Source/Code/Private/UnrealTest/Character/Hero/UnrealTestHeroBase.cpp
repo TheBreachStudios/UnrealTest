@@ -15,7 +15,17 @@ void AUnrealTestHeroBase::BeginPlay()
 
 void AUnrealTestHeroBase::UseWeapon()
 {
+	Server_UseWeapon();
+}
+
+void AUnrealTestHeroBase::Server_UseWeapon_Implementation()
+{
 	Weapon->Use();
+}
+
+bool AUnrealTestHeroBase::Server_UseWeapon_Validate()
+{
+	return true;
 }
 
 float AUnrealTestHeroBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

@@ -10,6 +10,9 @@ AUnrealTestProjectile::AUnrealTestProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	SetReplicates(true);
+	SetReplicateMovement(true);
+
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");

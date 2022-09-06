@@ -19,7 +19,10 @@ public:
 
 	virtual void SpawnWeapon() PURE_VIRTUAL(AUnrealTestHeroBase::SpawnWeapon, );
 
-	virtual void UseWeapon();
+	void UseWeapon();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_UseWeapon();
 
 	/**
 	 * Get the current health of this hero
