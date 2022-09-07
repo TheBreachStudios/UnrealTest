@@ -1,5 +1,6 @@
 #include "UnrealTest/Character/Hero/UnrealTestHeroBase.h"
 #include "UnrealTest/Weapon/UnrealTestWeaponBase.h"
+#include "Net/UnrealNetwork.h"
 
 AUnrealTestHeroBase::AUnrealTestHeroBase()
 {
@@ -16,6 +17,11 @@ void AUnrealTestHeroBase::BeginPlay()
 void AUnrealTestHeroBase::UseWeapon()
 {
 	Server_UseWeapon();
+}
+
+void AUnrealTestHeroBase::SetTeamColor(int NewIndex)
+{
+	ServerSetTeamColor(NewIndex);
 }
 
 void AUnrealTestHeroBase::Server_UseWeapon_Implementation()
@@ -52,11 +58,48 @@ float AUnrealTestHeroBase::TakeDamage(float DamageAmount, FDamageEvent const& Da
 
 void AUnrealTestHeroBase::Die()
 {
-	UE_LOG(LogTemp, Display, TEXT("A Character has died"));
+	UE_LOG(LogTemp, Display, TEXT("A hero has died"));
 	Respawn();
 }
 
 void AUnrealTestHeroBase::Respawn()
 {
-	UE_LOG(LogTemp, Display, TEXT("A Character has respawned"));
+	UE_LOG(LogTemp, Display, TEXT("A hero has respawned"));
+}
+
+void AUnrealTestHeroBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AUnrealTestHeroBase, TeamIndex);
+}
+
+void AUnrealTestHeroBase::ServerSetTeamColor_Implementation(int NewIndex)
+{
+	TeamIndex = NewIndex;
+
+	if (TeamIndex > 0)
+	{
+		GetMesh()->SetMaterial(1, BlueTeamMaterial);
+	}
+	else
+	{
+		GetMesh()->SetMaterial(1, RedTeamMaterial);
+	}
+}
+
+bool AUnrealTestHeroBase::ServerSetTeamColor_Validate(int NewIndex)
+{
+	return true;
+}
+
+void AUnrealTestHeroBase::OnRep_TeamIndex()
+{
+	if (TeamIndex > 0)
+	{
+		GetMesh()->SetMaterial(1, BlueTeamMaterial);
+	}
+	else
+	{
+		GetMesh()->SetMaterial(1, RedTeamMaterial);
+	}
 }

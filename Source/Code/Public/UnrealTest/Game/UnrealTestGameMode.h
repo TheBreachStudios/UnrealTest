@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "UnrealTestGameMode.generated.h"
 
+class AUnrealTestPlayerController;
+
 UCLASS(minimalapi)
 class AUnrealTestGameMode : public AGameModeBase
 {
@@ -13,7 +15,10 @@ class AUnrealTestGameMode : public AGameModeBase
 
 public:
 	AUnrealTestGameMode();
+
+	TArray<AUnrealTestPlayerController*> BlueTeamMembers;
+	TArray<AUnrealTestPlayerController*> RedTeamMembers;
+
+protected:
+	virtual void OnPostLogin(AController* NewPlayer) override;
 };
-
-
-

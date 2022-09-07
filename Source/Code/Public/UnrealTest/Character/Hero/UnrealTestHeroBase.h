@@ -15,6 +15,10 @@ class UNREALTEST_API AUnrealTestHeroBase : public AUnrealTestCharacter
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_TeamIndex)
+	int TeamIndex = 0;
+
+public:
 	AUnrealTestHeroBase();
 
 	/** Handle the creation of this hero's weapon */
@@ -23,7 +27,14 @@ public:
 	/** Use this hero's weapon */
 	void UseWeapon();
 
-	/** Use this hero's weapn in the server */
+	/** Set team color to this hero */
+	void SetTeamColor(int TeamIndex);
+
+	/** Set team color to this hero */
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetTeamColor(int NewIndex);
+
+	/** Use this hero's weapon in the server */
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_UseWeapon();
 
@@ -71,12 +82,25 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<class AUnrealTestWeaponBase> DefaultWeaponClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team colors");
+	UMaterialInterface* BlueTeamMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team colors");
+	UMaterialInterface* RedTeamMaterial;
+
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
 	virtual void Die();
 
+	UFUNCTION()
 	virtual void Respawn();
+
+	UFUNCTION()
+	virtual void OnRep_TeamIndex();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 private:
 	/** Current health of this hero */
