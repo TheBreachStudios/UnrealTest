@@ -37,21 +37,26 @@ AUnrealTestProjectile::AUnrealTestProjectile()
 
 void AUnrealTestProjectile::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!HasAuthority())
-	{ return; }
-
 	if (!ensureMsgf(OtherActor, TEXT("Projectile overlap began, but OtherActor was null")))
 	{ return; }
+
+	AUnrealTestCharacter* const Victim = Cast<AUnrealTestCharacter>(OtherActor);
+	if (!ensureMsgf(Victim, TEXT("Projectile overlap began, but other actor was not a AUnrealTestCharacter. Projectiles should not overlap anything else")))
+	{ return; }
+
+	if (!GetOwner())
+	{
+		UE_LOG(LogTemp, Display, TEXT("Projectile overlap began, but owner gun was null"));
+		return;
+	}
 
 	AUnrealTestProjectileGun* OwnerGun = GetOwner<AUnrealTestProjectileGun>();
 	if (!ensureMsgf(OwnerGun, TEXT("Projectile overlap began, but owner gun was null")))
 	{ return; }
 
-	AUnrealTestCharacter* const Victim = Cast<AUnrealTestCharacter>(OtherActor);
-	ensureMsgf(Victim, TEXT("Projectile overlap began, but other actor was not a AUnrealTestCharacter. Projectiles should not overlap anything else"));
-
 	AController* const InstigatorController = OwnerGun->GetInstigator()->GetInstigatorController();
-	ensureMsgf(InstigatorController, TEXT("Projectile overlap began, but could not get instigator controller"));
+	if (!ensureMsgf(InstigatorController, TEXT("Projectile overlap began, but could not get instigator controller")))
+	{ return; }
 
 	FDamageEvent DamageEvent;
 	Victim->TakeDamage(OwnerGun->GetDamage(), DamageEvent, InstigatorController, OwnerGun);

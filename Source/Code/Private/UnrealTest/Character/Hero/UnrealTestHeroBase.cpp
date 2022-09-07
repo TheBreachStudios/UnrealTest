@@ -1,6 +1,9 @@
 #include "UnrealTest/Character/Hero/UnrealTestHeroBase.h"
 #include "UnrealTest/Weapon/UnrealTestWeaponBase.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerStart.h"
+#include "Math/UnrealMathUtility.h"
 
 AUnrealTestHeroBase::AUnrealTestHeroBase()
 {
@@ -65,6 +68,16 @@ void AUnrealTestHeroBase::Die()
 void AUnrealTestHeroBase::Respawn()
 {
 	UE_LOG(LogTemp, Display, TEXT("A hero has respawned"));
+	CurrentHealth = MaxHealth;
+
+	TArray<AActor*> FoundPlayerStarts;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), FoundPlayerStarts);
+
+	ensureMsgf(FoundPlayerStarts.Num() > 0, TEXT("Trying to respawn hero, but could not find any PlayerStarts in the scene"));
+
+	AActor* RandomPlayerStart = FoundPlayerStarts[FMath::RandRange(0, FoundPlayerStarts.Num() - 1)];
+	this->SetActorLocation(RandomPlayerStart->GetActorLocation());
+
 }
 
 void AUnrealTestHeroBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

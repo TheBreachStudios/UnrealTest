@@ -36,5 +36,5 @@ protected:
 
 	/** This weapon's damage. Initial value would ideally be specified in a data table to make it more accesible to game designers */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	float Damage = 10;
+	float Damage = 25;
 };
