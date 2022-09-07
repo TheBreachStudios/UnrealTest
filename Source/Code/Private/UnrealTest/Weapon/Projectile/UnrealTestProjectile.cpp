@@ -40,19 +40,21 @@ void AUnrealTestProjectile::OnProjectileBeginOverlap(UPrimitiveComponent* Overla
 	if (!HasAuthority())
 	{ return; }
 
-	if (ensureMsgf(OtherActor, TEXT("Projectile overlap began, but OtherActor was null")))
+	if (!ensureMsgf(OtherActor, TEXT("Projectile overlap began, but OtherActor was null")))
 	{ return; }
 
 	AUnrealTestProjectileGun* OwnerGun = GetOwner<AUnrealTestProjectileGun>();
-	if (ensureMsgf(OwnerGun, TEXT("Projectile overlap began, but owner gun was null")))
+	if (!ensureMsgf(OwnerGun, TEXT("Projectile overlap began, but owner gun was null")))
 	{ return; }
 
 	AUnrealTestCharacter* const Victim = Cast<AUnrealTestCharacter>(OtherActor);
 	ensureMsgf(Victim, TEXT("Projectile overlap began, but other actor was not a AUnrealTestCharacter. Projectiles should not overlap anything else"));
 
-	AController* InstigatorController = OwnerGun->GetInstigator()->GetInstigatorController();
-	ensureMsgf(Victim, TEXT("Projectile overlap began, but could not get instigator controller"));
+	AController* const InstigatorController = OwnerGun->GetInstigator()->GetInstigatorController();
+	ensureMsgf(InstigatorController, TEXT("Projectile overlap began, but could not get instigator controller"));
 
 	FDamageEvent DamageEvent;
 	Victim->TakeDamage(OwnerGun->GetDamage(), DamageEvent, InstigatorController, OwnerGun);
+
+	Destroy();
 }

@@ -17,33 +17,46 @@ class UNREALTEST_API AUnrealTestHeroBase : public AUnrealTestCharacter
 public:
 	AUnrealTestHeroBase();
 
+	/** Handle the creation of this hero's weapon */
 	virtual void SpawnWeapon() PURE_VIRTUAL(AUnrealTestHeroBase::SpawnWeapon, );
 
+	/** Use this hero's weapon */
 	void UseWeapon();
 
+	/** Use this hero's weapn in the server */
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_UseWeapon();
 
-	/**
-	 * Get the current health of this hero
-	 */
+	/** Get the current health of this hero */
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	float GetCurrentHealth() const { return CurrentHealth; }
 
-	/**
-	 * Get the maximum health of this hero
-	 */
+	/** Get the maximum health of this hero */
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	float GetMaxHealth() const { return MaxHealth; }
 
-	UFUNCTION(BlueprintCallable, Category = "Damage")
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-
-	/**
-	 * Get hero's weapon
-	 */
+	/** Get weapon of this hero*/
 	UFUNCTION()
 	AUnrealTestWeaponBase* GetWeapon() { return Weapon; }
+
+	/**
+	* Modifies this hero's current health by the specified amount
+	* @Amount Amount to modify this hero's current health by. Positives numbers will heal and negative number will damage.
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void ModifyCurrentHealth(float Amount);
+
+	/**
+	 * Apply damage to this hero.
+	 * @see https://www.unrealengine.com/blog/damage-in-ue4
+	 * @param DamageAmount		How much damage to apply
+	 * @param DamageEvent		Data package that fully describes the damage received.
+	 * @param EventInstigator	The Controller responsible for the damage.
+	 * @param DamageCauser		The Actor that directly caused the damage (e.g. the projectile that exploded, the rock that landed on you)
+	 * @return					The amount of damage actually applied.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 	/**
@@ -51,12 +64,6 @@ protected:
 	*/
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	float MaxHealth = 100;
-
-	/**
-	 * Current health of this hero
-	 */
-	UPROPERTY(BlueprintReadOnly, Category = "Health")
-	float CurrentHealth;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AUnrealTestWeaponBase* Weapon;
@@ -66,4 +73,12 @@ protected:
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void Die();
+
+	virtual void Respawn();
+
+private:
+	/** Current health of this hero */
+	float CurrentHealth;
 };

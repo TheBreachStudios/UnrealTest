@@ -28,10 +28,35 @@ bool AUnrealTestHeroBase::Server_UseWeapon_Validate()
 	return true;
 }
 
+void AUnrealTestHeroBase::ModifyCurrentHealth(float Amount)
+{
+	CurrentHealth += Amount;
+
+	if (CurrentHealth > MaxHealth)
+	{
+		CurrentHealth = MaxHealth; 
+	}
+
+	if (CurrentHealth <= 0)
+	{
+		Die();
+	}
+}
+
 float AUnrealTestHeroBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	CurrentHealth -= DamageAmount;
-	if (CurrentHealth < 0) CurrentHealth = 0;
+	ModifyCurrentHealth(-DamageAmount);
 
-	return DamageAmount;
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
+void AUnrealTestHeroBase::Die()
+{
+	UE_LOG(LogTemp, Display, TEXT("A Character has died"));
+	Respawn();
+}
+
+void AUnrealTestHeroBase::Respawn()
+{
+	UE_LOG(LogTemp, Display, TEXT("A Character has respawned"));
 }

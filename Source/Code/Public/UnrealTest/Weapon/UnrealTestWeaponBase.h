@@ -34,7 +34,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
 	UStaticMeshComponent* WeaponMesh;
 
-	/** This weapon's damage */
+	/** This weapon's damage. Initial value would ideally be specified in a data table to make it more accesible to game designers */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	float Damage;
+	float Damage = 10;
 };
