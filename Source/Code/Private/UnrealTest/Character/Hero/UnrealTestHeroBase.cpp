@@ -67,13 +67,13 @@ void AUnrealTestHeroBase::Die()
 
 void AUnrealTestHeroBase::Respawn()
 {
-	UE_LOG(LogTemp, Display, TEXT("A hero has respawned"));
+	UE_LOG(LogTemp, Display, TEXT("%s called"), ANSI_TO_TCHAR(__FUNCTION__));
 	CurrentHealth = MaxHealth;
 
 	TArray<AActor*> FoundPlayerStarts;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), FoundPlayerStarts);
 
-	ensureMsgf(FoundPlayerStarts.Num() > 0, TEXT("Trying to respawn hero, but could not find any PlayerStarts in the scene"));
+	ensureMsgf(FoundPlayerStarts.Num() > 0, TEXT("%s: Trying to respawn hero, but could not find any PlayerStarts in the scene"), ANSI_TO_TCHAR(__FUNCTION__));
 
 	AActor* RandomPlayerStart = FoundPlayerStarts[FMath::RandRange(0, FoundPlayerStarts.Num() - 1)];
 	this->SetActorLocation(RandomPlayerStart->GetActorLocation());

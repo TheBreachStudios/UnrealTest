@@ -12,12 +12,12 @@ void AUnrealTestPlayerController::SetTeamIndex(int NewIndex)
 	{
 		if (!GetPawn())
 		{
-			UE_LOG(LogTemp, Display, TEXT("%s: function called, but no pawn is possesed yet, controller's team index updated for when possession happens"), __FUNCTION__);
+			UE_LOG(LogTemp, Display, TEXT("%s: function called, but no pawn is possesed yet, controller's team index updated for when possession happens"), ANSI_TO_TCHAR(__FUNCTION__));
 			return;
 		}
 
 		PossessedHero = GetPawn<AUnrealTestHeroBase>();
-		if (!ensureMsgf(PossessedHero, TEXT("%s: Could not cast NewIndex to AUnrealTestHeroBase. Controlled Pawn should be of class AUnrealTestHeroBase."), __FUNCTION__))
+		if (!ensureMsgf(PossessedHero, TEXT("%s: Could not cast NewIndex to AUnrealTestHeroBase. Controlled Pawn should be of class AUnrealTestHeroBase."), ANSI_TO_TCHAR(__FUNCTION__)))
 		{ return; }
 
 		//PossessedHero->TeamIndex = TeamIndex;
@@ -35,7 +35,7 @@ void AUnrealTestPlayerController::OnPossess(APawn* aPawn)
 	if (!PossessedHero)
 	{
 		PossessedHero = GetPawn<AUnrealTestHeroBase>();
-		if (!ensureMsgf(PossessedHero, TEXT("%s: Could not cast NewIndex to AUnrealTestHeroBase. Controlled Pawn should be of class AUnrealTestHeroBase."), __FUNCTION__))
+		if (!ensureMsgf(PossessedHero, TEXT("%s: Could not cast NewIndex to AUnrealTestHeroBase. Controlled Pawn should be of class AUnrealTestHeroBase."), ANSI_TO_TCHAR(__FUNCTION__)))
 		{ return; }
 	}
 
