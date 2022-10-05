@@ -5,6 +5,7 @@
 #include "Game/UnrealTestPlayerTeam.h"
 #include "Character/UnrealTestCharacter.h"
 #include "UObject/ConstructorHelpers.h"
+#include "GameFramework/GameSession.h"
 #include <EngineUtils.h>
 
 #include "Player/UnrealTestPlayerController.h"

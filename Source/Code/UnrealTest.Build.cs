@@ -24,6 +24,11 @@ public class UnrealTest : ModuleRules
 
 			"Slate",
 			"SlateCore",
+
+			"OnlineSubsystem", 
+			"OnlineSubsystemUtils",
 		});
+
+		DynamicallyLoadedModuleNames.Add("OnlineSubsystemNull");
 	}
 }

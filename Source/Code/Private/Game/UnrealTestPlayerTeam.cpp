@@ -23,6 +23,8 @@ void AUnrealTestPlayerTeam::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 	DOREPLIFETIME_WITH_PARAMS(AUnrealTestPlayerTeam, TeamID, Params);
 	DOREPLIFETIME_WITH_PARAMS(AUnrealTestPlayerTeam, TeamName, Params);
+	
+	DOREPLIFETIME(AUnrealTestPlayerTeam, TeamMembers);
 }
 
 void AUnrealTestPlayerTeam::BeginPlay()
