@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2022 Khanin Vladimir (FAZIC)
 
 
 #include "Game/UnrealTestGameSession.h"
@@ -16,6 +16,7 @@ AUnrealTestGameSession::AUnrealTestGameSession(const FObjectInitializer& ObjectI
 {
 	OnCreateSessionCompleteDelegate = FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete);
 
+	MaxPlayers = 8;
 }
 
 // Create server session

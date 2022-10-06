@@ -14,10 +14,13 @@ public class UnrealTest : ModuleRules
 			"Engine", 
 			"InputCore", 
 			"HeadMountedDisplay",
+			
 			"Networking",
 			"NetCore",
-			"AIModule",
 			
+			"AIModule",
+			"NavigationSystem",
+
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks",

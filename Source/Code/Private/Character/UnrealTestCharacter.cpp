@@ -465,6 +465,13 @@ FString AUnrealTestCharacter::GetCharacterName() const
 	return "Unknown";
 }
 
+FGenericTeamId AUnrealTestCharacter::GetGenericTeamId() const
+{
+	if (auto PS = GetUTPlayerState())
+		return PS->GetTeamID();
+
+	return 255;
+}
 
 const UUnrealTestAttributeSet* AUnrealTestCharacter::GetAttributeSet() const
 {

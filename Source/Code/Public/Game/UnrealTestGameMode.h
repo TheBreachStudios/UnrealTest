@@ -10,6 +10,8 @@ class AUnrealTestPlayerTeam;
 class AUnrealTestGameState;
 class AUnrealTestPlayerStart;
 class AUnrealTestPlayerController;
+class AUnrealTestAIController;
+class AUnrealTestCharacter;
 
 /*
 * Base class for all game modes
@@ -30,8 +32,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameMode")
 	TSubclassOf<AUnrealTestPlayerStart> GameModePlayerStarts;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GameMode|Bot")
+	int32 MaxBotCount = 3;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "GameMode|Bot")
+	TArray<TSubclassOf<AUnrealTestCharacter>> BotSpawnedClasses;
+
 	UPROPERTY(BlueprintReadOnly)
 	TArray<AUnrealTestPlayerStart*> PlayerStarts;
+
+	UPROPERTY(BlueprintReadOnly, Category = "GameMode")
+	TArray<AUnrealTestAIController*> AIControllers;
 
 	UPROPERTY(BlueprintReadOnly, Category = GameMode)
 	TArray<AUnrealTestPlayerController*> ConnectedPlayers;
@@ -42,6 +53,7 @@ protected:
 
 	virtual FString InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal) override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual void Tick(float DeltaSeconds);
 
 	virtual void AssignPlayerToTeam(const AController* Player, AUnrealTestPlayerTeam* Team);
 	AUnrealTestPlayerTeam* SetDefaultPlayerTeam(const AController* Player);
@@ -51,6 +63,12 @@ protected:
 	virtual class UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
 	virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName) override;
 	virtual bool PlayerCanRestart_Implementation(APlayerController* Player) override;
+
+	virtual void DestroyAIController(AController* AIController);
+	virtual AUnrealTestAIController* CreateAIController(TSubclassOf<AController> AIControllerClass);
+
+	virtual void RemoveBot();
+	virtual void SpawnBot();
 
 private:	
 

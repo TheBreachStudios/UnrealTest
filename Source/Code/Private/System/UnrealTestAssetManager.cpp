@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2022 Khanin Vladimir (FAZIC)
 
 
 #include "System/UnrealTestAssetManager.h"
@@ -20,7 +20,7 @@ UUnrealTestAssetManager& UUnrealTestAssetManager::Get()
 		return *Singleton;
 	}
 
-	UE_LOG(UTAssetManagerLog, Fatal, TEXT("Invalid AssetManagerClassName in DefaultEngine.ini.  It must be set to KTAssetManager!"));
+	UE_LOG(UTAssetManagerLog, Fatal, TEXT("Invalid AssetManagerClassName in DefaultEngine.ini.  It must be set to UUnrealTestAssetManager!"));
 
 	// Fatal error above prevents this from being called.
 	return *NewObject<UUnrealTestAssetManager>();

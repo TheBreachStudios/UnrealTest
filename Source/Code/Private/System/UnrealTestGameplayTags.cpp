@@ -22,6 +22,8 @@ void FUnrealTestGameplayTags::AddAllTags(UGameplayTagsManager& Manager)
 	AddTag(GameplayEvent_Death, "GameplayEvent.Death", "Event that fires on death. This event only fires on the server.");
 	AddTag(Gameplay_Damage, "Gameplay.Damage", "Base damage");
 
+	AddTag(Skill_First, "Skill.First", "First skill tag");
+
 }
 
 void FUnrealTestGameplayTags::AddTag(FGameplayTag& OutTag, const ANSICHAR* TagName, const ANSICHAR* TagComment)

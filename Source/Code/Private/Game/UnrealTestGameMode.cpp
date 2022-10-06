@@ -11,9 +11,12 @@
 #include "Player/UnrealTestPlayerController.h"
 #include "Player/UnrealTestPlayerState.h"
 
+#include "AI/UnrealTestAIController.h"
+
 AUnrealTestGameMode::AUnrealTestGameMode()
 {
 	GameModePlayerStarts = AUnrealTestPlayerStart::StaticClass();
+	SetActorTickInterval(1.f);
 }
 
 void AUnrealTestGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
@@ -57,6 +60,29 @@ FString AUnrealTestGameMode::InitNewPlayer(APlayerController* NewPlayerControlle
 void AUnrealTestGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
+}
+
+void AUnrealTestGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (!IsMatchInProgress())
+		return;
+
+	if (!GameSession)
+		return;
+	const int MaxPlayer = GameSession->MaxPlayers;
+	const int PlayersCount = ConnectedPlayerNum();
+	const int BotCount = AIControllers.Num();
+
+	if (PlayersCount > (MaxPlayer - BotCount) || MaxBotCount < BotCount)
+	{
+		RemoveBot();
+	}
+	else if (PlayersCount < (MaxPlayer - BotCount) && MaxBotCount > BotCount)
+	{
+		SpawnBot();
+	}
 }
 
 AUnrealTestPlayerTeam* AUnrealTestGameMode::SetDefaultPlayerTeam(const AController* Player)
@@ -121,6 +147,103 @@ AUnrealTestPlayerTeam* AUnrealTestGameMode::SpawnTeam(int32 TeamId)
 	Team->SetTeamInfo(TeamId, TeamName);
 	UGameplayStatics::FinishSpawningActor(Team, FTransform::Identity);
 	return Team;
+}
+
+void AUnrealTestGameMode::RemoveBot()
+{
+	TArray<AUnrealTestPlayerState*> PlayerStates;
+	for (TActorIterator<AUnrealTestPlayerState> It(GetWorld()); It; ++It)
+	{
+		if (auto PS = *It)
+		{
+			if (PS->IsABot())
+				PlayerStates.Add(PS);
+		}
+	}
+
+	PlayerStates.Sort([&](const AUnrealTestPlayerState& PS_A, const AUnrealTestPlayerState& PS_B) {
+		return PS_A.GetScore() < PS_B.GetScore();
+	});
+
+	if (!PlayerStates.IsValidIndex(0))
+		return;
+
+	auto PS = PlayerStates[0];
+	return;
+
+	auto AI = Cast<AUnrealTestAIController>(PS->GetOwner());
+	if (!AI)
+		return;
+
+	DestroyAIController(AI);
+}
+
+void AUnrealTestGameMode::SpawnBot()
+{
+	if (!IsMatchInProgress())
+		return;
+
+	if (BotSpawnedClasses.Num() <= 0)
+		return;
+	
+	TSubclassOf<AUnrealTestCharacter> BotTemplate = BotSpawnedClasses[rand() % BotSpawnedClasses.Num()];
+	if (!BotTemplate)
+		return;
+
+	auto BotCDO = BotTemplate->GetDefaultObject<AUnrealTestCharacter>();
+	if (!BotCDO)
+		return;
+
+	auto AI = CreateAIController(BotCDO->AIControllerClass);
+	auto PS = Cast<AUnrealTestPlayerState>(AI->PlayerState);
+	if (!PS)
+		return;
+
+	PS->SetPlayerPawn(BotTemplate);
+
+	SetDefaultPlayerTeam(AI);
+	RestartPlayer(AI);
+}
+
+
+AUnrealTestAIController* AUnrealTestGameMode::CreateAIController(TSubclassOf<AController> AIControllerClass)
+{
+	if (!AIControllerClass)
+		return nullptr;
+
+	auto SpawnedAIContoller = GetWorld()->SpawnActor<AUnrealTestAIController>(*AIControllerClass, FTransform());
+	if (!SpawnedAIContoller)
+		return nullptr;
+
+	auto BotNumber = AIControllers.Num() + 1;
+	ChangeName(SpawnedAIContoller, FString::Printf(TEXT("BOT_%d"), BotNumber), false);
+
+	AIControllers.Add(SpawnedAIContoller);
+	return SpawnedAIContoller;
+}
+
+void AUnrealTestGameMode::DestroyAIController(AController* AIController)
+{
+	auto AI = Cast<AUnrealTestAIController>(AIController);
+	if (!AI)
+		return;
+
+	if (AIControllers.Remove(AI) <= 0)
+		return;
+	
+	if (auto PlayerState = AI->GetPlayerState<APlayerState>())
+	{
+		PlayerState->Destroy();
+	}
+
+	auto Char = AI->GetPawn();
+	if (Char)
+	{
+		Char->DetachFromControllerPendingDestroy();
+		Char->Destroy();
+	}
+
+	AI->Destroy();
 }
 
 void AUnrealTestGameMode::RestartPlayer(AController* NewPlayer)

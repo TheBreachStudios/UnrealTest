@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2022 Khanin Vladimir (FAZIC)
 
 
 #include "Character/Component/UTCharacterComponent.h"
@@ -41,7 +41,7 @@ void UUTCharacterComponent::InitializeWithAbilitySystem(UUnrealTestAbilitySystem
 
 	if (!InASC)
 	{
-		UE_LOG(UTComponentLog, Error, TEXT("KTHealthComponent: Cannot initialize health component for owner [%s] with NULL ability system."), *GetNameSafe(Owner));
+		UE_LOG(UTComponentLog, Error, TEXT("UUTCharacterComponent: Cannot initialize health component for owner [%s] with NULL ability system."), *GetNameSafe(Owner));
 		return;
 	}
 
@@ -50,7 +50,7 @@ void UUTCharacterComponent::InitializeWithAbilitySystem(UUnrealTestAbilitySystem
 	AttributeSet = AbilitySystemComponent->GetSet<UUnrealTestAttributeSet>();
 	if (!AttributeSet)
 	{
-		UE_LOG(UTComponentLog, Error, TEXT("KTHealthComponent: Cannot initialize health component for owner [%s] with NULL health set on the ability system."), *GetNameSafe(Owner));
+		UE_LOG(UTComponentLog, Error, TEXT("UUTCharacterComponent: Cannot initialize health component for owner [%s] with NULL health set on the ability system."), *GetNameSafe(Owner));
 		return;
 	}
 }

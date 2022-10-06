@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2022 Khanin Vladimir (FAZIC)
 
 #pragma once
 
@@ -76,13 +76,8 @@ public:
 	void SetPlayerPawn(int32 CharacterIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "PlayerState")
-	UUnrealTestAbilitySystemComponent* GetKTAbilitySystemComponent() const { return AbilitySystemComponent; }
+	UUnrealTestAbilitySystemComponent* GetUTAbilitySystemComponent() const { return AbilitySystemComponent; }
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
-	void SetPlayerAvatar(TSubclassOf<APawn> AvatarClass);
-	void SetPlayerAvatar(int32 AvatarIndex);
-	TSubclassOf<AUnrealTestCharacter> GetPlayerAvatar() const;
-	int32 GetPlayerAvatarIndex() const;
 
 	//Kills Count
 	TMap<AUnrealTestPlayerState*, int32> PlayerKillStat;

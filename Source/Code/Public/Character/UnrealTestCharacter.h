@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
-
+#include "Runtime/AIModule/Classes/GenericTeamAgentInterface.h"
 #include "UnrealTestCharacter.generated.h"
 
 class UUTCharacterMovementComponent;
@@ -21,7 +21,7 @@ class AUnrealTestPlayerState;
 * Base class for character
 */
 UCLASS(config=Game)
-class AUnrealTestCharacter : public ACharacter, public IAbilitySystemInterface
+class AUnrealTestCharacter : public ACharacter, public IAbilitySystemInterface, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -52,6 +52,8 @@ public:
 	TArray<AUnrealTestPlayerState*> AssistsList;
 
 	virtual void OnDeath();	
+
+	virtual FGenericTeamId GetGenericTeamId() const override;
 
 protected:
 	// Default abilities for this Character. These will be removed on Character death and regiven if Character respawns.

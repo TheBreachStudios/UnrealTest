@@ -25,6 +25,8 @@ public:
 
 	FGameplayTag Gameplay_Damage;
 
+	FGameplayTag Skill_First;
+
 protected:
 
 	void AddAllTags(UGameplayTagsManager& Manager);

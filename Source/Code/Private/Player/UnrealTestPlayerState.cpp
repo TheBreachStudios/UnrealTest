@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2022 Khanin Vladimir (FAZIC)
 
 
 #include "Player/UnrealTestPlayerState.h"
@@ -355,7 +355,7 @@ AController* AUnrealTestPlayerState::GetController() const
 
 UAbilitySystemComponent* AUnrealTestPlayerState::GetAbilitySystemComponent() const
 {
-	return GetKTAbilitySystemComponent();
+	return GetUTAbilitySystemComponent();
 }
 
 const UUnrealTestAttributeSet* AUnrealTestPlayerState::GetAttributeSet() const

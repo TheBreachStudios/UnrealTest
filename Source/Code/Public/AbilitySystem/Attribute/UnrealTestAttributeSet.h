@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2022 Khanin Vladimir (FAZIC)
 
 #pragma once
 
@@ -14,7 +14,7 @@ struct FGameplayEffectSpec;
  * This macro defines a set of helper functions for accessing and initializing attributes.
  *
  * The following example of the macro:
- *		ATTRIBUTE_ACCESSORS(UKTHealthSet, Health)
+ *		ATTRIBUTE_ACCESSORS(UUnrealTestAttributeSet, Health)
  * will create the following functions:
  *		static FGameplayAttribute GetHealthAttribute();
  *		float GetHealth() const;
