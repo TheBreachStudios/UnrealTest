@@ -321,7 +321,7 @@ void AUnrealTestCharacter::BindASCInput()
 void AUnrealTestCharacter::CharacterDied(float DamageAmount, AActor* EventInstigator, AActor* DamageCauser)
 {
 #if WITH_SERVER_CODE
-	AController* ControllerInstigator = Cast<AController>(EventInstigator);
+	AController* ControllerInstigator = Cast<AController>(EventInstigator->GetInstigatorController());
 
 	FUTKilledInfo info;
 	FUTKillerPlayerInfo KillerInfo;

@@ -35,6 +35,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FSelectCharacter OnSelectCharacter;
 
+	UFUNCTION(BlueprintCallable)
 	AUnrealTestPlayerTeam* GetPlayerTeam() const;
 	void SetPlayerTeam(AUnrealTestPlayerTeam* Team);
 
@@ -50,14 +51,17 @@ public:
 
 	void AddKillCount(int32 Count = 1);
 	void SetKillCount(int32 Count);
+	UFUNCTION(BlueprintCallable)
 	int32 GetKillCount() const;
 	
 	void AddDeathCount(int32 Count = 1);
 	void SetDeathCount(int32 Count);
+	UFUNCTION(BlueprintCallable)
 	int32 GetDeathCount() const;
 
 	void AddAssistCount(int32 Count = 1);
 	void SetAssistCount(int32 Count);
+	UFUNCTION(BlueprintCallable)
 	int32 GetAssistCount() const;
 
 	UFUNCTION(BlueprintPure, Category = "PlayerState")
