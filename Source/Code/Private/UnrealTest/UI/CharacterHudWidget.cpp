@@ -10,24 +10,33 @@ void UCharacterHudWidget::NativeConstruct()
 	// Bind delegates here.
 }
 
-//void UCharacterHudWidget::UpdateHp()
-//{
-//	if (pHpText != nullptr) 
-//	{
-//	}
-//}
-//
-//void UCharacterHudWidget::UpdateClipAmmo()
-//{
-//	if (pClipAmmoText != nullptr)
-//	{
-//	}
-//}
-//
-//void UCharacterHudWidget::UpdateReserveAmmo() 
-//{
-//	if (pReserveAmmoText != nullptr)
-//	{
-//	}
-//}
+void UCharacterHudWidget::SetHealth(int currentHealth, int maxHealth)
+{
+	if (HpText != nullptr)
+	{		
+		HpText->SetText(FText::FromString(currentHealth + " / " + maxHealth));
+	}
+
+	if (HpProgressBar != nullptr) 
+	{
+		const float normalizedHealth = maxHealth > 0 ? (float)currentHealth / maxHealth : 0.f;
+		HpProgressBar->SetPercent(normalizedHealth);
+	}
+}
+
+void UCharacterHudWidget::SetClipAmmo(int currentClipAmmo, int maxClipAmmo)
+{
+	if (ClipAmmoText != nullptr)
+	{
+		ClipAmmoText->SetText(FText::FromString(currentClipAmmo + " / " + maxClipAmmo));
+	}
+}
+
+void UCharacterHudWidget::SetReserveAmmo(int reserveAmmo)
+{
+	if (ReserveAmmoText != nullptr)
+	{
+		ReserveAmmoText->SetText(FText::AsNumber(reserveAmmo));
+	}
+}
 

@@ -20,15 +20,10 @@ class UNREALTEST_API UCharacterHudWidget : public UUserWidget
 protected:
 	virtual void NativeConstruct() override;
 
-//public:
-//	UFUNCTION(BlueprintImplementableEvent)
-//		void UpdateHp();
-//
-//	UFUNCTION(BlueprintImplementableEvent)
-//		void UpdateClipAmmo();
-//
-//	UFUNCTION(BlueprintImplementableEvent)
-//		void UpdateReserveAmmo();
+public:
+		void SetHealth(int currentHealth, int maxHealth);
+		void SetClipAmmo(int currentClipAmmo, int maxClipAmmo);
+		void SetReserveAmmo(int reserveAmmo);
 
 public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
