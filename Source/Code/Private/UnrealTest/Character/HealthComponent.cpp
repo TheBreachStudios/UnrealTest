@@ -10,6 +10,8 @@ UHealthComponent::UHealthComponent()
 	// off to improve performance if you don't need them.
 	//PrimaryComponentTick.bCanEverTick = true;
 
+	MaxHealth = 0.f;
+	CurrentHealth = 0.f;
 }
 
 
@@ -57,9 +59,9 @@ bool UHealthComponent::CanReceiveDamage()
 
 void UHealthComponent::Destroy()
 {
-	if (OnDestroyed.IsBound())
+	if (OnHealthEmpty.IsBound())
 	{
-		OnDestroyed.Broadcast();
+		OnHealthEmpty.Broadcast();
 	}
 }
 

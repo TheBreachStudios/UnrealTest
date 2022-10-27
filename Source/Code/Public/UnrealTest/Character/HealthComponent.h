@@ -33,7 +33,7 @@ public:
 
 	FHealthSignature OnHealthChanged;
 	FHealthSignature OnDamaged;
-	FHealthSignature OnDestroyed;
+	FHealthSignature OnHealthEmpty;
 
 private:
 	UFUNCTION()

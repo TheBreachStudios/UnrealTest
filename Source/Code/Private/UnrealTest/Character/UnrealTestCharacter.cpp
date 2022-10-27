@@ -86,8 +86,6 @@ void AUnrealTestCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 	LookUpBinding(PlayerInputComponent);
 	
 	TouchBinding(PlayerInputComponent);
-
-	ShootBinding(PlayerInputComponent);
 }
 
 void AUnrealTestCharacter::JumpBinding(class UInputComponent* PlayerInputComponent)
@@ -123,12 +121,6 @@ void AUnrealTestCharacter::TouchBinding(class UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindTouch(IE_Released, this, &AUnrealTestCharacter::TouchStopped);
 }
 
-void AUnrealTestCharacter::ShootBinding(class UInputComponent* PlayerInputComponent)
-{
-	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AUnrealTestCharacter::ShootingStarted);
-	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &AUnrealTestCharacter::ShootingStopped);
-}
-
 void AUnrealTestCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	Jump();
@@ -137,16 +129,6 @@ void AUnrealTestCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector L
 void AUnrealTestCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	StopJumping();
-}
-
-void AUnrealTestCharacter::ShootingStarted()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Shooting Started"));
-}
-
-void AUnrealTestCharacter::ShootingStopped()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Shooting Stopped"));
 }
 
 void AUnrealTestCharacter::TurnAtRate(float Rate)
