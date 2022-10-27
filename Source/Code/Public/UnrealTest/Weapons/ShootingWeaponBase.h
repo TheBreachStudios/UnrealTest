@@ -15,6 +15,21 @@ public:
 
 protected:
 	virtual void UseWeapon() = 0;
-	virtual void Reload() = 0;
-	virtual void ResetClipAmmo() = 0;
+	virtual void Reload();
+	virtual void ResetClipAmmo();
+
+	UPROPERTY(EditAnywhere)
+	int MaxReserveAmmo = 0;
+
+	UPROPERTY(EditAnywhere)
+	int MaxClipAmmo = 0;
+
+	UPROPERTY()
+	int CurrentClipAmmo = 0;
+
+	UPROPERTY(EditAnywhere)
+	float FireRate = 0.f;
+
+	UPROPERTY(EditAnywhere)
+	float ReloadingTime = 0.f;
 };

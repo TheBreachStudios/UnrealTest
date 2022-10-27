@@ -10,3 +10,11 @@ ShootingWeaponBase::ShootingWeaponBase()
 ShootingWeaponBase::~ShootingWeaponBase()
 {
 }
+
+void ShootingWeaponBase::Reload() 
+{
+}
+
+void ShootingWeaponBase::ResetClipAmmo() 
+{
+}

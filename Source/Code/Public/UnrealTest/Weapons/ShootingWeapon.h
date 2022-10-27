@@ -7,7 +7,7 @@
 #include "UnrealTest/Weapons/ShootingWeaponBase.h"
 #include "ShootingWeapon.generated.h"
 
-UCLASS()
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UNREALTEST_API AShootingWeapon : public AActor, public ShootingWeaponBase
 {
 	GENERATED_BODY()
@@ -18,9 +18,13 @@ public:
 protected:
 	virtual void BeginPlay() override;	
 
+	// From ShootingWeaponBase
 	virtual void UseWeapon() override;
 	virtual void Reload() override;
 	virtual void ResetClipAmmo() override;
+
+	void Shoot();
+	bool CheckHitScanTrace();
 
 public:	
 	//virtual void Tick(float DeltaTime) override;
@@ -32,6 +36,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	int MaxClipAmmo = 0;
 
+	UPROPERTY()
 	int CurrentClipAmmo = 0;
 
 	UPROPERTY(EditAnywhere)

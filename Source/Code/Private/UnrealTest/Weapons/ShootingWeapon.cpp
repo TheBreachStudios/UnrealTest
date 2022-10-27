@@ -2,7 +2,7 @@
 
 
 #include "UnrealTest/Weapons/ShootingWeapon.h"
-#include "..\..\..\Public\UnrealTest\Weapons\ShootingWeapon.h"
+#include "Engine/World.h"
 
 // Sets default values
 AShootingWeapon::AShootingWeapon()
@@ -32,6 +32,15 @@ void AShootingWeapon::ResetClipAmmo()
 {
 	// TODO: Turn this into accessing the ammo management component
 	CurrentClipAmmo = MaxClipAmmo;
+}
+
+void AShootingWeapon::Shoot()
+{
+}
+
+bool AShootingWeapon::CheckHitScanTrace()
+{
+	return false;
 }
 
 //void AShootingWeapon::Tick(float DeltaTime)
