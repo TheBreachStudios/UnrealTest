@@ -34,14 +34,14 @@ void AUnrealTestCharacter::DisableCotrollerRotation()
 {
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 }
 
 void AUnrealTestCharacter::ConfigureCharacterMovement(UCharacterMovementComponent* characterMovement)
 {
 	// Configure character movement
-	characterMovement->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	characterMovement->bOrientRotationToMovement = false; // Character moves in the direction of input...	
 	characterMovement->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
@@ -86,6 +86,8 @@ void AUnrealTestCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 	LookUpBinding(PlayerInputComponent);
 	
 	TouchBinding(PlayerInputComponent);
+
+	ShootBinding(PlayerInputComponent);
 }
 
 void AUnrealTestCharacter::JumpBinding(class UInputComponent* PlayerInputComponent)
@@ -121,6 +123,12 @@ void AUnrealTestCharacter::TouchBinding(class UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindTouch(IE_Released, this, &AUnrealTestCharacter::TouchStopped);
 }
 
+void AUnrealTestCharacter::ShootBinding(class UInputComponent* PlayerInputComponent)
+{
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AUnrealTestCharacter::ShootingStarted);
+	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &AUnrealTestCharacter::ShootingStopped);
+}
+
 void AUnrealTestCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	Jump();
@@ -129,6 +137,16 @@ void AUnrealTestCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector L
 void AUnrealTestCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	StopJumping();
+}
+
+void AUnrealTestCharacter::ShootingStarted()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Shooting Started"));
+}
+
+void AUnrealTestCharacter::ShootingStopped()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Shooting Stopped"));
 }
 
 void AUnrealTestCharacter::TurnAtRate(float Rate)
