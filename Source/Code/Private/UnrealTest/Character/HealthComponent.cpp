@@ -6,10 +6,6 @@
 
 UHealthComponent::UHealthComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	//PrimaryComponentTick.bCanEverTick = true;
-
 	MaxHealth = 0.f;
 	CurrentHealth = 0.f;
 }
@@ -32,8 +28,9 @@ void UHealthComponent::ApplyDamage(float damage)
 	if (CanReceiveDamage() && damage > 0.f)
 	{
 		CurrentHealth = FMath::Clamp(CurrentHealth - damage, 0.f, MaxHealth);
-		OnRep_CurrentHealth();
-		UE_LOG(LogTemp, Warning, TEXT("Applied Damage"));
+
+		UE_LOG(LogTemp, Warning, TEXT("%s took %f damage!"), *GetOwner()->GetName(), damage);
+
 		if (OnDamaged.IsBound()) 
 		{
 			OnDamaged.Broadcast();
@@ -41,12 +38,11 @@ void UHealthComponent::ApplyDamage(float damage)
 
 		if (OnHealthChanged.IsBound()) 
 		{
-			OnHealthChanged.Broadcast();
+			OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
 		}
 
 		if (CurrentHealth <= 0.f)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("EnemyKilled"));
+		{			
 			Destroy();
 		}
 	}
@@ -54,24 +50,16 @@ void UHealthComponent::ApplyDamage(float damage)
 
 bool UHealthComponent::CanReceiveDamage()
 {
-	return true;
+	return CurrentHealth > 0.f;
 }
 
 void UHealthComponent::Destroy()
 {
+	UE_LOG(LogTemp, Warning, TEXT("%s was killed!"), *GetOwner()->GetName());
 	if (OnHealthEmpty.IsBound())
 	{
 		OnHealthEmpty.Broadcast();
 	}
-}
-
-//------- Replication --------------------------------------------------------------------------------------------
-void UHealthComponent::OnRep_CurrentHealth()
-{
-}
-
-void UHealthComponent::OnRep_MaxHealth()
-{
 }
 
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const 
@@ -80,11 +68,4 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME_WITH_PARAMS(UHealthComponent, MaxHealth, COND_InitialOnly);
 	DOREPLIFETIME_WITH_PARAMS(UHealthComponent, CurrentHealth, COND_InitialOrOwner);
 }
-
-//void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-//{
-//	UActorComponent::TickComponent(DeltaTime, TickType, ThisTickFunction);
-//
-//	// ...
-//}
 

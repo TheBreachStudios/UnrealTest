@@ -12,19 +12,22 @@ class UNREALTEST_API UChampionAnimHandlerComp : public UActorComponent
 {
 	GENERATED_BODY()
 
-	
+	//UFUNCTION(Client, Unreliable)
+	//void Client_PrintPropertyValues() const;
 
 public:	
 	UChampionAnimHandlerComp();
 
-	void UpdateMovementSpeed();
-	void UpdateSidewaysMovementDirection();
-	void UpdateIsInAir();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_UpdateMovementSpeed();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_UpdateSidewaysMovementDirection();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_UpdateIsInAir();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SetIsDead();
 
-	void BindHealthEvents();
-
-	UFUNCTION()
-	void SetIsDead();
+	void BindHealthEvents();	
 
 	AActor* OwningActor = nullptr;
 
@@ -34,17 +37,19 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 public:
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	float MovementSpeed = 0.f;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	float SidewaysMovementDirection = 0.f;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool IsInAir = false;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool IsDead = false;
 	
 };

@@ -5,6 +5,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "UnrealTest/Character/HealthComponent.h"
+#include "Net/UnrealNetwork.h"
 
 UChampionAnimHandlerComp::UChampionAnimHandlerComp()
 {
@@ -24,8 +25,7 @@ void UChampionAnimHandlerComp::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwningActor = GetOwner();
-	check(OwningActor);
+	verify((OwningActor = GetOwner()) != nullptr);
 
 	BindHealthEvents();	
 }
@@ -35,12 +35,12 @@ void UChampionAnimHandlerComp::TickComponent(float DeltaTime, ELevelTick TickTyp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	UpdateMovementSpeed();
-	UpdateSidewaysMovementDirection();
-	UpdateIsInAir();
+	Multicast_UpdateMovementSpeed();
+	Multicast_UpdateSidewaysMovementDirection();
+	Multicast_UpdateIsInAir();
 }
 
-void UChampionAnimHandlerComp::UpdateMovementSpeed() 
+void UChampionAnimHandlerComp::Multicast_UpdateMovementSpeed_Implementation()
 {
 	if (OwningActor == nullptr) { return; }
 
@@ -48,7 +48,7 @@ void UChampionAnimHandlerComp::UpdateMovementSpeed()
 	MovementSpeed = velocityVector.Size();
 }
 
-void UChampionAnimHandlerComp::UpdateSidewaysMovementDirection() 
+void UChampionAnimHandlerComp::Multicast_UpdateSidewaysMovementDirection_Implementation()
 {
 	if (OwningActor == nullptr) { return; }
 
@@ -59,7 +59,7 @@ void UChampionAnimHandlerComp::UpdateSidewaysMovementDirection()
 	SidewaysMovementDirection = vectorProjection;
 }
 
-void UChampionAnimHandlerComp::UpdateIsInAir() 
+void UChampionAnimHandlerComp::Multicast_UpdateIsInAir_Implementation()
 {
 	if (OwningActor == nullptr) { return; }
 
@@ -72,18 +72,34 @@ void UChampionAnimHandlerComp::UpdateIsInAir()
 	IsInAir = pawnMovementComponent->IsFalling();
 }
 
+void UChampionAnimHandlerComp::Multicast_SetIsDead_Implementation()
+{
+	IsDead = true;
+}
+
 void UChampionAnimHandlerComp::BindHealthEvents()
 {
+	check(OwningActor != nullptr);
 	if (OwningActor == nullptr) { return; }
 
 	UHealthComponent* healthComponent = Cast<UHealthComponent>(OwningActor->GetComponentByClass(UHealthComponent::StaticClass()));
 	if (healthComponent == nullptr) { return; }
 
-	healthComponent->OnHealthEmpty.AddUObject(this, &UChampionAnimHandlerComp::SetIsDead);
+	healthComponent->OnHealthEmpty.AddUObject(this, &UChampionAnimHandlerComp::Multicast_SetIsDead);
 }
 
-void UChampionAnimHandlerComp::SetIsDead()
+void UChampionAnimHandlerComp::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	IsDead = true;
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UChampionAnimHandlerComp, MovementSpeed);
+	DOREPLIFETIME(UChampionAnimHandlerComp, SidewaysMovementDirection);
+	DOREPLIFETIME(UChampionAnimHandlerComp, IsInAir);
+	DOREPLIFETIME(UChampionAnimHandlerComp, IsDead);
 }
+
+//void UChampionAnimHandlerComp::Client_PrintPropertyValues_Implementation() const
+//{
+//	FString tempStr = FString::Printf(TEXT("MovementSpeed: %f | SidewaysMovementDirection: %f | IsInAir: %d | IsDead: %d"), MovementSpeed, SidewaysMovementDirection, IsInAir, IsDead);
+//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, tempStr);
+//}
 

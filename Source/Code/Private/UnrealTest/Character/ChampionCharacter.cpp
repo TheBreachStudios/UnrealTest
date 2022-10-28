@@ -5,12 +5,17 @@
 #include "UnrealTest/Character/HealthComponent.h"
 #include "Camera/CameraComponent.h"
 
+AChampionCharacter::AChampionCharacter()
+{
+	HealthComponent = nullptr;
+}
+
 void AChampionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	HealthComponent = Cast<UHealthComponent>(FindComponentByClass(UHealthComponent::StaticClass()));
-	check(HealthComponent);
+	
+	verify((HealthComponent = Cast<UHealthComponent>(FindComponentByClass(UHealthComponent::StaticClass()))) != nullptr);
+	
 	BindHealthEvents();
 }
 
@@ -23,7 +28,7 @@ void AChampionCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 
 void AChampionCharacter::ShootBinding(class UInputComponent* PlayerInputComponent)
 {
-	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AChampionCharacter::ShootingStarted);
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AChampionCharacter::Server_ShootingStarted);
 	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &AChampionCharacter::ShootingStopped);
 }
 
@@ -36,19 +41,27 @@ void AChampionCharacter::BindHealthEvents()
 
 void AChampionCharacter::HandleDeath()
 {
-	UE_LOG(LogTemp, Warning, TEXT("I Died"));
+	UE_LOG(LogTemp, Warning, TEXT("%s Died"), *GetName());
 }
 
-void AChampionCharacter::ShootingStarted()
+void AChampionCharacter::Server_ShootingStarted_Implementation()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Shooting Started"));
 
-	FHitResult hit = HitScanTrace();
-	if (hit.IsValidBlockingHit())
+	const float lineTraceDistance = 1000.f;
+	FHitResult hitResult = FHitResult(ForceInit);
+	UCameraComponent* camera = GetFollowCamera();
+	check(camera != nullptr);
+	FVector startLocation = camera->GetComponentLocation();
+	FVector endLocation = camera->GetComponentRotation().Vector() * lineTraceDistance;
+	ECollisionChannel channel = ECollisionChannel::ECC_Pawn;
+	FCollisionQueryParams traceParams = FCollisionQueryParams(FName(TEXT("")), false, this);
+	GetWorld()->LineTraceSingleByChannel(hitResult, startLocation, endLocation, channel, traceParams);
+
+	if (hitResult.IsValidBlockingHit())
 	{
-		AActor* hitActor = hit.GetActor();
-		FString hitActorName = hitActor->GetName();
-		UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *hitActorName);
+		AActor* hitActor = hitResult.GetActor();
+		UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *hitActor->GetName());
 		UHealthComponent* hpComponent = Cast<UHealthComponent>(hitActor->GetComponentByClass(UHealthComponent::StaticClass()));
 		if (hpComponent != nullptr)
 		{
@@ -60,18 +73,4 @@ void AChampionCharacter::ShootingStarted()
 void AChampionCharacter::ShootingStopped()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Shooting Stopped"));	
-}
-
-FHitResult AChampionCharacter::HitScanTrace()
-{
-	const float lineTraceDistance = 1000.f;
-	FHitResult hitResult = FHitResult(ForceInit);
-	UCameraComponent* camera = GetFollowCamera();
-	check(camera);
-	FVector startLocation = camera->GetComponentLocation();
-	FVector endLocation = camera->GetComponentRotation().Vector() * lineTraceDistance;
-	ECollisionChannel channel = ECollisionChannel::ECC_Pawn;//TEMP
-	FCollisionQueryParams traceParams = FCollisionQueryParams(FName(TEXT("")), false, this);
-	GetWorld()->LineTraceSingleByChannel(hitResult, startLocation, endLocation, channel, traceParams);
-	return hitResult;
 }

@@ -14,6 +14,7 @@ class UNREALTEST_API UHealthComponent : public UActorComponent, public IDamageab
 	GENERATED_BODY()
 
 	DECLARE_MULTICAST_DELEGATE(FHealthSignature);
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FHealthChangedSignature, float, float);
 
 public:	
 	UHealthComponent();
@@ -28,19 +29,11 @@ protected:
 public:	
 	virtual void ApplyDamage(float damage) override;
 
-	//virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	FHealthSignature OnHealthChanged;
+	FHealthChangedSignature OnHealthChanged;
 	FHealthSignature OnDamaged;
 	FHealthSignature OnHealthEmpty;
-
-private:
-	UFUNCTION()
-	void OnRep_CurrentHealth();
-
-	UFUNCTION()
-	void OnRep_MaxHealth();
 
 protected:
 	UPROPERTY(Replicated, EditAnywhere)

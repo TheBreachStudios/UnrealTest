@@ -14,7 +14,13 @@ class UNREALTEST_API AChampionCharacter : public AUnrealTestCharacter
 {
 	GENERATED_BODY()
 
+	AChampionCharacter();
+	
 	class UHealthComponent* HealthComponent = nullptr;
+
+public :
+	FORCEINLINE const UHealthComponent* GetHealthComponentPtr() const { return HealthComponent; }
+	FORCEINLINE UHealthComponent* AccessHealthComponentPtr() { return HealthComponent; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -25,7 +31,8 @@ protected:
 	UFUNCTION()
 	void HandleDeath();
 
-	void ShootingStarted();
+	UFUNCTION(Server, Reliable)
+	void Server_ShootingStarted();
+
 	void ShootingStopped();
-	FHitResult HitScanTrace();
 };

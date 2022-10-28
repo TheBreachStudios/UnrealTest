@@ -10,8 +10,8 @@
 class UNREALTEST_API IDamageable
 {
 public:
-	IDamageable();
-	~IDamageable();
+	IDamageable() = default;
+	virtual ~IDamageable() = default;
 
 protected:
 	virtual void ApplyDamage(float damage) = 0;
