@@ -6,19 +6,11 @@
 
 UHealthComponent::UHealthComponent()
 {
-	MaxHealth = 0.f;
-	CurrentHealth = 0.f;
+	MaxHealth = 100.f;
+	ResetCurrentHealth();
 }
 
-
-void UHealthComponent::BeginPlay()
-{
-	UActorComponent::BeginPlay();
-
-	ResetHealth();	
-}
-
-void UHealthComponent::ResetHealth()
+void UHealthComponent::ResetCurrentHealth()
 {
 	CurrentHealth = MaxHealth;
 }
@@ -28,17 +20,21 @@ void UHealthComponent::ApplyDamage(float damage)
 	if (CanReceiveDamage() && damage > 0.f)
 	{
 		CurrentHealth = FMath::Clamp(CurrentHealth - damage, 0.f, MaxHealth);
+		OnRep_CurrentHealth();
 
-		UE_LOG(LogTemp, Warning, TEXT("%s took %f damage!"), *GetOwner()->GetName(), damage);
-
-		if (OnDamaged.IsBound()) 
+		if(GetOwnerRole() < ENetRole::ROLE_SimulatedProxy)
 		{
-			OnDamaged.Broadcast();
+			UE_LOG(LogTemp, Warning, TEXT("%s took %f damage!"), *GetOwner()->GetName(), damage);
 		}
 
-		if (OnHealthChanged.IsBound()) 
+		if (OnDamagedEvent.IsBound()) 
 		{
-			OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+			OnDamagedEvent.Broadcast();
+		}
+
+		if (OnHealthChangedEvent.IsBound()) 
+		{
+			OnHealthChangedEvent.Broadcast(CurrentHealth, MaxHealth);
 		}
 
 		if (CurrentHealth <= 0.f)
@@ -56,16 +52,38 @@ bool UHealthComponent::CanReceiveDamage()
 void UHealthComponent::Destroy()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s was killed!"), *GetOwner()->GetName());
-	if (OnHealthEmpty.IsBound())
+	if (OnHealthEmptyEvent.IsBound())
 	{
-		OnHealthEmpty.Broadcast();
+		OnHealthEmptyEvent.Broadcast();
 	}
 }
 
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const 
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME_WITH_PARAMS(UHealthComponent, MaxHealth, COND_InitialOnly);
-	DOREPLIFETIME_WITH_PARAMS(UHealthComponent, CurrentHealth, COND_InitialOrOwner);
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);	
+	DOREPLIFETIME(UHealthComponent, CurrentHealth);
+}
+
+void UHealthComponent::OnHealthUpdated()
+{
+	AActor* owner = GetOwner();
+	if (owner != nullptr) 
+	{
+		if (owner->HasAuthority())
+		{
+			FString messageStr = FString::Printf(TEXT("[Server][%s] Health: %f"), *owner->GetName(), CurrentHealth);
+			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Blue, messageStr);
+		}
+		else
+		{
+			FString messageStr = FString::Printf(TEXT("[Client][Self] Health: %f"), CurrentHealth);
+			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Yellow, messageStr);
+		}
+	}	
+}
+
+void UHealthComponent::OnRep_CurrentHealth()
+{
+	OnHealthUpdated();
 }
 

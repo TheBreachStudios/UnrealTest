@@ -10,6 +10,14 @@ void UCharacterHudWidget::NativeConstruct()
 	// Bind delegates here.
 }
 
+void UCharacterHudWidget::BindHealth()
+{
+}
+
+void UCharacterHudWidget::BindAmmo()
+{
+}
+
 void UCharacterHudWidget::SetHealth(int currentHealth, int maxHealth)
 {
 	if (HpText != nullptr)
@@ -26,17 +34,13 @@ void UCharacterHudWidget::SetHealth(int currentHealth, int maxHealth)
 
 void UCharacterHudWidget::SetClipAmmo(int currentClipAmmo, int maxClipAmmo)
 {
-	if (ClipAmmoText != nullptr)
-	{
-		ClipAmmoText->SetText(FText::FromString(currentClipAmmo + " / " + maxClipAmmo));
-	}
+	check(ClipAmmoText != nullptr)
+	ClipAmmoText->SetText(FText::FromString(currentClipAmmo + " / " + maxClipAmmo));
 }
 
 void UCharacterHudWidget::SetReserveAmmo(int reserveAmmo)
 {
-	if (ReserveAmmoText != nullptr)
-	{
-		ReserveAmmoText->SetText(FText::AsNumber(reserveAmmo));
-	}
+	check(ReserveAmmoText != nullptr)
+	ReserveAmmoText->SetText(FText::AsNumber(reserveAmmo));
 }
 

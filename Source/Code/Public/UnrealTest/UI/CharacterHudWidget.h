@@ -17,13 +17,15 @@ class UNREALTEST_API UCharacterHudWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-protected:
-	virtual void NativeConstruct() override;
+	void BindHealth();
+	void BindAmmo();
 
-public:
-		void SetHealth(int currentHealth, int maxHealth);
-		void SetClipAmmo(int currentClipAmmo, int maxClipAmmo);
-		void SetReserveAmmo(int reserveAmmo);
+	void SetHealth(int currentHealth, int maxHealth);
+	void SetClipAmmo(int currentClipAmmo, int maxClipAmmo);
+	void SetReserveAmmo(int reserveAmmo);
+
+protected:
+	virtual void NativeConstruct() override;	
 
 public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))

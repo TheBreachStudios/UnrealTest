@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(config = Game)
 class UNREALTEST_API AChampionCharacter : public AUnrealTestCharacter
 {
 	GENERATED_BODY()
@@ -17,22 +17,31 @@ class UNREALTEST_API AChampionCharacter : public AUnrealTestCharacter
 	AChampionCharacter();
 	
 	class UHealthComponent* HealthComponent = nullptr;
+	class UChampionAnimHandlerComp* AnimHandler = nullptr;
 
 public :
 	FORCEINLINE const UHealthComponent* GetHealthComponentPtr() const { return HealthComponent; }
 	FORCEINLINE UHealthComponent* AccessHealthComponentPtr() { return HealthComponent; }
 
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void UnPossessed() override;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void ShootBinding(class UInputComponent* PlayerInputComponent);
-	void BindHealthEvents();
+	void SetupHealthComponent();
+
+	UFUNCTION(Client, Reliable)
+	void Client_HandleDeath();
 
 	UFUNCTION()
-	void HandleDeath();
+	void ShootingStarted();
+
+	UFUNCTION()
+	void ShootingStopped();
 
 	UFUNCTION(Server, Reliable)
-	void Server_ShootingStarted();
+	void Server_DoHitScanTrace();
 
-	void ShootingStopped();
 };

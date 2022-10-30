@@ -9,11 +9,7 @@
 
 UChampionAnimHandlerComp::UChampionAnimHandlerComp()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	OwningActor = nullptr;
 	MovementSpeed = 0.f;
 	SidewaysMovementDirection = 0.f;
 	IsInAir = false;
@@ -24,8 +20,6 @@ UChampionAnimHandlerComp::UChampionAnimHandlerComp()
 void UChampionAnimHandlerComp::BeginPlay()
 {
 	Super::BeginPlay();
-
-	verify((OwningActor = GetOwner()) != nullptr);
 
 	BindHealthEvents();	
 }
@@ -42,18 +36,18 @@ void UChampionAnimHandlerComp::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 void UChampionAnimHandlerComp::Multicast_UpdateMovementSpeed_Implementation()
 {
-	if (OwningActor == nullptr) { return; }
+	if (GetOwner() == nullptr) { return; }
 
-	FVector velocityVector = OwningActor->GetVelocity();
+	FVector velocityVector = GetOwner()->GetVelocity();
 	MovementSpeed = velocityVector.Size();
 }
 
 void UChampionAnimHandlerComp::Multicast_UpdateSidewaysMovementDirection_Implementation()
 {
-	if (OwningActor == nullptr) { return; }
+	if (GetOwner() == nullptr) { return; }
 
-	FVector velocityVector = OwningActor->GetVelocity();
-	FRotator actorRotation = OwningActor->GetActorRotation();
+	FVector velocityVector = GetOwner()->GetVelocity();
+	FRotator actorRotation = GetOwner()->GetActorRotation();
 	FVector rightVector = UKismetMathLibrary::GetRightVector(actorRotation);
 	float vectorProjection = FVector::DotProduct(velocityVector, rightVector);
 	SidewaysMovementDirection = vectorProjection;
@@ -61,9 +55,9 @@ void UChampionAnimHandlerComp::Multicast_UpdateSidewaysMovementDirection_Impleme
 
 void UChampionAnimHandlerComp::Multicast_UpdateIsInAir_Implementation()
 {
-	if (OwningActor == nullptr) { return; }
+	if (GetOwner() == nullptr) { return; }
 
-	APawn* owningPawn = Cast<APawn>(OwningActor);
+	APawn* owningPawn = Cast<APawn>(GetOwner());
 	if (owningPawn == nullptr) { return; }
 
 	UPawnMovementComponent* pawnMovementComponent = owningPawn->GetMovementComponent();
@@ -79,13 +73,17 @@ void UChampionAnimHandlerComp::Multicast_SetIsDead_Implementation()
 
 void UChampionAnimHandlerComp::BindHealthEvents()
 {
-	check(OwningActor != nullptr);
-	if (OwningActor == nullptr) { return; }
+	if (GetOwner() == nullptr) { return; }
 
-	UHealthComponent* healthComponent = Cast<UHealthComponent>(OwningActor->GetComponentByClass(UHealthComponent::StaticClass()));
-	if (healthComponent == nullptr) { return; }
-
-	healthComponent->OnHealthEmpty.AddUObject(this, &UChampionAnimHandlerComp::Multicast_SetIsDead);
+	UHealthComponent* healthComponent = Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));
+	if (healthComponent != nullptr) 
+	{ 
+		healthComponent->OnHealthEmptyEvent.AddUObject(this, &UChampionAnimHandlerComp::Multicast_SetIsDead);		
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to bind to the HealthComponent Events!"));
+	}
 }
 
 void UChampionAnimHandlerComp::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -96,10 +94,4 @@ void UChampionAnimHandlerComp::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(UChampionAnimHandlerComp, IsInAir);
 	DOREPLIFETIME(UChampionAnimHandlerComp, IsDead);
 }
-
-//void UChampionAnimHandlerComp::Client_PrintPropertyValues_Implementation() const
-//{
-//	FString tempStr = FString::Printf(TEXT("MovementSpeed: %f | SidewaysMovementDirection: %f | IsInAir: %d | IsDead: %d"), MovementSpeed, SidewaysMovementDirection, IsInAir, IsDead);
-//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, tempStr);
-//}
 

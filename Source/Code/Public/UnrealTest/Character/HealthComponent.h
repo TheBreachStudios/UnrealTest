@@ -19,26 +19,31 @@ class UNREALTEST_API UHealthComponent : public UActorComponent, public IDamageab
 public:	
 	UHealthComponent();
 
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
+
 protected:
-	virtual void BeginPlay() override;
-	void ResetHealth();
-	
-	virtual bool CanReceiveDamage() override;
-	virtual void Destroy() override;
+	void ResetCurrentHealth();
+			
+	UFUNCTION()
+	void OnRep_CurrentHealth();
 
 public:	
 	virtual void ApplyDamage(float damage) override;
+	virtual bool CanReceiveDamage() override;
+	virtual void Destroy() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	FHealthChangedSignature OnHealthChanged;
-	FHealthSignature OnDamaged;
-	FHealthSignature OnHealthEmpty;
+	FHealthChangedSignature OnHealthChangedEvent;
+	FHealthSignature OnDamagedEvent;
+	FHealthSignature OnHealthEmptyEvent;
+
+	void OnHealthUpdated();
 
 protected:
-	UPROPERTY(Replicated, EditAnywhere)
-	float MaxHealth = 0.f;
-	
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth)
 	float CurrentHealth = 0.f;
+
+	float MaxHealth = 100.f;
 };

@@ -29,8 +29,6 @@ public:
 
 	void BindHealthEvents();	
 
-	AActor* OwningActor = nullptr;
-
 protected:
 	virtual void BeginPlay() override;
 

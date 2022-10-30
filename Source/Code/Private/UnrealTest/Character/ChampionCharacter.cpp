@@ -3,20 +3,41 @@
 
 #include "UnrealTest/Character/ChampionCharacter.h"
 #include "UnrealTest/Character/HealthComponent.h"
+#include "UnrealTest/Character/ChampionAnimHandlerComp.h"
 #include "Camera/CameraComponent.h"
 
 AChampionCharacter::AChampionCharacter()
 {
 	HealthComponent = nullptr;
+	bReplicates = true;	
+	bAlwaysRelevant = true;
+
+	SetupHealthComponent();
+	AnimHandler = CreateDefaultSubobject<UChampionAnimHandlerComp>(TEXT("AnimationHandlerComponent"));
+}
+
+void AChampionCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	UE_LOG(LogTemp, Warning, TEXT("PlayerController %s has possessed %s"), *NewController->GetName(), *GetName());
+}
+
+void AChampionCharacter::UnPossessed()
+{
+	Super::UnPossessed();
+	UE_LOG(LogTemp, Warning, TEXT("Champion Unpossessed!"));
 }
 
 void AChampionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	verify((HealthComponent = Cast<UHealthComponent>(FindComponentByClass(UHealthComponent::StaticClass()))) != nullptr);
-	
-	BindHealthEvents();
+	UE_LOG(LogTemp, Warning, TEXT("Champion Begin Play!"));
+
+	//APlayerController* playerController = Cast<APlayerController>(GetController());
+	//if (playerController != nullptr)
+	//{
+	//	EnableInput(playerController);
+	//}
 }
 
 void AChampionCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -28,25 +49,42 @@ void AChampionCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 
 void AChampionCharacter::ShootBinding(class UInputComponent* PlayerInputComponent)
 {
-	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AChampionCharacter::Server_ShootingStarted);
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AChampionCharacter::ShootingStarted);
 	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &AChampionCharacter::ShootingStopped);
 }
 
-void AChampionCharacter::BindHealthEvents()
+void AChampionCharacter::SetupHealthComponent()
 {
-	if (HealthComponent == nullptr) { return; }
-
-	HealthComponent->OnHealthEmpty.AddUObject(this, &AChampionCharacter::HandleDeath);
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+	HealthComponent->OnHealthEmptyEvent.AddUObject(this, &AChampionCharacter::Client_HandleDeath);
 }
 
-void AChampionCharacter::HandleDeath()
+void AChampionCharacter::Client_HandleDeath_Implementation()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s Died"), *GetName());
+	APlayerController* playerController = Cast<APlayerController>(GetController());
+	if (playerController != nullptr) 
+	{
+		DisableInput(playerController);
+	}
 }
 
-void AChampionCharacter::Server_ShootingStarted_Implementation()
+
+void AChampionCharacter::ShootingStarted()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Shooting Started"));
+	//UE_LOG(LogTemp, Warning, TEXT("Shooting Started"));
+
+	Server_DoHitScanTrace();
+}
+
+void AChampionCharacter::ShootingStopped()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Shooting Stopped"));	
+}
+
+void AChampionCharacter::Server_DoHitScanTrace_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Hitscan Shot!"));
 
 	const float lineTraceDistance = 1000.f;
 	FHitResult hitResult = FHitResult(ForceInit);
@@ -70,7 +108,4 @@ void AChampionCharacter::Server_ShootingStarted_Implementation()
 	}
 }
 
-void AChampionCharacter::ShootingStopped()
-{
-	//UE_LOG(LogTemp, Warning, TEXT("Shooting Stopped"));	
-}
+
