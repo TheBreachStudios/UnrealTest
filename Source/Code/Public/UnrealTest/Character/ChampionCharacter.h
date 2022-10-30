@@ -13,18 +13,26 @@ UCLASS(config = Game)
 class UNREALTEST_API AChampionCharacter : public AUnrealTestCharacter
 {
 	GENERATED_BODY()
-
-	AChampionCharacter();
 	
+	DECLARE_MULTICAST_DELEGATE(FChampionSignature);
+	
+public :
+	AChampionCharacter();
+
+private:
+
 	class UHealthComponent* HealthComponent = nullptr;
 	class UChampionAnimHandlerComp* AnimHandler = nullptr;
 
-public :
+public:
+
 	FORCEINLINE const UHealthComponent* GetHealthComponentPtr() const { return HealthComponent; }
 	FORCEINLINE UHealthComponent* AccessHealthComponentPtr() { return HealthComponent; }
 
-	virtual void PossessedBy(AController* NewController) override;
-	virtual void UnPossessed() override;
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ResetChampionCharacter();
+
+	FChampionSignature OnChampionDeathEvent;
 
 protected:
 	virtual void BeginPlay() override;
@@ -32,8 +40,7 @@ protected:
 	void ShootBinding(class UInputComponent* PlayerInputComponent);
 	void SetupHealthComponent();
 
-	UFUNCTION(Client, Reliable)
-	void Client_HandleDeath();
+	void HandleDeath();
 
 	UFUNCTION()
 	void ShootingStarted();
@@ -43,5 +50,6 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void Server_DoHitScanTrace();
+
 
 };

@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/GameSession.h"
 #include "UnrealTest/UI/PlayerHUD.h"
+#include "UnrealTest/Character/ChampionPlayerController.h"
 
 AEliminationGameMode::AEliminationGameMode()
 {
@@ -20,9 +21,12 @@ AEliminationGameMode::AEliminationGameMode()
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
 	HUDClass = APlayerHUD::StaticClass();;
 	GameStateClass = AEliminationGameState::StaticClass();
+	PlayerControllerClass = AChampionPlayerController::StaticClass();
 	//PlayerStateClass = AEliminationPlayerState::StaticClass();
-	CurrentMatchState = MatchState::WaitingToStart;
+	CurrentMatchState = MatchState::EnteringMap;
 	NumPlayers = 0;
+
+	CreateTeams();
 }
 
 void AEliminationGameMode::StartMatch()
@@ -32,9 +36,8 @@ void AEliminationGameMode::StartMatch()
 		return;
 	}
 
-	SpawnAllPlayers();
-
 	SetMatchState(MatchState::InProgress);
+	// TODO: Unlock the players
 }
 
 void AEliminationGameMode::EndMatch()
@@ -47,7 +50,7 @@ void AEliminationGameMode::EndMatch()
 	SetMatchState(MatchState::WaitingPostMatch);
 }
 
-bool AEliminationGameMode::CanStartMatch()
+bool AEliminationGameMode::CanStartMatch() const
 {
 	if (GameState != nullptr)
 	{
@@ -60,7 +63,7 @@ bool AEliminationGameMode::CanStartMatch()
 	return false;
 }
 
-bool AEliminationGameMode::CanEndMatch()
+bool AEliminationGameMode::CanEndMatch() const
 {
 	if (GameState != nullptr)
 	{
@@ -73,6 +76,11 @@ bool AEliminationGameMode::CanEndMatch()
 	return false;
 }
 
+//void AEliminationGameMode::HandlePlayerDeath()
+//{	
+//	//GetWorldTimerManager().SetTimer(TimerHandle_PlayerRespawnTimer, this, &AEliminationGameMode::HandlePlayerNeedsRespawn, RESPAWN_DELAY);
+//}
+
 void AEliminationGameMode::SetMatchState(FName newState)
 {
 	if (CurrentMatchState == newState) { return; }
@@ -82,8 +90,13 @@ void AEliminationGameMode::SetMatchState(FName newState)
 	CurrentMatchState = newState;
 }
 
-void AEliminationGameMode::SpawnAllPlayers()
+void AEliminationGameMode::CreateTeams()
 {
+	for (int i = 0; i < MAX_TEAMS; i++)
+	{
+		Team newTeam = Team();
+		TeamsArray.Add(newTeam);
+	}
 }
 
 void AEliminationGameMode::Tick(float DeltaSeconds)
@@ -111,7 +124,10 @@ void AEliminationGameMode::Tick(float DeltaSeconds)
 void AEliminationGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
-	SetMatchState(MatchState::WaitingToStart);
+	SetMatchState(MatchState::EnteringMap);
+
+	FTimerManager& timerManager = GetWorldTimerManager();
+	timerManager.SetTimer(TimerHandle_WaitingPlayersTimer, this, &AEliminationGameMode::HandleWaitForPlayers, WAIT_PLAYERS_TIME);
 }
 
 void AEliminationGameMode::StartPlay()
@@ -141,11 +157,7 @@ void AEliminationGameMode::PostLogin(APlayerController* NewPlayer)
 		NumPlayers++;
 		if (GameState != nullptr)
 		{
-			AEliminationGameState* eliminationGameState = Cast<AEliminationGameState>(GameState);
-			if (eliminationGameState != nullptr)
-			{
-				eliminationGameState->AutoAssignTeam(NewPlayer);
-			}
+			SetupNewPlayer(NewPlayer);
 		}
 	}
 
@@ -168,6 +180,25 @@ int32 AEliminationGameMode::GetNumPlayers()
 	return NumPlayers;
 }
 
+void AEliminationGameMode::HandleWaitForPlayers()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_WaitingPlayersTimer);
+	SetMatchState(MatchState::WaitingToStart);
+}
+
+void AEliminationGameMode::HandlePlayerDeath(APlayerController* player)
+{
+	FTimerHandle timerHandle;
+	FTimerDelegate timerDel;
+	timerDel.BindUFunction(this, FName("HandlePlayerRespawn"), player);
+	GetWorldTimerManager().SetTimer(timerHandle, timerDel, RESPAWN_DELAY, false);
+}
+
+void AEliminationGameMode::HandlePlayerRespawn(APlayerController* player)
+{
+	RestartPlayer(player);
+}
+
 void AEliminationGameMode::RemovePlayerControllerFromPlayerCount(APlayerController* PC)
 {
 	if (PC == nullptr) { return; }
@@ -175,5 +206,45 @@ void AEliminationGameMode::RemovePlayerControllerFromPlayerCount(APlayerControll
 	if (PC->HasClientLoadedCurrentWorld())
 	{
 		NumPlayers--;
+	}
+}
+
+void AEliminationGameMode::AutoAssignTeam(APlayerController* player)
+{
+	// Check if the teams were already created.
+	if (TeamsArray.Num() > 0)
+	{
+		bool wasAssigned = false;
+		int minTeammates = 0;
+		do
+		{
+			for (int i = 0; i < TeamsArray.Num(); i++)
+			{
+				if (TeamsArray[i].GetNumTeammates() <= minTeammates)
+				{
+					TeamsArray[i].AssignTeammate(player);
+					//TEMP: Auto ready for now
+					TeamsArray[i].SetTeammateReadiness(player, true);
+					wasAssigned = true;
+					break;
+				}
+			}
+			minTeammates++;
+		} while (!wasAssigned);
+	}
+}
+
+void AEliminationGameMode::SetupNewPlayer(APlayerController* player)
+{
+	AEliminationGameState* eliminationGameState = Cast<AEliminationGameState>(GameState);
+	if (eliminationGameState != nullptr)
+	{
+		AutoAssignTeam(player);
+		AChampionPlayerController* playerController = Cast<AChampionPlayerController>(player);
+		if (playerController != nullptr)
+		{
+			playerController->OnPlayerDeathEvent.AddUObject(this, &AEliminationGameMode::HandlePlayerDeath);
+		}
+		eliminationGameState->RegisterPlayer(player);
 	}
 }

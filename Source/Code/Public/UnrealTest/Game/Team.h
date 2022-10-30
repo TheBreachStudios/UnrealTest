@@ -16,6 +16,7 @@ public:
 	FORCEINLINE int32 GetNumTeammates() const { return TeammatesPtrArray.Num(); }
 	FORCEINLINE TArray<APlayerController*> GetTeammates() const { return TeammatesPtrArray; }
 	FORCEINLINE int32 GetTeamID() const { return TeamID; }
+	bool IsPlayerInTeam(APlayerController* player) const;
 
 	void AssignTeammate(APlayerController* teammate);
 	void RemoveTeammate(APlayerController* teammate);

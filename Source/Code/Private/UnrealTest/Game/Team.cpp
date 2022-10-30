@@ -5,6 +5,7 @@
 
 Team::Team()
 {
+	// TODO: Find a better way to get a unique ID.
 	TeamID = FMath::Rand();
 }
 

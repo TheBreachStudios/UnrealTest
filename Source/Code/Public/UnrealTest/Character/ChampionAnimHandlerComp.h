@@ -27,15 +27,18 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_SetIsDead();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ResetAnimation();
+
 	void BindHealthEvents();	
 
-protected:
-	virtual void BeginPlay() override;
 
-public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+protected:
+	virtual void BeginPlay() override;
 
 public:
 	UPROPERTY(Replicated, BlueprintReadOnly)

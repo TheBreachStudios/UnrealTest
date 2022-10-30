@@ -9,11 +9,12 @@
 
 namespace MatchState
 {
-	//extern ENGINE_API const FName EnteringMap;			// We are entering this map, actors are not yet ticking
-	extern ENGINE_API const FName WaitingToStart;		// Actors are ticking, but the match has not yet started
-	extern ENGINE_API const FName InProgress;			// Normal gameplay is occurring. Specific games will have their own state machine inside this state
-	extern ENGINE_API const FName WaitingPostMatch;		// Match has ended so we aren't accepting new players, but actors are still ticking
-	//extern ENGINE_API const FName LeavingMap;			// We are transitioning out of the map to another location
+	extern ENGINE_API const FName EnteringMap;
+	extern ENGINE_API const FName WaitingToStart;
+	extern ENGINE_API const FName InProgress;
+	extern ENGINE_API const FName WaitingPostMatch;
+	extern ENGINE_API const FName LeavingMap;
+	extern ENGINE_API const FName Aborted;
 }
 
 /**
@@ -25,20 +26,29 @@ class UNREALTEST_API AEliminationGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	AEliminationGameMode();
-
-	FORCEINLINE FName GetMatchState() const { return CurrentMatchState; }
-
-	void StartMatch();
-	void EndMatch();
-	bool CanStartMatch();
-	bool CanEndMatch();
+	AEliminationGameMode();	
 
 protected:
 	void SetMatchState(FName newState);
 	FORCEINLINE bool IsMatchInProgress() const { return CurrentMatchState == MatchState::InProgress;}
 
-	void SpawnAllPlayers();
+	void CreateTeams();
+	void AutoAssignTeam(APlayerController* player);
+	void SetupNewPlayer(APlayerController* player);
+
+	void StartMatch();
+	void EndMatch();
+
+	bool CanStartMatch() const;
+	bool CanEndMatch() const;
+	
+	UFUNCTION()
+	void HandleWaitForPlayers();
+
+	void HandlePlayerDeath(APlayerController* player);
+
+	UFUNCTION()
+	void HandlePlayerRespawn(APlayerController* player);
 
 public:
 
@@ -53,19 +63,26 @@ public:
 	virtual bool HasMatchEnded() const override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
-	virtual int32 GetNumPlayers() override;//
+	virtual int32 GetNumPlayers() override;
 
-	const float RESPAWN_DELAY = 5.f;
-	const int32 MAX_TEAM_LIVES = 10;
+	FORCEINLINE FName GetMatchState() const { return CurrentMatchState; }
+
+	const float RESPAWN_DELAY = 10.f;
+	const int32 MAX_TEAM_LIVES = 2;
 	const int32 MAX_TEAM_SIZE = 2;
 	const int32 MAX_TEAMS = 2;
 	const float TIME_LIMIT = 600.f;
 
-private:
+private:	
+
+	const float WAIT_PLAYERS_TIME = 5.f;
+
+	FTimerHandle TimerHandle_WaitingPlayersTimer;
+	FTimerHandle TimerHandle_PlayerRespawnTimer;
 
 	UPROPERTY(Transient)
 	FName CurrentMatchState;
 
-	TArray<Team> TeamsArray;
 	int32 NumPlayers = 0;
+	TArray<Team> TeamsArray;
 };

@@ -8,7 +8,6 @@
 
 AChampionCharacter::AChampionCharacter()
 {
-	HealthComponent = nullptr;
 	bReplicates = true;	
 	bAlwaysRelevant = true;
 
@@ -16,28 +15,16 @@ AChampionCharacter::AChampionCharacter()
 	AnimHandler = CreateDefaultSubobject<UChampionAnimHandlerComp>(TEXT("AnimationHandlerComponent"));
 }
 
-void AChampionCharacter::PossessedBy(AController* NewController)
+void AChampionCharacter::Multicast_ResetChampionCharacter_Implementation()
 {
-	Super::PossessedBy(NewController);
-	UE_LOG(LogTemp, Warning, TEXT("PlayerController %s has possessed %s"), *NewController->GetName(), *GetName());
-}
-
-void AChampionCharacter::UnPossessed()
-{
-	Super::UnPossessed();
-	UE_LOG(LogTemp, Warning, TEXT("Champion Unpossessed!"));
+	HealthComponent->ResetCurrentHealth();
+	AnimHandler->Multicast_ResetAnimation();
 }
 
 void AChampionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("Champion Begin Play!"));
-
-	//APlayerController* playerController = Cast<APlayerController>(GetController());
-	//if (playerController != nullptr)
-	//{
-	//	EnableInput(playerController);
-	//}
 }
 
 void AChampionCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -56,19 +43,19 @@ void AChampionCharacter::ShootBinding(class UInputComponent* PlayerInputComponen
 void AChampionCharacter::SetupHealthComponent()
 {
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
-	HealthComponent->OnHealthEmptyEvent.AddUObject(this, &AChampionCharacter::Client_HandleDeath);
+	HealthComponent->OnHealthEmptyEvent.AddUObject(this, &AChampionCharacter::HandleDeath);
 }
 
-void AChampionCharacter::Client_HandleDeath_Implementation()
+void AChampionCharacter::HandleDeath()
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s Died"), *GetName());
-	APlayerController* playerController = Cast<APlayerController>(GetController());
-	if (playerController != nullptr) 
+	FString messageStr = FString::Printf(TEXT("[Client] %s Died"), *GetName());
+	GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Yellow, messageStr);
+
+	if (OnChampionDeathEvent.IsBound())
 	{
-		DisableInput(playerController);
+		OnChampionDeathEvent.Broadcast();
 	}
 }
-
 
 void AChampionCharacter::ShootingStarted()
 {

@@ -86,6 +86,11 @@ void UChampionAnimHandlerComp::BindHealthEvents()
 	}
 }
 
+void UChampionAnimHandlerComp::Multicast_ResetAnimation_Implementation()
+{
+	IsDead = false;
+}
+
 void UChampionAnimHandlerComp::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

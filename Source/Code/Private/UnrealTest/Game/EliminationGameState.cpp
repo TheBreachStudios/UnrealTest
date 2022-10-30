@@ -4,13 +4,12 @@
 #include "UnrealTest/Game/EliminationGameState.h"
 #include "UnrealTest/Game/EliminationGameMode.h"
 #include "Net/UnrealNetwork.h"
+#include "UnrealTest/Character/ChampionCharacter.h"
 
 AEliminationGameState::AEliminationGameState()
 {
-	CurrentMatchState = MatchState::WaitingToStart;
-	PreviousMatchState = MatchState::WaitingToStart;
-
-	CreateTeams();
+	CurrentMatchState = MatchState::EnteringMap;
+	PreviousMatchState = MatchState::EnteringMap;
 }
 
 void AEliminationGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -22,7 +21,7 @@ void AEliminationGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 bool AEliminationGameState::IsMatchInProgress() const
 {
-	return GetMatchState() == MatchState::InProgress;
+	return CurrentMatchState == MatchState::InProgress;
 }
 
 void AEliminationGameState::SetMatchState(FName newState)
@@ -57,6 +56,14 @@ void AEliminationGameState::OnRep_MatchState()
 	PreviousMatchState = CurrentMatchState;
 }
 
+//void AEliminationGameState::OnRep_TeamLivesMap()
+//{
+//}
+
+void AEliminationGameState::HandleMatchIsWaitingForPlayers()
+{
+}
+
 void AEliminationGameState::HandleMatchIsWaitingToStart()
 {
 	if (GetLocalRole() != ROLE_Authority)
@@ -69,7 +76,6 @@ void AEliminationGameState::HandleMatchHasStarted()
 {
 	if (GetLocalRole() != ROLE_Authority)
 	{
-		// Server handles this in AGameMode::HandleMatchHasStarted
 		GetWorldSettings()->NotifyMatchStarted();
 	}
 	else
@@ -83,22 +89,13 @@ void AEliminationGameState::HandleMatchHasEnded()
 {
 }
 
-void AEliminationGameState::DefaultTimer()
+void AEliminationGameState::HandlePlayerDeath()
 {
-	if (IsMatchInProgress())
-	{
-		ElapsedTime++;
-	}
-
-	GetWorldTimerManager().SetTimer(TimerHandle_DefaultTimer, this, &AEliminationGameState::DefaultTimer, GetWorldSettings()->GetEffectiveTimeDilation() / GetWorldSettings()->DemoPlayTimeDilation, true);
 }
 
 void AEliminationGameState::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	FTimerManager& TimerManager = GetWorldTimerManager();
-	TimerManager.SetTimer(TimerHandle_DefaultTimer, this, &AEliminationGameState::DefaultTimer, GetWorldSettings()->GetEffectiveTimeDilation() / GetWorldSettings()->DemoPlayTimeDilation, true);
 }
 
 bool AEliminationGameState::HasMatchStarted() const
@@ -106,7 +103,7 @@ bool AEliminationGameState::HasMatchStarted() const
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		return World->bMatchStarted && GetMatchState() == MatchState::InProgress;
+		return World->bMatchStarted && CurrentMatchState == MatchState::InProgress;
 	}
 
 	return false;
@@ -114,18 +111,13 @@ bool AEliminationGameState::HasMatchStarted() const
 
 bool AEliminationGameState::HasMatchEnded() const
 {
-	return GetMatchState() == MatchState::WaitingPostMatch;
+	return CurrentMatchState == MatchState::WaitingPostMatch;
 }
 
 void AEliminationGameState::HandleBeginPlay()
 {
 	Super::HandleBeginPlay();
-	SpawnAllPlayers();
-}
 
-float AEliminationGameState::GetPlayerStartTime(AController* Controller) const
-{
-	return ElapsedTime;
 }
 
 float AEliminationGameState::GetPlayerRespawnDelay(AController* Controller) const
@@ -140,95 +132,54 @@ float AEliminationGameState::GetPlayerRespawnDelay(AController* Controller) cons
 	return Super::GetPlayerRespawnDelay(Controller);
 }
 
-void AEliminationGameState::CreateTeams()
-{
-	const AEliminationGameMode* gameMode = GetDefaultGameMode<AEliminationGameMode>();
-	if (gameMode)
-	{
-		for (int i =0; i< gameMode->MAX_TEAMS; i++)
-		{
-			Team newTeam = Team();
-			TeamsArray.Add(newTeam);
-			TeamLivesMap.Add(newTeam.GetTeamID(), gameMode->MAX_TEAM_LIVES);
-		}		
-	}	
-}
-
-void AEliminationGameState::AutoAssignTeam(APlayerController* player)
-{
-	bool wasAssigned = false;
-	int minTeammates = 0;
-	do
-	{
-		for (int i = 0; i < TeamsArray.Num(); i++)
-		{
-			if (TeamsArray[i].GetNumTeammates() <= minTeammates)
-			{
-				TeamsArray[i].AssignTeammate(player);
-				//TEMP Auto ready
-				TeamsArray[i].SetTeammateReadiness(player, true);
-				wasAssigned = true;
-				break;
-			}
-		}
-		minTeammates++;
-	} while (!wasAssigned);
-}
-
-bool AEliminationGameState::CanStartMatch()
+bool AEliminationGameState::CanStartMatch() const
 {
 	// Game Start Requirements:
 	// - At least 1 player in each team.
 	// - All players set they are ready.
 
-	for (int i = 0; i < TeamsArray.Num(); i++)
-	{
-		if (TeamsArray[i].GetNumTeammates() <= 0)
-		{
-			return false;
-		}
+	//for (int i = 0; i < TeamsPtrArray.Num(); i++)
+	//{
+	//	if (TeamsPtrArray[i]->GetNumTeammates() <= 0)
+	//	{
+	//		return false;
+	//	}
 
-		if (!TeamsArray[i].AllTeammatesReady())
-		{
-			return false;
-		}
-	}
+	//	if (!TeamsPtrArray[i]->AllTeammatesReady())
+	//	{
+	//		return false;
+	//	}
+	//}
 	return false;
 }
 
-bool AEliminationGameState::CanEndMatch()
+bool AEliminationGameState::CanEndMatch() const
 {
-	// Game End Requirements:
-	// - One team has reached zero lives.
+	 // Game End Requirements:
+	 // - One team has reached zero lives.
 
-	for (int i = 0; i < TeamsArray.Num(); i++)
-	{
-		if (TeamLivesMap[TeamsArray[i].GetTeamID()] <= 0)
-		{
-			return true;
-		}
-	}
+	//for (int i = 0; i < TeamsPtrArray.Num(); i++)
+	//{
+	//	if (TeamLivesMap[TeamsPtrArray[i]->GetTeamID()] <= 0)
+	//	{
+	//		return true;
+	//	}
+	//}
 	return false;
 }
 
-//NOT IMPLEMENTED
-void AEliminationGameState::SpawnAllPlayers()
+void AEliminationGameState::RegisterPlayer(APlayerController* player)
 {
-	AEliminationGameMode* gameMode = Cast<AEliminationGameMode>(AuthorityGameMode);
-	if (gameMode)
+	if (!PlayersArray.Contains(player))
 	{
-		for (int i = 0; i < TeamsArray.Num(); i++)
-		{
-			TArray<APlayerController*> teammates = TeamsArray[i].GetTeammates();
-			for (int k = 0; k < teammates.Num(); k++)
-			{
-				// TODO: Assign a team appropriate player start
-				gameMode->RestartPlayer(teammates[k]);
-			}
-		}
-	}	
+		PlayersArray.Add(player);
+	}
 }
 
-void AEliminationGameState::AssignTeamPlayerStarts()
+void AEliminationGameState::LockPlayers()
+{
+}
+
+void AEliminationGameState::UnlockPlayers()
 {
 }

@@ -19,11 +19,13 @@ class UNREALTEST_API UHealthComponent : public UActorComponent, public IDamageab
 public:	
 	UHealthComponent();
 
-	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	FORCEINLINE float GetMaxHealth() const { return MAX_HEALTH; }
 	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
 
-protected:
+	UFUNCTION()
 	void ResetCurrentHealth();
+
+protected:
 			
 	UFUNCTION()
 	void OnRep_CurrentHealth();
@@ -45,5 +47,5 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth)
 	float CurrentHealth = 0.f;
 
-	float MaxHealth = 100.f;
+	const float MAX_HEALTH = 100.f;
 };

@@ -6,20 +6,20 @@
 
 UHealthComponent::UHealthComponent()
 {
-	MaxHealth = 100.f;
 	ResetCurrentHealth();
 }
 
 void UHealthComponent::ResetCurrentHealth()
 {
-	CurrentHealth = MaxHealth;
+	CurrentHealth = MAX_HEALTH;
+	OnRep_CurrentHealth();
 }
 
 void UHealthComponent::ApplyDamage(float damage)
 {
 	if (CanReceiveDamage() && damage > 0.f)
 	{
-		CurrentHealth = FMath::Clamp(CurrentHealth - damage, 0.f, MaxHealth);
+		CurrentHealth = FMath::Clamp(CurrentHealth - damage, 0.f, MAX_HEALTH);
 		OnRep_CurrentHealth();
 
 		if(GetOwnerRole() < ENetRole::ROLE_SimulatedProxy)
@@ -34,7 +34,7 @@ void UHealthComponent::ApplyDamage(float damage)
 
 		if (OnHealthChangedEvent.IsBound()) 
 		{
-			OnHealthChangedEvent.Broadcast(CurrentHealth, MaxHealth);
+			OnHealthChangedEvent.Broadcast(CurrentHealth, MAX_HEALTH);
 		}
 
 		if (CurrentHealth <= 0.f)
@@ -69,15 +69,15 @@ void UHealthComponent::OnHealthUpdated()
 	AActor* owner = GetOwner();
 	if (owner != nullptr) 
 	{
-		if (owner->HasAuthority())
+		if (owner->GetLocalRole() < ENetRole::ROLE_Authority)
 		{
-			FString messageStr = FString::Printf(TEXT("[Server][%s] Health: %f"), *owner->GetName(), CurrentHealth);
-			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Blue, messageStr);
+			FString messageStr = FString::Printf(TEXT("[Client][Self] Health: %f"), CurrentHealth);
+			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::White, messageStr);			
 		}
 		else
 		{
-			FString messageStr = FString::Printf(TEXT("[Client][Self] Health: %f"), CurrentHealth);
-			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Yellow, messageStr);
+			FString messageStr = FString::Printf(TEXT("[Server][%s] Health: %f"), *owner->GetName(), CurrentHealth);
+			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::White, messageStr);
 		}
 	}	
 }
