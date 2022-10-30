@@ -8,8 +8,7 @@
 #include "GameFramework/GameSession.h"
 #include "UnrealTest/UI/PlayerHUD.h"
 
-AEliminationGameMode::AEliminationGameMode(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+AEliminationGameMode::AEliminationGameMode()
 {
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Characters/Champions/Blueprints/BP_VanguardChampion"));
 	if (PlayerPawnBPClass.Class != NULL)
@@ -20,12 +19,10 @@ AEliminationGameMode::AEliminationGameMode(const FObjectInitializer& ObjectIniti
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
 	HUDClass = APlayerHUD::StaticClass();;
-	//GameStateClass = AEliminationGameState::StaticClass();
+	GameStateClass = AEliminationGameState::StaticClass();
 	//PlayerStateClass = AEliminationPlayerState::StaticClass();
 	CurrentMatchState = MatchState::WaitingToStart;
 	NumPlayers = 0;
-
-	CreateTeams();
 }
 
 void AEliminationGameMode::StartMatch()
@@ -52,35 +49,25 @@ void AEliminationGameMode::EndMatch()
 
 bool AEliminationGameMode::CanStartMatch()
 {
-	// Game Start Requirements:
-	// - At least 1 player in each team.
-	// - All players set they are ready.
-
-	for (int i = 0; i < TeamsArray.Num(); i++)
+	if (GameState != nullptr)
 	{
-		if (TeamsArray[i].GetNumTeammates() <= 0)
+		AEliminationGameState* eliminationGameState = Cast<AEliminationGameState>(GameState);
+		if (eliminationGameState != nullptr)
 		{
-			return false;
-		}
-
-		if (!TeamsArray[i].AllTeammatesReady())
-		{
-			return false;
+			return eliminationGameState->CanStartMatch();
 		}
 	}
-	return true;
+	return false;
 }
 
 bool AEliminationGameMode::CanEndMatch()
 {
-	// Game End Requirements:
-	// - One team has reached zero lives
-
-	for (int i = 0; i < TeamsArray.Num(); i++)
+	if (GameState != nullptr)
 	{
-		if (TeamsArray[i].GetTeamLives() <= 0)
+		AEliminationGameState* eliminationGameState = Cast<AEliminationGameState>(GameState);
+		if (eliminationGameState != nullptr)
 		{
-			return true;
+			return eliminationGameState->CanEndMatch();
 		}
 	}
 	return false;
@@ -93,6 +80,10 @@ void AEliminationGameMode::SetMatchState(FName newState)
 	UE_LOG(LogGameMode, Display, TEXT("Match State: %s -> %s"), *CurrentMatchState.ToString(), *newState.ToString());
 
 	CurrentMatchState = newState;
+}
+
+void AEliminationGameMode::SpawnAllPlayers()
+{
 }
 
 void AEliminationGameMode::Tick(float DeltaSeconds)
@@ -135,12 +126,12 @@ void AEliminationGameMode::StartPlay()
 
 bool AEliminationGameMode::HasMatchStarted() const
 {
-	return GameState && GameState->HasMatchStarted() && GetMatchState() == MatchState::InProgress;
+	return GameState != nullptr && GameState->HasMatchStarted() && GetMatchState() == MatchState::InProgress;
 }
 
 bool AEliminationGameMode::HasMatchEnded() const
 {
-	return GameState && GameState->HasMatchEnded() && GetMatchState() == MatchState::WaitingPostMatch;
+	return GameState != nullptr && GameState->HasMatchEnded() && GetMatchState() == MatchState::WaitingPostMatch;
 }
 
 void AEliminationGameMode::PostLogin(APlayerController* NewPlayer)
@@ -148,7 +139,14 @@ void AEliminationGameMode::PostLogin(APlayerController* NewPlayer)
 	if (NewPlayer->HasClientLoadedCurrentWorld())
 	{
 		NumPlayers++;
-		AutoAssignTeam(NewPlayer);
+		if (GameState != nullptr)
+		{
+			AEliminationGameState* eliminationGameState = Cast<AEliminationGameState>(GameState);
+			if (eliminationGameState != nullptr)
+			{
+				eliminationGameState->AutoAssignTeam(NewPlayer);
+			}
+		}
 	}
 
 	Super::PostLogin(NewPlayer);
@@ -168,49 +166,6 @@ void AEliminationGameMode::Logout(AController* Exiting)
 int32 AEliminationGameMode::GetNumPlayers()
 {
 	return NumPlayers;
-}
-
-void AEliminationGameMode::CreateTeams()
-{
-	Team newTeam1 = Team(MAX_TEAM_LIVES);
-	Team newTeam2 = Team(MAX_TEAM_LIVES);
-
-	TeamsArray.Add(newTeam1);
-	TeamsArray.Add(newTeam2);
-}
-
-void AEliminationGameMode::AutoAssignTeam(APlayerController* player)
-{
-	bool wasAssigned = false;
-	int minTeammates = 0;
-	do
-	{
-		for (int i = 0; i < TeamsArray.Num(); i++)
-		{
-			if (TeamsArray[i].GetNumTeammates() <= minTeammates)
-			{
-				TeamsArray[i].AssignTeammate(player);
-				//TEMP Auto ready
-				TeamsArray[i].SetTeammateReadiness(player, true);
-				wasAssigned = true;
-				break;
-			}
-		}
-		minTeammates++;
-	} while (!wasAssigned);
-}
-
-void AEliminationGameMode::SpawnAllPlayers()
-{
-	for (int i = 0; i < TeamsArray.Num(); i++)
-	{
-		TArray<APlayerController*> teammates = TeamsArray[i].GetTeammates();
-		for (int k = 0; k < teammates.Num(); k++)
-		{
-			// TODO: Assign a team appropriate player start
-			RestartPlayer(teammates[k]);
-		}
-	}
 }
 
 void AEliminationGameMode::RemovePlayerControllerFromPlayerCount(APlayerController* PC)

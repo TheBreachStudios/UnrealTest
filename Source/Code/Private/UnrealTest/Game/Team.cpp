@@ -3,9 +3,9 @@
 
 #include "UnrealTest/Game/Team.h"
 
-Team::Team(int32 lives)
+Team::Team()
 {
-	TeamLives = lives;
+	TeamID = FMath::Rand();
 }
 
 void Team::AssignTeammate(APlayerController* teammate)

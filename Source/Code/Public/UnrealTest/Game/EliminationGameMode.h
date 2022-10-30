@@ -25,7 +25,7 @@ class UNREALTEST_API AEliminationGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	AEliminationGameMode(const FObjectInitializer& ObjectInitializer);
+	AEliminationGameMode();
 
 	FORCEINLINE FName GetMatchState() const { return CurrentMatchState; }
 
@@ -38,8 +38,6 @@ protected:
 	void SetMatchState(FName newState);
 	FORCEINLINE bool IsMatchInProgress() const { return CurrentMatchState == MatchState::InProgress;}
 
-	void CreateTeams();
-	void AutoAssignTeam(APlayerController* player);
 	void SpawnAllPlayers();
 
 public:
@@ -58,11 +56,12 @@ public:
 	virtual int32 GetNumPlayers() override;//
 
 	const float RESPAWN_DELAY = 5.f;
+	const int32 MAX_TEAM_LIVES = 10;
+	const int32 MAX_TEAM_SIZE = 2;
+	const int32 MAX_TEAMS = 2;
+	const float TIME_LIMIT = 600.f;
 
 private:
-	const int32 MAX_TEAM_SIZE = 2;
-	const int32 MAX_TEAM_LIVES = 10;
-	const float TIME_LIMIT = 600.f;
 
 	UPROPERTY(Transient)
 	FName CurrentMatchState;

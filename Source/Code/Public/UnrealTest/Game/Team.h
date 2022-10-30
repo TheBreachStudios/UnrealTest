@@ -10,12 +10,12 @@
 class UNREALTEST_API Team
 {
 public:
-	Team(int32 lives);
+	Team();
 	~Team() = default;
 
-	FORCEINLINE int GetTeamLives() const { return TeamLives; }
-	FORCEINLINE int GetNumTeammates() const { return TeammatesPtrArray.Num(); }
+	FORCEINLINE int32 GetNumTeammates() const { return TeammatesPtrArray.Num(); }
 	FORCEINLINE TArray<APlayerController*> GetTeammates() const { return TeammatesPtrArray; }
+	FORCEINLINE int32 GetTeamID() const { return TeamID; }
 
 	void AssignTeammate(APlayerController* teammate);
 	void RemoveTeammate(APlayerController* teammate);
@@ -26,7 +26,7 @@ public:
 
 protected:
 	
-	int32 TeamLives = 0;
 	TArray<APlayerController*> TeammatesPtrArray;	
 	TMap<APlayerController*, bool> TeammatesReadyMap;
+	int32 TeamID;
 };
