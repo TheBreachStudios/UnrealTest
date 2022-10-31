@@ -42,7 +42,7 @@ void AEliminationGameMode::StartMatch()
 	}
 
 	SetMatchState(MatchState::InProgress);
-	// TODO: Unlock the players
+	// TODO: Unlock the players inputs.
 }
 
 void AEliminationGameMode::EndMatch()
@@ -53,6 +53,7 @@ void AEliminationGameMode::EndMatch()
 	}
 
 	SetMatchState(MatchState::WaitingPostMatch);
+	// TODO: Lock the players inputs.
 }
 
 bool AEliminationGameMode::CanStartMatch() const

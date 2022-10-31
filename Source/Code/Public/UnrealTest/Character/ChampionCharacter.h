@@ -50,6 +50,8 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void Server_DoHitScanTrace();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_DebugHitScanTrace();
 
 
 };

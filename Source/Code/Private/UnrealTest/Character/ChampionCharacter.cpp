@@ -5,10 +5,11 @@
 #include "UnrealTest/Character/HealthComponent.h"
 #include "UnrealTest/Character/ChampionAnimHandlerComp.h"
 #include "Camera/CameraComponent.h"
+#include "DrawDebugHelpers.h"
 
 AChampionCharacter::AChampionCharacter()
 {
-	bReplicates = true;	
+	bReplicates = true;
 	bAlwaysRelevant = true;
 
 	SetupHealthComponent();
@@ -48,8 +49,8 @@ void AChampionCharacter::SetupHealthComponent()
 
 void AChampionCharacter::HandleDeath()
 {
-	FString messageStr = FString::Printf(TEXT("[Client] %s Died"), *GetName());
-	GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Yellow, messageStr);
+	FString msg = TEXT("[Client] %s Died"), * GetName();
+	GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Yellow, *msg);
 
 	if (OnChampionDeathEvent.IsBound())
 	{
@@ -62,6 +63,7 @@ void AChampionCharacter::ShootingStarted()
 	//UE_LOG(LogTemp, Warning, TEXT("Shooting Started"));
 
 	Server_DoHitScanTrace();
+	Multicast_DebugHitScanTrace();
 }
 
 void AChampionCharacter::ShootingStopped()
@@ -73,15 +75,20 @@ void AChampionCharacter::Server_DoHitScanTrace_Implementation()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Hitscan Shot!"));
 
-	const float lineTraceDistance = 1000.f;
+	const float lineTraceDistance = 10000.f;
 	FHitResult hitResult = FHitResult(ForceInit);
 	UCameraComponent* camera = GetFollowCamera();
 	check(camera != nullptr);
-	FVector startLocation = camera->GetComponentLocation();
-	FVector endLocation = camera->GetComponentRotation().Vector() * lineTraceDistance;
+	FVector cameraLocation = camera->GetComponentLocation();
+	float cameraToCharacterDist = (GetActorLocation() - cameraLocation).Size();
+	FVector startLocation = cameraLocation + (camera->GetForwardVector() * cameraToCharacterDist);
+	FVector endLocation = startLocation + (camera->GetForwardVector() * lineTraceDistance);
 	ECollisionChannel channel = ECollisionChannel::ECC_Pawn;
 	FCollisionQueryParams traceParams = FCollisionQueryParams(FName(TEXT("")), false, this);
 	GetWorld()->LineTraceSingleByChannel(hitResult, startLocation, endLocation, channel, traceParams);
+	//DrawDebugLine(GetWorld(), startLocation, endLocation, FColor::Yellow, true, -1, 0, 10.f);
+	//DrawDebugSphere(GetWorld(), startLocation, 10.f, 10.f, FColor::Blue, true, 10.f);
+	//DrawDebugSphere(GetWorld(), endLocation, 10.f, 10.f, FColor::Red, true, 10.f);
 
 	if (hitResult.IsValidBlockingHit())
 	{
@@ -93,6 +100,20 @@ void AChampionCharacter::Server_DoHitScanTrace_Implementation()
 			hpComponent->ApplyDamage(10.f);
 		}
 	}
+}
+
+void AChampionCharacter::Multicast_DebugHitScanTrace_Implementation()
+{
+	const float lineTraceDistance = 10000.f;
+	UCameraComponent* camera = GetFollowCamera();
+	check(camera != nullptr);
+	FVector cameraLocation = camera->GetComponentLocation();
+	float cameraToCharacterDist = (GetActorLocation() - cameraLocation).Size();
+	FVector startLocation = cameraLocation + (camera->GetForwardVector() * cameraToCharacterDist);
+	FVector endLocation = startLocation + (camera->GetForwardVector() * lineTraceDistance);
+	DrawDebugLine(GetWorld(), startLocation, endLocation, FColor::Yellow, true, -1, 0, 10.f);
+	DrawDebugSphere(GetWorld(), startLocation, 10.f, 10.f, FColor::Blue, true, 10.f);
+	DrawDebugSphere(GetWorld(), endLocation, 10.f, 10.f, FColor::Red, true, 10.f);
 }
 
 
