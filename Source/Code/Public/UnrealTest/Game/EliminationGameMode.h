@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "UnrealTest/Game/Team.h"
+#include "GameFramework/PlayerStart.h"
 #include "EliminationGameMode.generated.h"
 
 namespace MatchState
@@ -41,6 +42,9 @@ protected:
 
 	bool CanStartMatch() const;
 	bool CanEndMatch() const;
+
+	void GatherPlayerStarts();
+	void RegisterTeams();
 	
 	UFUNCTION()
 	void HandleWaitForPlayers();
@@ -67,7 +71,7 @@ public:
 
 	FORCEINLINE FName GetMatchState() const { return CurrentMatchState; }
 
-	const float RESPAWN_DELAY = 10.f;
+	const float RESPAWN_DELAY = 5.f;
 	const int32 MAX_TEAM_LIVES = 2;
 	const int32 MAX_TEAM_SIZE = 2;
 	const int32 MAX_TEAMS = 2;
@@ -78,11 +82,11 @@ private:
 	const float WAIT_PLAYERS_TIME = 5.f;
 
 	FTimerHandle TimerHandle_WaitingPlayersTimer;
-	FTimerHandle TimerHandle_PlayerRespawnTimer;
 
 	UPROPERTY(Transient)
 	FName CurrentMatchState;
 
 	int32 NumPlayers = 0;
 	TArray<Team> TeamsArray;
+	TArray<APlayerStart*> AllPlayerStartsArray;
 };

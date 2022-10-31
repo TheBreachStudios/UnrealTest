@@ -9,6 +9,18 @@ Team::Team()
 	TeamID = FMath::Rand();
 }
 
+bool Team::IsPlayerInTeam(APlayerController* player) const
+{
+	for (int i =0; i< TeammatesPtrArray.Num(); i++)
+	{
+		if (TeammatesPtrArray[i] == player)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void Team::AssignTeammate(APlayerController* teammate)
 {
 	if (!TeammatesReadyMap.Contains(teammate))

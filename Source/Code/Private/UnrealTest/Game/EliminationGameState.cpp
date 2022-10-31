@@ -1,10 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "Net/UnrealNetwork.h"
 #include "UnrealTest/Game/EliminationGameState.h"
 #include "UnrealTest/Game/EliminationGameMode.h"
-#include "Net/UnrealNetwork.h"
 #include "UnrealTest/Character/ChampionCharacter.h"
+#include "UnrealTest/Character/ChampionPlayerController.h"
 
 AEliminationGameState::AEliminationGameState()
 {
@@ -32,7 +33,6 @@ void AEliminationGameState::SetMatchState(FName newState)
 
 		CurrentMatchState = newState;
 
-		// Call the onrep to make sure the callbacks happen
 		OnRep_MatchState();
 	}
 }
@@ -55,10 +55,6 @@ void AEliminationGameState::OnRep_MatchState()
 
 	PreviousMatchState = CurrentMatchState;
 }
-
-//void AEliminationGameState::OnRep_TeamLivesMap()
-//{
-//}
 
 void AEliminationGameState::HandleMatchIsWaitingForPlayers()
 {
@@ -89,8 +85,15 @@ void AEliminationGameState::HandleMatchHasEnded()
 {
 }
 
-void AEliminationGameState::HandlePlayerDeath()
+void AEliminationGameState::HandlePlayerDeath(APlayerController* player)
 {
+	for (int i = 0; i < TeamsPtrArray.Num(); i++)
+	{
+		if (TeamsPtrArray[i]->IsPlayerInTeam(player))
+		{
+			TeamLivesMap[TeamsPtrArray[i]->GetTeamID()]--;
+		}
+	}
 }
 
 void AEliminationGameState::PostInitializeComponents()
@@ -120,51 +123,39 @@ void AEliminationGameState::HandleBeginPlay()
 
 }
 
-float AEliminationGameState::GetPlayerRespawnDelay(AController* Controller) const
-{
-	const AEliminationGameMode* GameMode = GetDefaultGameMode<AEliminationGameMode>();
-
-	if (GameMode)
-	{
-		return GameMode->RESPAWN_DELAY;
-	}
-
-	return Super::GetPlayerRespawnDelay(Controller);
-}
-
 bool AEliminationGameState::CanStartMatch() const
 {
 	// Game Start Requirements:
 	// - At least 1 player in each team.
 	// - All players set they are ready.
 
-	//for (int i = 0; i < TeamsPtrArray.Num(); i++)
-	//{
-	//	if (TeamsPtrArray[i]->GetNumTeammates() <= 0)
-	//	{
-	//		return false;
-	//	}
+	for (int i = 0; i < TeamsPtrArray.Num(); i++)
+	{
+		if (TeamsPtrArray[i]->GetNumTeammates() <= 0)
+		{
+			return false;
+		}
 
-	//	if (!TeamsPtrArray[i]->AllTeammatesReady())
-	//	{
-	//		return false;
-	//	}
-	//}
-	return false;
+		if (!TeamsPtrArray[i]->AllTeammatesReady())
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 bool AEliminationGameState::CanEndMatch() const
 {
-	 // Game End Requirements:
-	 // - One team has reached zero lives.
+	// Game End Requirements:
+	// - One team has reached zero lives.
 
-	//for (int i = 0; i < TeamsPtrArray.Num(); i++)
-	//{
-	//	if (TeamLivesMap[TeamsPtrArray[i]->GetTeamID()] <= 0)
-	//	{
-	//		return true;
-	//	}
-	//}
+   for (int i = 0; i < TeamsPtrArray.Num(); i++)
+   {
+		if (TeamLivesMap[TeamsPtrArray[i]->GetTeamID()] <= 0)
+		{
+			return true;
+		}
+   }
 	return false;
 }
 
@@ -173,13 +164,20 @@ void AEliminationGameState::RegisterPlayer(APlayerController* player)
 	if (!PlayersArray.Contains(player))
 	{
 		PlayersArray.Add(player);
+
+		AChampionPlayerController* championController = Cast<AChampionPlayerController>(player);
+		if (championController != nullptr)
+		{
+			championController->OnPlayerDeathEvent.AddUObject(this, &AEliminationGameState::HandlePlayerDeath);
+		}
 	}
 }
 
-void AEliminationGameState::LockPlayers()
+void AEliminationGameState::RegisterTeams(TArray<Team*> teams, int32 teamLives)
 {
-}
-
-void AEliminationGameState::UnlockPlayers()
-{
+	TeamsPtrArray = teams;
+	for (int i = 0; i < teams.Num(); i++)
+	{
+		TeamLivesMap.Add(teams[i]->GetTeamID(), teamLives);
+	}
 }

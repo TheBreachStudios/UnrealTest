@@ -39,7 +39,8 @@ void AChampionPlayerController::UnbindCharacterEvents()
 
 void AChampionPlayerController::Client_HandleChampionDeath_Implementation()
 {
-	DisableInput(this);
+	//TODO: Make sure the input is blocked properly!
+	DisableInput(NULL);
 }
 
 void AChampionPlayerController::Server_HandleChampionDeath_Implementation()

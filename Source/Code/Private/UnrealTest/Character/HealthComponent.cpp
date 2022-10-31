@@ -66,20 +66,8 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void UHealthComponent::OnHealthUpdated()
 {
-	AActor* owner = GetOwner();
-	if (owner != nullptr) 
-	{
-		if (owner->GetLocalRole() < ENetRole::ROLE_Authority)
-		{
-			FString messageStr = FString::Printf(TEXT("[Client][Self] Health: %f"), CurrentHealth);
-			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::White, messageStr);			
-		}
-		else
-		{
-			FString messageStr = FString::Printf(TEXT("[Server][%s] Health: %f"), *owner->GetName(), CurrentHealth);
-			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::White, messageStr);
-		}
-	}	
+	//const FString messageStr = FString::Printf(TEXT("Health: %f"), CurrentHealth);
+	//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::White, messageStr);
 }
 
 void UHealthComponent::OnRep_CurrentHealth()

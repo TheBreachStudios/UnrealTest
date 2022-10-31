@@ -3,11 +3,16 @@
 #include "UnrealTest/Game/EliminationGameMode.h"
 #include "UnrealTest/Game/EliminationGameState.h"
 #include "UnrealTest/Game/EliminationPlayerState.h"
+#include "UnrealTest/UI/PlayerHUD.h"
+#include "UnrealTest/Character/ChampionPlayerController.h"
 #include "UObject/ConstructorHelpers.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/GameSession.h"
-#include "UnrealTest/UI/PlayerHUD.h"
-#include "UnrealTest/Character/ChampionPlayerController.h"
+#include "GameFramework/PlayerStart.h"
+#include "GameFramework/Controller.h"
+#include "GameFramework/Actor.h"
+#include "EngineUtils.h"
+
 
 AEliminationGameMode::AEliminationGameMode()
 {
@@ -76,10 +81,31 @@ bool AEliminationGameMode::CanEndMatch() const
 	return false;
 }
 
-//void AEliminationGameMode::HandlePlayerDeath()
-//{	
-//	//GetWorldTimerManager().SetTimer(TimerHandle_PlayerRespawnTimer, this, &AEliminationGameMode::HandlePlayerNeedsRespawn, RESPAWN_DELAY);
-//}
+void AEliminationGameMode::GatherPlayerStarts()
+{
+	for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
+	{
+		APlayerStart* Start = *It;
+		AllPlayerStartsArray.Add(Start);
+	}
+}
+
+void AEliminationGameMode::RegisterTeams()
+{
+	if (GameState != nullptr)
+	{
+		AEliminationGameState* eliminationState = Cast<AEliminationGameState>(GameState);
+		if (eliminationState != nullptr)
+		{
+			TArray<Team*> tempArray;
+			for (int i = 0; i < TeamsArray.Num(); i++)
+			{
+				tempArray.Add(&TeamsArray[i]);
+			}
+			eliminationState->RegisterTeams(tempArray, MAX_TEAM_LIVES);
+		}
+	}
+}
 
 void AEliminationGameMode::SetMatchState(FName newState)
 {
@@ -125,6 +151,7 @@ void AEliminationGameMode::InitGame(const FString& MapName, const FString& Optio
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 	SetMatchState(MatchState::EnteringMap);
+	GatherPlayerStarts();
 
 	FTimerManager& timerManager = GetWorldTimerManager();
 	timerManager.SetTimer(TimerHandle_WaitingPlayersTimer, this, &AEliminationGameMode::HandleWaitForPlayers, WAIT_PLAYERS_TIME);
@@ -133,6 +160,8 @@ void AEliminationGameMode::InitGame(const FString& MapName, const FString& Optio
 void AEliminationGameMode::StartPlay()
 {
 	Super::StartPlay();
+
+	RegisterTeams();
 
 	if (GetMatchState() == MatchState::WaitingToStart && CanStartMatch())
 	{
@@ -196,6 +225,11 @@ void AEliminationGameMode::HandlePlayerDeath(APlayerController* player)
 
 void AEliminationGameMode::HandlePlayerRespawn(APlayerController* player)
 {
+	int32 randomIdx = FMath::RandRange(0, AllPlayerStartsArray.Num());
+	//APlayerStart* playerStart = AllPlayerStartsArray[randomIdx];
+	//FVector respawnLocation = playerStart->GetActorLocation();	
+	//FRotator respawnRotation = playerStart->GetActorRotation();
+	//RestartPlayerAtTransform(player, playerStart->GetActorTransform());
 	RestartPlayer(player);
 }
 
@@ -240,11 +274,11 @@ void AEliminationGameMode::SetupNewPlayer(APlayerController* player)
 	if (eliminationGameState != nullptr)
 	{
 		AutoAssignTeam(player);
+		eliminationGameState->RegisterPlayer(player);
 		AChampionPlayerController* playerController = Cast<AChampionPlayerController>(player);
 		if (playerController != nullptr)
 		{
 			playerController->OnPlayerDeathEvent.AddUObject(this, &AEliminationGameMode::HandlePlayerDeath);
 		}
-		eliminationGameState->RegisterPlayer(player);
 	}
 }

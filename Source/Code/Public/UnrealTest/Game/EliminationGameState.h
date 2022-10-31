@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
 #include "UnrealTest/Game/Team.h"
+#include "UnrealTest/Character/ChampionPlayerController.h"
 #include "EliminationGameState.generated.h"
 
 /**
@@ -22,7 +23,6 @@ public:
 	virtual bool HasMatchStarted() const override;
 	virtual bool HasMatchEnded() const override;
 	virtual void HandleBeginPlay() override;
-	virtual float GetPlayerRespawnDelay(class AController* Controller) const override;
 
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const;
 
@@ -30,13 +30,10 @@ public:
 	bool CanEndMatch() const;
 
 	void RegisterPlayer(APlayerController* player);
-	void LockPlayers();
-	void UnlockPlayers();
+	void RegisterTeams(TArray<Team*> teams, int32 teamLives);
 
 	UFUNCTION()
 	void OnRep_MatchState();
-	//UFUNCTION()
-	//void OnRep_TeamLivesMap();
 
 private:
 	bool IsMatchInProgress() const;
@@ -48,15 +45,15 @@ protected:
 	void HandleMatchIsWaitingToStart();
 	void HandleMatchHasStarted();
 	void HandleMatchHasEnded();
-	void HandlePlayerDeath();
+	void HandlePlayerDeath(APlayerController* player);
 
-	UPROPERTY(ReplicatedUsing = OnRep_MatchState, BlueprintReadOnly, VisibleInstanceOnly, Category = GameState)
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_MatchState, BlueprintReadOnly, VisibleInstanceOnly, Category = GameState)
 	FName CurrentMatchState;
 
-	UPROPERTY(BlueprintReadOnly, VisibleInstanceOnly, Category = GameState)
+	UPROPERTY(Transient, BlueprintReadOnly, VisibleInstanceOnly, Category = GameState)
 	FName PreviousMatchState;
 
 	TArray<APlayerController*> PlayersArray;
-
+	TArray<Team*> TeamsPtrArray;
 	TMap<int32, int32> TeamLivesMap;
 };
