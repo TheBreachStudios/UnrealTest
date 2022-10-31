@@ -1,0 +1,52 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "UnrealTest/Weapons/SingleShotWeapon.h"
+#include "UnrealTest/Weapons/ShootingWeaponAudioComponent.h"
+
+ASingleShotWeapon::ASingleShotWeapon()
+{
+	AudioComponent = CreateDefaultSubobject<UShootingWeaponAudioComponent>(TEXT("ShootingWeaponAudioComponent"));
+
+	//TEMP VALUES
+	Damage = 10.f;
+	Range = 10000.f;
+	AttackRate = 3;
+	MaxClipAmmo = 30;
+	CurrentClipAmmo = MaxClipAmmo;
+	MaxReserveAmmo = 100;
+	CurrentReserveAmmo = MaxReserveAmmo;
+	AmmoUsedPerShot = 1;
+	ReloadTime = 3.3f;
+}
+
+void ASingleShotWeapon::TryUseWeapon()
+{
+	if (CanUseWeapon())
+	{
+		Super::TryUseWeapon();
+
+		FString msg = FString::Printf(TEXT("[%s] Current Clip Ammo: %d/%d | Current Reserve Ammo: %d/%d"), OwningPawn != nullptr ? *OwningPawn->GetName() : *GetName(), CurrentClipAmmo, MaxClipAmmo, CurrentReserveAmmo, MaxReserveAmmo);
+		GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Yellow, *msg);
+
+		AudioComponent->Multicast_PlayAttackSFX();
+		Server_TraceHitscanShot();
+	}
+}
+
+void ASingleShotWeapon::TryStartReload()
+{
+	if (CanReload())
+	{
+		Super::TryStartReload();
+
+		AudioComponent->Multicast_PlayReloadSFX();
+	}
+}
+
+void ASingleShotWeapon::ResetWeapon()
+{
+	Super::ResetWeapon();
+	//TODO: Reset all components
+	AudioComponent->Multicast_ResetAudio();
+}

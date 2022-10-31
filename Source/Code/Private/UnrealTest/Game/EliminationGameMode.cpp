@@ -16,7 +16,7 @@
 
 AEliminationGameMode::AEliminationGameMode()
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Characters/Champions/Blueprints/BP_VanguardChampion"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Blueprints/Characters/BP_VanguardChampion"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
@@ -154,8 +154,7 @@ void AEliminationGameMode::InitGame(const FString& MapName, const FString& Optio
 	SetMatchState(MatchState::EnteringMap);
 	GatherPlayerStarts();
 
-	FTimerManager& timerManager = GetWorldTimerManager();
-	timerManager.SetTimer(TimerHandle_WaitingPlayersTimer, this, &AEliminationGameMode::HandleWaitForPlayers, WAIT_PLAYERS_TIME);
+	GetWorldTimerManager().SetTimer(TimerHandle_WaitingPlayersTimer, this, &AEliminationGameMode::HandleWaitForPlayers, WAIT_PLAYERS_TIME);
 }
 
 void AEliminationGameMode::StartPlay()

@@ -18,19 +18,23 @@ class UNREALTEST_API UChampionAnimHandlerComp : public UActorComponent
 public:	
 	UChampionAnimHandlerComp();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_UpdateMovementSpeed();
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_UpdateSidewaysMovementDirection();
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_UpdateIsInAir();
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_UpdateMovementProperties();
+
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_SetIsDead();
+	//UFUNCTION(NetMulticast, Reliable)
+	//void Multicast_UpdateIsShooting();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SetStartedReloading();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SetEndedReloading();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_ResetAnimation();
 
-	void BindHealthEvents();	
+	void BindToHealthEvents();
+	void BindToWeaponEvents(class ABaseWeapon* weapon);
 
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -40,6 +44,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void SetUpperBodyBlending(bool setActive);
+
 public:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	float MovementSpeed = 0.f;
@@ -48,9 +54,18 @@ public:
 	float SidewaysMovementDirection = 0.f;
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
+	float UpperBodyBlending = 0.f;
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool IsInAir = false;
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool IsDead = false;
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	bool IsReloading = false;
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	bool IsShooting = false;
 	
 };

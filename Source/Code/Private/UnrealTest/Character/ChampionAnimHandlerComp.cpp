@@ -2,9 +2,12 @@
 
 
 #include "UnrealTest/Character/ChampionAnimHandlerComp.h"
+#include "UnrealTest/Character/HealthComponent.h"
+#include "UnrealTest/Character/ChampionCharacter.h"
+#include "UnrealTest/Weapons/BaseWeapon.h"
+#include "UnrealTest/Weapons/BaseShootingWeapon.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/PawnMovementComponent.h"
-#include "UnrealTest/Character/HealthComponent.h"
 #include "Net/UnrealNetwork.h"
 
 UChampionAnimHandlerComp::UChampionAnimHandlerComp()
@@ -14,6 +17,7 @@ UChampionAnimHandlerComp::UChampionAnimHandlerComp()
 	SidewaysMovementDirection = 0.f;
 	IsInAir = false;
 	IsDead = false;
+	IsReloading = false;
 }
 
 
@@ -21,7 +25,12 @@ void UChampionAnimHandlerComp::BeginPlay()
 {
 	Super::BeginPlay();
 
-	BindHealthEvents();	
+	BindToHealthEvents();
+}
+
+void UChampionAnimHandlerComp::SetUpperBodyBlending(bool setActive)
+{
+	UpperBodyBlending = setActive ? 1.f : 0.f;
 }
 
 
@@ -29,49 +38,42 @@ void UChampionAnimHandlerComp::TickComponent(float DeltaTime, ELevelTick TickTyp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	Multicast_UpdateMovementSpeed();
-	Multicast_UpdateSidewaysMovementDirection();
-	Multicast_UpdateIsInAir();
+	Multicast_UpdateMovementProperties();
 }
 
-void UChampionAnimHandlerComp::Multicast_UpdateMovementSpeed_Implementation()
+void UChampionAnimHandlerComp::Multicast_UpdateMovementProperties_Implementation()
 {
 	if (GetOwner() == nullptr) { return; }
 
+	// MovementSpeed
 	FVector velocityVector = GetOwner()->GetVelocity();
 	MovementSpeed = velocityVector.Size();
-}
 
-void UChampionAnimHandlerComp::Multicast_UpdateSidewaysMovementDirection_Implementation()
-{
-	if (GetOwner() == nullptr) { return; }
-
-	FVector velocityVector = GetOwner()->GetVelocity();
+	// SidewaysMovement
 	FRotator actorRotation = GetOwner()->GetActorRotation();
 	FVector rightVector = UKismetMathLibrary::GetRightVector(actorRotation);
 	float vectorProjection = FVector::DotProduct(velocityVector, rightVector);
 	SidewaysMovementDirection = vectorProjection;
-}
 
-void UChampionAnimHandlerComp::Multicast_UpdateIsInAir_Implementation()
-{
-	if (GetOwner() == nullptr) { return; }
-
+	// IsInAir
 	APawn* owningPawn = Cast<APawn>(GetOwner());
-	if (owningPawn == nullptr) { return; }
-
-	UPawnMovementComponent* pawnMovementComponent = owningPawn->GetMovementComponent();
-	if (pawnMovementComponent == nullptr) { return; }
-
-	IsInAir = pawnMovementComponent->IsFalling();
+	if (owningPawn != nullptr) 
+	{
+		UPawnMovementComponent* pawnMovementComponent = owningPawn->GetMovementComponent();
+		if (pawnMovementComponent != nullptr) 
+		{ 
+			IsInAir = pawnMovementComponent->IsFalling();
+		}		
+	}	
 }
 
 void UChampionAnimHandlerComp::Multicast_SetIsDead_Implementation()
 {
 	IsDead = true;
+	SetUpperBodyBlending(false);
 }
 
-void UChampionAnimHandlerComp::BindHealthEvents()
+void UChampionAnimHandlerComp::BindToHealthEvents()
 {
 	if (GetOwner() == nullptr) { return; }
 
@@ -88,7 +90,38 @@ void UChampionAnimHandlerComp::BindHealthEvents()
 
 void UChampionAnimHandlerComp::Multicast_ResetAnimation_Implementation()
 {
+	MovementSpeed = 0.f;
+	SidewaysMovementDirection = 0.f;
+	UpperBodyBlending = 0.f;
 	IsDead = false;
+	IsReloading = false;
+	IsShooting = false;
+}
+
+void UChampionAnimHandlerComp::BindToWeaponEvents(ABaseWeapon* weapon)
+{
+	ABaseShootingWeapon* shootingWeapon = Cast<ABaseShootingWeapon>(weapon);
+	if (shootingWeapon != nullptr)
+	{
+		shootingWeapon->OnStartedReloadingEvent.AddUObject(this, &UChampionAnimHandlerComp::Multicast_SetStartedReloading);
+		shootingWeapon->OnEndedReloadingEvent.AddUObject(this, &UChampionAnimHandlerComp::Multicast_SetEndedReloading);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to bind to the Weapon Events!"));
+	}
+}
+
+void UChampionAnimHandlerComp::Multicast_SetStartedReloading_Implementation()
+{
+	IsReloading = true;
+	SetUpperBodyBlending(true);
+}
+
+void UChampionAnimHandlerComp::Multicast_SetEndedReloading_Implementation()
+{
+	IsReloading = false;
+	SetUpperBodyBlending(false);
 }
 
 void UChampionAnimHandlerComp::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -96,7 +129,11 @@ void UChampionAnimHandlerComp::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UChampionAnimHandlerComp, MovementSpeed);
 	DOREPLIFETIME(UChampionAnimHandlerComp, SidewaysMovementDirection);
+	DOREPLIFETIME(UChampionAnimHandlerComp, UpperBodyBlending);
 	DOREPLIFETIME(UChampionAnimHandlerComp, IsInAir);
 	DOREPLIFETIME(UChampionAnimHandlerComp, IsDead);
+	DOREPLIFETIME(UChampionAnimHandlerComp, IsReloading);
+	DOREPLIFETIME(UChampionAnimHandlerComp, IsShooting);
 }
+
 

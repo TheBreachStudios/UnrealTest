@@ -19,28 +19,14 @@ class UNREALTEST_API AChampionCharacter : public AUnrealTestCharacter
 public :
 	AChampionCharacter();
 
-private:
-
-	class UHealthComponent* HealthComponent = nullptr;
-	class UChampionAnimHandlerComp* AnimHandler = nullptr;
-
-public:
-
-	FORCEINLINE const UHealthComponent* GetHealthComponentPtr() const { return HealthComponent; }
-	FORCEINLINE UHealthComponent* AccessHealthComponentPtr() { return HealthComponent; }
-
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_ResetChampionCharacter();
-
-	FChampionSignature OnChampionDeathEvent;
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void ShootBinding(class UInputComponent* PlayerInputComponent);
+	void ReloadBinding(class UInputComponent* PlayerInputComponent);
 	void SetupHealthComponent();
-
 	void HandleDeath();
+	void TryFindWeapon();
 
 	UFUNCTION()
 	void ShootingStarted();
@@ -48,10 +34,37 @@ protected:
 	UFUNCTION()
 	void ShootingStopped();
 
+	UFUNCTION()
+	void Reload();
+
+	//TEMP
 	UFUNCTION(Server, Reliable)
 	void Server_DoHitScanTrace();
+
+	//TEMP
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_DebugHitScanTrace();
+	void Multicast_PlayShotVFX();
 
+	class UHealthComponent* HealthComponent = nullptr;
+	class UChampionAnimHandlerComp* AnimHandler = nullptr;
+	class UChampionAudioComponent* AudioComponent = nullptr;
+	class ABaseWeapon* Weapon = nullptr;
 
+	bool HasWeapon = false;
+
+public:
+
+	FORCEINLINE const UHealthComponent* GetHealthComponent() const { return HealthComponent; }
+	FORCEINLINE const ABaseWeapon* GetWeapon() const { return Weapon; }
+	FORCEINLINE ABaseWeapon* AccessWeapon() { return Weapon; }
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ResetChampionCharacter();
+
+	FChampionSignature OnChampionDeathEvent;
+
+	class USoundCue* SoundDeath = nullptr;
+	class USoundCue* SoundShot = nullptr;
+
+	class UParticleSystem* ShotVFX = nullptr;
 };

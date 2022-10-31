@@ -22,23 +22,21 @@ void UHealthComponent::ApplyDamage(float damage)
 		CurrentHealth = FMath::Clamp(CurrentHealth - damage, 0.f, MAX_HEALTH);
 		OnRep_CurrentHealth();
 
-		if(GetOwnerRole() < ENetRole::ROLE_SimulatedProxy)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%s took %f damage!"), *GetOwner()->GetName(), damage);
-		}
+		FString msg = FString::Printf(TEXT("[%s] Current Health: %f"), GetOwner() != nullptr ? *GetOwner()->GetName() : *GetName(), CurrentHealth);
+		GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, *msg);
 
-		if (OnDamagedEvent.IsBound()) 
-		{
-			OnDamagedEvent.Broadcast();
-		}
-
-		if (OnHealthChangedEvent.IsBound()) 
+		if (OnHealthChangedEvent.IsBound())
 		{
 			OnHealthChangedEvent.Broadcast(CurrentHealth, MAX_HEALTH);
 		}
 
+		if (OnDamagedEvent.IsBound())
+		{
+			OnDamagedEvent.Broadcast();
+		}
+
 		if (CurrentHealth <= 0.f)
-		{			
+		{
 			Destroy();
 		}
 	}
@@ -58,9 +56,9 @@ void UHealthComponent::Destroy()
 	}
 }
 
-void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const 
+void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);	
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UHealthComponent, CurrentHealth);
 }
 
