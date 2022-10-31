@@ -25,4 +25,5 @@ public:
 protected:
 	
 	class UShootingWeaponAudioComponent* AudioComponent = nullptr;
+	class UWeaponVFXComponent* VFXComponent = nullptr;
 };

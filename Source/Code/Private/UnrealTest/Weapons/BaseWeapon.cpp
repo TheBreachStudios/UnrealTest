@@ -5,14 +5,13 @@
 
 ABaseWeapon::ABaseWeapon()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	//PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 
 	Damage = 10.f;
 	Range = 10000.f;
 	AttackRate = 3;
 
-	bReplicates = true;
+
 }
 
 void ABaseWeapon::TryUseWeapon()

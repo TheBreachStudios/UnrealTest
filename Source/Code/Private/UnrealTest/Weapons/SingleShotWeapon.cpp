@@ -3,10 +3,12 @@
 
 #include "UnrealTest/Weapons/SingleShotWeapon.h"
 #include "UnrealTest/Weapons/ShootingWeaponAudioComponent.h"
+#include "UnrealTest/Weapons/WeaponVFXComponent.h"
 
 ASingleShotWeapon::ASingleShotWeapon()
 {
 	AudioComponent = CreateDefaultSubobject<UShootingWeaponAudioComponent>(TEXT("ShootingWeaponAudioComponent"));
+	VFXComponent = CreateDefaultSubobject<UWeaponVFXComponent>(TEXT("WeaponVFXComponent"));
 
 	//TEMP VALUES
 	Damage = 10.f;
@@ -30,6 +32,7 @@ void ASingleShotWeapon::TryUseWeapon()
 		GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Yellow, *msg);
 
 		AudioComponent->Multicast_PlayAttackSFX();
+		VFXComponent->Multicast_PlayAttackVFX_Implementation();
 		Server_TraceHitscanShot();
 	}
 }
@@ -49,4 +52,5 @@ void ASingleShotWeapon::ResetWeapon()
 	Super::ResetWeapon();
 	//TODO: Reset all components
 	AudioComponent->Multicast_ResetAudio();
+	VFXComponent->Multicast_ResetVFX();
 }

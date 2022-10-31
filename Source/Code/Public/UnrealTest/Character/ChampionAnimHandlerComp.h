@@ -27,6 +27,7 @@ public:
 	//void Multicast_UpdateIsShooting();
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_SetStartedReloading();
+
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_SetEndedReloading();
 
@@ -44,7 +45,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	void SetUpperBodyBlending(bool setActive);
+	
 
 public:
 	UPROPERTY(Replicated, BlueprintReadOnly)

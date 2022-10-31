@@ -100,6 +100,7 @@ void AChampionCharacter::TryFindWeapon()
 			Weapon->SetWeaponOwner(this);
 			AnimHandler->BindToWeaponEvents(tempWeapon);
 			HasWeapon = true;
+			break;
 		}
 	}
 }

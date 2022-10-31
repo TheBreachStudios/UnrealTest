@@ -58,6 +58,9 @@ public:
 	FORCEINLINE const ABaseWeapon* GetWeapon() const { return Weapon; }
 	FORCEINLINE ABaseWeapon* AccessWeapon() { return Weapon; }
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UChampionAnimHandlerComp* AccessAnimationHandler() { return AnimHandler; }
+
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_ResetChampionCharacter();
 

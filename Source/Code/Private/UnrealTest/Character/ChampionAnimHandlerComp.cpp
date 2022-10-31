@@ -28,12 +28,6 @@ void UChampionAnimHandlerComp::BeginPlay()
 	BindToHealthEvents();
 }
 
-void UChampionAnimHandlerComp::SetUpperBodyBlending(bool setActive)
-{
-	UpperBodyBlending = setActive ? 1.f : 0.f;
-}
-
-
 void UChampionAnimHandlerComp::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -64,13 +58,15 @@ void UChampionAnimHandlerComp::Multicast_UpdateMovementProperties_Implementation
 		{ 
 			IsInAir = pawnMovementComponent->IsFalling();
 		}		
-	}	
+	}
+
+	// UpperBodyBlending
+	UpperBodyBlending = (!IsDead && (IsReloading || IsShooting)) ? 1.f : 0.f;
 }
 
 void UChampionAnimHandlerComp::Multicast_SetIsDead_Implementation()
 {
 	IsDead = true;
-	SetUpperBodyBlending(false);
 }
 
 void UChampionAnimHandlerComp::BindToHealthEvents()
@@ -115,13 +111,11 @@ void UChampionAnimHandlerComp::BindToWeaponEvents(ABaseWeapon* weapon)
 void UChampionAnimHandlerComp::Multicast_SetStartedReloading_Implementation()
 {
 	IsReloading = true;
-	SetUpperBodyBlending(true);
 }
 
 void UChampionAnimHandlerComp::Multicast_SetEndedReloading_Implementation()
 {
 	IsReloading = false;
-	SetUpperBodyBlending(false);
 }
 
 void UChampionAnimHandlerComp::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
