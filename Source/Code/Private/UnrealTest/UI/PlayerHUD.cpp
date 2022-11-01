@@ -2,8 +2,10 @@
 
 
 #include "UnrealTest/UI/PlayerHUD.h"
-#include "Blueprint/UserWidget.h"
 #include "UnrealTest/UI/CharacterHudWidget.h"
+#include "UnrealTest/Weapons/BaseShootingWeapon.h"
+#include "Blueprint/UserWidget.h"
+#include "GameFramework/HUD.h"
 
 APlayerHUD::APlayerHUD() 
 {
@@ -28,8 +30,3 @@ void APlayerHUD::BeginPlay()
 		}
 	}
 }
-
-//void APlayerHUD::DrawHUD()
-//{
-//	Super::DrawHUD();
-//}

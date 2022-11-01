@@ -2,6 +2,7 @@
 
 
 #include "UnrealTest/Character/ChampionAudioComponent.h"
+#include "UnrealTest/Character/ChampionCharacter.h"
 #include "UnrealTest/Character/HealthComponent.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
@@ -69,14 +70,10 @@ void UChampionAudioComponent::BindToHealthEvents()
 {
 	if (GetOwner() == nullptr) { return; }
 
-	UHealthComponent* healthComponent = Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));
-	if (healthComponent != nullptr)
+	AChampionCharacter* champion = Cast<AChampionCharacter>(GetOwner());
+	if (champion != nullptr)
 	{
-		healthComponent->OnDamagedEvent.AddUObject(this, &UChampionAudioComponent::Multicast_PlayBodyHitSFX);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to bind to the HealthComponent Events!"));
+		champion->OnDamagedEvent.AddUObject(this, &UChampionAudioComponent::Multicast_PlayBodyHitSFX);
 	}
 }
 

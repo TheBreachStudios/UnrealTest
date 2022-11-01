@@ -13,8 +13,8 @@ class UNREALTEST_API UHealthComponent : public UActorComponent, public IDamageab
 {
 	GENERATED_BODY()
 
-	DECLARE_MULTICAST_DELEGATE(FHealthSignature);
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FHealthChangedSignature, float, float);
+	DECLARE_MULTICAST_DELEGATE(FHealthSignature);
 
 public:	
 	UHealthComponent();
@@ -25,10 +25,12 @@ public:
 	UFUNCTION()
 	void ResetCurrentHealth();
 
+	virtual bool IsSupportedForNetworking() const override { return true; }
+
 protected:
 			
-	UFUNCTION()
-	void OnRep_CurrentHealth();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_BroadcastHealthChanged();
 
 public:	
 	virtual void ApplyDamage(float damage) override;
@@ -41,10 +43,8 @@ public:
 	FHealthSignature OnDamagedEvent;
 	FHealthSignature OnHealthEmptyEvent;
 
-	void OnHealthUpdated();
-
 protected:
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth)
+	UPROPERTY(Replicated)
 	float CurrentHealth = 0.f;
 
 	const float MAX_HEALTH = 100.f;

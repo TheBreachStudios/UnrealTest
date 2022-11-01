@@ -4,6 +4,7 @@
 #include "UnrealTest/Weapons/BaseShootingWeapon.h"
 #include "UnrealTest/Character/ChampionCharacter.h"
 #include "UnrealTest/Character/HealthComponent.h"
+#include "UnrealTest/Interfaces/IDamageable.h"
 #include "Camera/CameraComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "EngineUtils.h"
@@ -46,8 +47,9 @@ void ABaseShootingWeapon::Reload()
 {
 	float neededClipAmmo = MaxClipAmmo - CurrentClipAmmo;
 	float addedAmmo = CurrentReserveAmmo >= neededClipAmmo ? neededClipAmmo : CurrentReserveAmmo;
-	CurrentClipAmmo += addedAmmo;
-	CurrentReserveAmmo -= addedAmmo;
+	int32 newClipAmmo = CurrentClipAmmo + addedAmmo;
+	int32 newReserveAmmo = CurrentReserveAmmo - addedAmmo;
+	SetCurrentAmmo(newClipAmmo, newReserveAmmo);
 }
 
 void ABaseShootingWeapon::TryUseWeapon()
@@ -55,7 +57,8 @@ void ABaseShootingWeapon::TryUseWeapon()
 	if (CanUseWeapon())
 	{
 		Super::TryUseWeapon();
-		CurrentClipAmmo = FMath::Clamp(CurrentClipAmmo - AmmoUsedPerShot, 0, MaxClipAmmo);
+		int32 newClipAmmo = FMath::Clamp(CurrentClipAmmo - AmmoUsedPerShot, 0, MaxClipAmmo);
+		SetCurrentAmmo(newClipAmmo, CurrentReserveAmmo);
 	}
 }
 
@@ -65,8 +68,7 @@ void ABaseShootingWeapon::ResetWeapon()
 
 	SetWeaponState(ShootingWeaponStateEnum::Ready);
 
-	CurrentClipAmmo = MaxClipAmmo;
-	CurrentReserveAmmo = MaxReserveAmmo;
+	SetCurrentAmmo(MaxClipAmmo, MaxReserveAmmo);
 }
 
 void ABaseShootingWeapon::BeginPlay()
@@ -110,13 +112,23 @@ void ABaseShootingWeapon::Server_TraceHitscanShot_Implementation()
 	}
 }
 
+void ABaseShootingWeapon::Client_BroadcastAmmoChanged_Implementation()
+{
+	if (OnAmmoChangedEvent.IsBound())
+	{
+		OnAmmoChangedEvent.Broadcast(CurrentClipAmmo, MaxClipAmmo, CurrentReserveAmmo);
+	}
+}
+
 void ABaseShootingWeapon::TryApplyDamageToActor(AActor* actor)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *actor->GetName());
-	UHealthComponent* hpComponent = Cast<UHealthComponent>(actor->GetComponentByClass(UHealthComponent::StaticClass()));
-	if (hpComponent != nullptr)
+
+	// TODO: Later account for non player actors.
+	AChampionCharacter* champion = Cast<AChampionCharacter>(actor);
+	if (champion != nullptr)
 	{
-		hpComponent->ApplyDamage(Damage);
+		champion->ApplyDamage(Damage);
 	}
 }
 
@@ -157,6 +169,19 @@ void ABaseShootingWeapon::SetWeaponState(ShootingWeaponStateEnum newState)
 	}
 
 	WeaponState = newState;
+}
+
+void ABaseShootingWeapon::SetCurrentAmmo(int32 clipAmmo, int32 reserveAmmo)
+{
+	bool shouldBroadcastChange = CurrentClipAmmo != clipAmmo || CurrentReserveAmmo != reserveAmmo;
+
+	CurrentClipAmmo = clipAmmo;
+	CurrentReserveAmmo = reserveAmmo;
+
+	if (shouldBroadcastChange)
+	{
+		Client_BroadcastAmmoChanged();
+	}
 }
 
 void ABaseShootingWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

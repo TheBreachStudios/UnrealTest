@@ -17,7 +17,9 @@ public:
 	virtual void TryUseWeapon();
 	virtual void StopUsingWeapon();
 	virtual void ResetWeapon();
-	void SetWeaponOwner(APawn* pawn);	
+	void SetWeaponOwner(APawn* pawn);
+
+	virtual bool IsSupportedForNetworking() const override { return true; }
 
 protected:	
 	DECLARE_MULTICAST_DELEGATE(FWeaponSignature);

@@ -14,6 +14,8 @@ class UNREALTEST_API ABaseShootingWeapon : public ABaseWeapon
 {
 	GENERATED_BODY()
 	
+	DECLARE_MULTICAST_DELEGATE_ThreeParams(FWeaponAmmoSignature, int32, int32, int32);
+
 public:
 	ABaseShootingWeapon();
 
@@ -33,10 +35,15 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	FWeaponAmmoSignature OnAmmoChangedEvent;
 	FWeaponSignature OnStartedReloadingEvent;
 	FWeaponSignature OnEndedReloadingEvent;
 	FWeaponSignature OnStartedShootingEvent;
 	FWeaponSignature OnEndedShootingEvent;
+
+	FORCEINLINE const int32 GetCurrentClipAmmo() const { return CurrentClipAmmo; }
+	FORCEINLINE const int32 GetMaxClipAmmo() const { return MaxClipAmmo; }
+	FORCEINLINE const int32 GetCurrentReserveAmmo() const { return CurrentReserveAmmo; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -48,9 +55,14 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_TraceHitscanShot();
 
+	UFUNCTION(Client, Reliable)
+	void Client_BroadcastAmmoChanged();
+
 	void TryApplyDamageToActor(AActor* actor);
 
 	void SetWeaponState(ShootingWeaponStateEnum newState);
+
+	void SetCurrentAmmo(int32 clipAmmo, int32 reserveAmmo);
 
 	ShootingWeaponStateEnum WeaponState = ShootingWeaponStateEnum::None;
 

@@ -2,7 +2,6 @@
 
 #include "UnrealTest/Game/EliminationGameMode.h"
 #include "UnrealTest/Game/EliminationGameState.h"
-#include "UnrealTest/Game/EliminationPlayerState.h"
 #include "UnrealTest/UI/PlayerHUD.h"
 #include "UnrealTest/Character/ChampionPlayerController.h"
 #include "UObject/ConstructorHelpers.h"

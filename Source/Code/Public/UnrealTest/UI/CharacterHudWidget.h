@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Components/Image.h"
+#include "Net/UnrealNetwork.h"
 #include "CharacterHudWidget.generated.h"
 
 /**
@@ -17,15 +18,19 @@ class UNREALTEST_API UCharacterHudWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-	void BindHealth();
-	void BindAmmo();
-
-	void SetHealth(int currentHealth, int maxHealth);
-	void SetClipAmmo(int currentClipAmmo, int maxClipAmmo);
-	void SetReserveAmmo(int reserveAmmo);
-
 protected:
-	virtual void NativeConstruct() override;	
+	virtual void NativeConstruct() override;
+
+	void SetHealth(float currentHealth, float maxHealth);
+	void SetClipAmmo(int32 currentClipAmmo, int32 maxClipAmmo);
+	void SetReserveAmmo(int32 reserveAmmo);
+	void SetTeamLives(int32 onwTeamLives, int32 enemyTeamLives);
+
+	void UpdateHealth(float currentHealth, float maxHealth);
+	void UpdateAmmo(int32 currentClipAmmo, int32 maxClipAmmo, int32 currentReserveAmmo);
+	void UpdateLives();
+
+	void TryBindToWeaponEvents();
 
 public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))

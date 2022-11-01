@@ -13,7 +13,6 @@ public:
 	IDamageable() = default;
 	virtual ~IDamageable() = default;
 
-protected:
 	virtual void ApplyDamage(float damage) = 0;
 	virtual bool CanReceiveDamage() = 0;
 	virtual void Destroy() = 0;

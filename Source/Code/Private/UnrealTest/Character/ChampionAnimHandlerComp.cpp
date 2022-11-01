@@ -73,14 +73,10 @@ void UChampionAnimHandlerComp::BindToHealthEvents()
 {
 	if (GetOwner() == nullptr) { return; }
 
-	UHealthComponent* healthComponent = Cast<UHealthComponent>(GetOwner()->GetComponentByClass(UHealthComponent::StaticClass()));
-	if (healthComponent != nullptr) 
+	AChampionCharacter* champion = Cast<AChampionCharacter>(GetOwner());
+	if (champion != nullptr)
 	{ 
-		healthComponent->OnHealthEmptyEvent.AddUObject(this, &UChampionAnimHandlerComp::Multicast_SetIsDead);		
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to bind to the HealthComponent Events!"));
+		champion->OnChampionDeathEvent.AddUObject(this, &UChampionAnimHandlerComp::Multicast_SetIsDead);
 	}
 }
 

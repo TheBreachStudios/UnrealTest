@@ -4,17 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "UnrealTest/Character/UnrealTestCharacter.h"
+#include "UnrealTest/Interfaces/IDamageable.h"
 #include "ChampionCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS(config = Game)
-class UNREALTEST_API AChampionCharacter : public AUnrealTestCharacter
+class UNREALTEST_API AChampionCharacter : public AUnrealTestCharacter, public IDamageable
 {
 	GENERATED_BODY()
 	
 	DECLARE_MULTICAST_DELEGATE(FChampionSignature);
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FHealthChangedSignature, float, float);
 	
 public :
 	AChampionCharacter();
@@ -24,9 +26,12 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void ShootBinding(class UInputComponent* PlayerInputComponent);
 	void ReloadBinding(class UInputComponent* PlayerInputComponent);
-	void SetupHealthComponent();
 	void HandleDeath();
 	void TryFindWeapon();
+	void ResetCurrentHealth();
+
+	UFUNCTION(Client, Reliable)
+	void Client_BroadcastHealthChanged();
 
 	UFUNCTION()
 	void ShootingStarted();
@@ -37,37 +42,40 @@ protected:
 	UFUNCTION()
 	void Reload();
 
-	//TEMP
-	UFUNCTION(Server, Reliable)
-	void Server_DoHitScanTrace();
-
-	//TEMP
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_PlayShotVFX();
-
-	class UHealthComponent* HealthComponent = nullptr;
+	UFUNCTION()
+	void OnRepCurrentHealth();
+	
+	//class UHealthComponent* HealthComponent = nullptr;
 	class UChampionAnimHandlerComp* AnimHandler = nullptr;
 	class UChampionAudioComponent* AudioComponent = nullptr;
 	class ABaseWeapon* Weapon = nullptr;
 
-	bool HasWeapon = false;
+	UPROPERTY(ReplicatedUsing = OnRepCurrentHealth)
+	float CurrentHealth = 0.f;
+
+	const float MAX_HEALTH = 100.f;
 
 public:
+	//IDamageable
+	virtual void ApplyDamage(float damage) override;
+	virtual bool CanReceiveDamage() override;
+	virtual void Destroy() override;
 
-	FORCEINLINE const UHealthComponent* GetHealthComponent() const { return HealthComponent; }
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ResetChampionCharacter();
+
+	FORCEINLINE float GetMaxHealth() const { return MAX_HEALTH; }
+	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
 	FORCEINLINE const ABaseWeapon* GetWeapon() const { return Weapon; }
 	FORCEINLINE ABaseWeapon* AccessWeapon() { return Weapon; }
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UChampionAnimHandlerComp* AccessAnimationHandler() { return AnimHandler; }
 
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_ResetChampionCharacter();
-
+	FHealthChangedSignature OnHealthChangedEvent;
+	FChampionSignature OnDamagedEvent;
 	FChampionSignature OnChampionDeathEvent;
-
-	class USoundCue* SoundDeath = nullptr;
-	class USoundCue* SoundShot = nullptr;
-
-	class UParticleSystem* ShotVFX = nullptr;
+	FChampionSignature OnWeaponAquiredEvent;
 };

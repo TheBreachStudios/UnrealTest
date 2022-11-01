@@ -10,30 +10,24 @@
 #include "UnrealTest/Weapons/WeaponAudioComponent.h"
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
-#include "Particles/ParticleSystem.h"//
+#include "Net/UnrealNetwork.h"
 
 AChampionCharacter::AChampionCharacter()
 {
 	bReplicates = true;
 	bAlwaysRelevant = true;
 
-	SetupHealthComponent();
+	ResetCurrentHealth();
 	AnimHandler = CreateDefaultSubobject<UChampionAnimHandlerComp>(TEXT("ChampionAnimationHandlerComponent"));
 	AudioComponent = CreateDefaultSubobject<UChampionAudioComponent>(TEXT("ChampionAudioComponent"));
-
-	//static ConstructorHelpers::FObjectFinder<UParticleSystem> ShotingVFX(TEXT("/Game/StarterContent/Particles/P_Explosion"));
-	//if (ShotingVFX.Succeeded())
-	//{
-	//	ShotVFX = ShotingVFX.Object;
-	//}
 }
 
 void AChampionCharacter::Multicast_ResetChampionCharacter_Implementation()
 {
-	HealthComponent->ResetCurrentHealth();
+	ResetCurrentHealth();
 	AnimHandler->Multicast_ResetAnimation();
 	AudioComponent->Multicast_ResetAudio();
-	if (HasWeapon)
+	if (Weapon != nullptr)
 	{
 		Weapon->ResetWeapon();
 	}
@@ -42,8 +36,12 @@ void AChampionCharacter::Multicast_ResetChampionCharacter_Implementation()
 void AChampionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	TryFindWeapon();
-	UE_LOG(LogTemp, Warning, TEXT("Champion Begin Play!"));
+	if (Weapon == nullptr)
+	{
+		TryFindWeapon();
+	}
+	
+	//UE_LOG(LogTemp, Warning, TEXT("Champion Begin Play!"));
 }
 
 void AChampionCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -65,12 +63,6 @@ void AChampionCharacter::ReloadBinding(class UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AChampionCharacter::Reload);
 }
 
-void AChampionCharacter::SetupHealthComponent()
-{
-	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
-	HealthComponent->OnHealthEmptyEvent.AddUObject(this, &AChampionCharacter::HandleDeath);
-}
-
 void AChampionCharacter::HandleDeath()
 {
 	FString msg = FString::Printf(TEXT("[Client] %s Died"), *GetName());
@@ -81,14 +73,11 @@ void AChampionCharacter::HandleDeath()
 		OnChampionDeathEvent.Broadcast();
 	}
 
-	//TEMP
 	AudioComponent->Multicast_PlayDeathSFX_Implementation();
 }
 
 void AChampionCharacter::TryFindWeapon()
 {
-	HasWeapon = false;
-
 	TArray<AActor*> allChildren;
 	GetAllChildActors(allChildren, true);
 	for (int i = 0; i < allChildren.Num(); i++)
@@ -99,9 +88,27 @@ void AChampionCharacter::TryFindWeapon()
 			Weapon = tempWeapon;
 			Weapon->SetWeaponOwner(this);
 			AnimHandler->BindToWeaponEvents(tempWeapon);
-			HasWeapon = true;
+			
+			if (OnWeaponAquiredEvent.IsBound())
+			{
+				OnWeaponAquiredEvent.Broadcast();
+			}
 			break;
 		}
+	}
+}
+
+void AChampionCharacter::ResetCurrentHealth()
+{
+	CurrentHealth = MAX_HEALTH;
+	OnRepCurrentHealth();
+}
+
+void AChampionCharacter::Client_BroadcastHealthChanged_Implementation()
+{
+	if (OnHealthChangedEvent.IsBound())
+	{
+		OnHealthChangedEvent.Broadcast(CurrentHealth, MAX_HEALTH);
 	}
 }
 
@@ -109,7 +116,7 @@ void AChampionCharacter::ShootingStarted()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Shooting Started"));
 
-	if (HasWeapon)
+	if (Weapon != nullptr)
 	{
 		Weapon->TryUseWeapon();
 	}
@@ -118,7 +125,7 @@ void AChampionCharacter::ShootingStarted()
 void AChampionCharacter::ShootingStopped()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Shooting Stopped"));	
-	if (HasWeapon)
+	if (Weapon != nullptr)
 	{
 		Weapon->StopUsingWeapon();
 	}
@@ -126,7 +133,7 @@ void AChampionCharacter::ShootingStopped()
 
 void AChampionCharacter::Reload()
 {
-	if (HasWeapon)
+	if (Weapon != nullptr)
 	{
 		ABaseShootingWeapon* shootingWeapon = Cast<ABaseShootingWeapon>(Weapon);
 		if (shootingWeapon != nullptr)
@@ -136,42 +143,51 @@ void AChampionCharacter::Reload()
 	}
 }
 
-void AChampionCharacter::Server_DoHitScanTrace_Implementation()
+void AChampionCharacter::OnRepCurrentHealth()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Hitscan Shot!"));
+	Client_BroadcastHealthChanged();
+}
 
-	const float lineTraceDistance = 10000.f;
-	FHitResult hitResult = FHitResult(ForceInit);
-	UCameraComponent* camera = GetFollowCamera();
-	check(camera != nullptr);
-	FVector cameraLocation = camera->GetComponentLocation();
-	float cameraToCharacterDist = (GetActorLocation() - cameraLocation).Size();
-	FVector startLocation = cameraLocation + (camera->GetForwardVector() * cameraToCharacterDist);
-	FVector endLocation = startLocation + (camera->GetForwardVector() * lineTraceDistance);
-	ECollisionChannel channel = ECollisionChannel::ECC_Pawn;
-	FCollisionQueryParams traceParams = FCollisionQueryParams(FName(TEXT("")), false, this);
-	GetWorld()->LineTraceSingleByChannel(hitResult, startLocation, endLocation, channel, traceParams);
-	//DrawDebugLine(GetWorld(), startLocation, endLocation, FColor::Yellow, true, -1, 0, 10.f);
-	//DrawDebugSphere(GetWorld(), startLocation, 10.f, 10.f, FColor::Blue, true, 10.f);
-	//DrawDebugSphere(GetWorld(), endLocation, 10.f, 10.f, FColor::Red, true, 10.f);
-
-	if (hitResult.IsValidBlockingHit())
+void AChampionCharacter::ApplyDamage(float damage)
+{
+	if (CanReceiveDamage() && damage > 0.f)
 	{
-		AActor* hitActor = hitResult.GetActor();
-		UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *hitActor->GetName());
-		UHealthComponent* hpComponent = Cast<UHealthComponent>(hitActor->GetComponentByClass(UHealthComponent::StaticClass()));
-		if (hpComponent != nullptr)
+		CurrentHealth = FMath::Clamp(CurrentHealth - damage, 0.f, MAX_HEALTH);
+		OnRepCurrentHealth();
+
+		FString msg = FString::Printf(TEXT("[%s] Current Health: %f"), GetOwner() != nullptr ? *GetOwner()->GetName() : *GetName(), CurrentHealth);
+		GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, *msg);
+		
+		if (OnDamagedEvent.IsBound())
 		{
-			hpComponent->ApplyDamage(10.f);
+			OnDamagedEvent.Broadcast();
+		}
+
+		if (CurrentHealth <= 0.f)
+		{
+			Destroy();
 		}
 	}
 }
 
-//TODO: Move to a VFX component do an object pool.
-void AChampionCharacter::Multicast_PlayShotVFX_Implementation()
+bool AChampionCharacter::CanReceiveDamage()
 {
-	//TODO: This is very bad I know. Its just for testing.
-	UParticleSystem* newParticle = NewObject<UParticleSystem>();
+	return CurrentHealth > 0.f;
+}
+
+void AChampionCharacter::Destroy()
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s was killed!"), *GetOwner()->GetName());
+	if (OnChampionDeathEvent.IsBound())
+	{
+		OnChampionDeathEvent.Broadcast();
+	}
+}
+
+void AChampionCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AChampionCharacter, CurrentHealth);
 }
 
 

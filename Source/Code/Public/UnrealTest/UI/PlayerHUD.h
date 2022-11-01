@@ -17,8 +17,6 @@ class UNREALTEST_API APlayerHUD : public AHUD
 public:
 	APlayerHUD();
 
-	//virtual void DrawHUD() override;
-
 protected:
 	virtual void BeginPlay() override;
 
