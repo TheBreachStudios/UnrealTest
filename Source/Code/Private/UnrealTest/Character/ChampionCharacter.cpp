@@ -2,7 +2,6 @@
 
 
 #include "UnrealTest/Character/ChampionCharacter.h"
-#include "UnrealTest/Character/HealthComponent.h"
 #include "UnrealTest/Character/ChampionAnimHandlerComp.h"
 #include "UnrealTest/Character/ChampionAudioComponent.h"
 #include "UnrealTest/Weapons/BaseWeapon.h"
@@ -11,6 +10,7 @@
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Net/UnrealNetwork.h"
+#include "Components/ChildActorComponent.h"
 
 AChampionCharacter::AChampionCharacter()
 {
@@ -41,7 +41,6 @@ void AChampionCharacter::BeginPlay()
 		TryFindWeapon();
 	}
 	
-	//UE_LOG(LogTemp, Warning, TEXT("Champion Begin Play!"));
 }
 
 void AChampionCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -78,23 +77,62 @@ void AChampionCharacter::HandleDeath()
 
 void AChampionCharacter::TryFindWeapon()
 {
-	TArray<AActor*> allChildren;
-	GetAllChildActors(allChildren, true);
-	for (int i = 0; i < allChildren.Num(); i++)
+	UChildActorComponent* childComponent = FindComponentByClass<UChildActorComponent>();
+	if (childComponent != nullptr)
 	{
-		ABaseWeapon* tempWeapon = Cast<ABaseWeapon>(allChildren[i]);
-		if (tempWeapon != nullptr)
+		ABaseWeapon* childWeapon = Cast<ABaseWeapon>(childComponent->GetChildActor());
+		if (childWeapon != nullptr)
 		{
-			Weapon = tempWeapon;
-			Weapon->SetWeaponOwner(this);
-			AnimHandler->BindToWeaponEvents(tempWeapon);
-			
+			Weapon = childWeapon;
+			Weapon->SetWeaponOwner(this);			
+			AnimHandler->BindToWeaponEvents(childWeapon);
+
 			if (OnWeaponAquiredEvent.IsBound())
 			{
 				OnWeaponAquiredEvent.Broadcast();
 			}
-			break;
+
+			if (GetLocalRole() < ENetRole::ROLE_Authority)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[Client][%s] Found weapon."), *GetName());
+				UE_LOG(LogTemp, Warning, TEXT("[Client][%s] Owner is %s."), *GetName(), childWeapon->GetOwner() != nullptr ? *childWeapon->GetOwner()->GetName() : TEXT("NULL"));
+				UE_LOG(LogTemp, Warning, TEXT("[Client][%s] NetOwner is %s."), *GetName(), childWeapon->GetNetOwner() != nullptr ? *childWeapon->GetNetOwner()->GetName() : TEXT("NULL"));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[Server][%s] Found weapon"), *GetName());
+				UE_LOG(LogTemp, Warning, TEXT("[Server][%s] Owner is %s."), *GetName(), childWeapon->GetOwner() != nullptr ? *childWeapon->GetOwner()->GetName() : TEXT("NULL"));
+				UE_LOG(LogTemp, Warning, TEXT("[Server][%s] NetOwner is %s."), *GetName(), childWeapon->GetNetOwner() != nullptr ? *childWeapon->GetNetOwner()->GetName() : TEXT("NULL"));
+			}
 		}
+	}
+}
+
+void AChampionCharacter::HandleOnWeaponInitialized()
+{
+	if (Weapon == nullptr)
+	{
+		TryFindWeapon();
+	}
+}
+
+void AChampionCharacter::Server_ReloadWeapon_Implementation()
+{
+	if (Weapon != nullptr)
+	{
+		ABaseShootingWeapon* shootingWeapon = Cast<ABaseShootingWeapon>(Weapon);
+		if (shootingWeapon != nullptr)
+		{
+			shootingWeapon->TryStartReload();
+		}
+	}
+}
+
+void AChampionCharacter::Server_UseWeapon_Implementation()
+{
+	if (Weapon != nullptr)
+	{
+		Weapon->TryUseWeapon();
 	}
 }
 
@@ -114,17 +152,14 @@ void AChampionCharacter::Client_BroadcastHealthChanged_Implementation()
 
 void AChampionCharacter::ShootingStarted()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Shooting Started"));
-
 	if (Weapon != nullptr)
 	{
-		Weapon->TryUseWeapon();
+		Server_UseWeapon();		
 	}
 }
 
 void AChampionCharacter::ShootingStopped()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Shooting Stopped"));	
 	if (Weapon != nullptr)
 	{
 		Weapon->StopUsingWeapon();
@@ -135,11 +170,7 @@ void AChampionCharacter::Reload()
 {
 	if (Weapon != nullptr)
 	{
-		ABaseShootingWeapon* shootingWeapon = Cast<ABaseShootingWeapon>(Weapon);
-		if (shootingWeapon != nullptr)
-		{
-			shootingWeapon->TryStartReload();
-		}
+		Server_ReloadWeapon();
 	}
 }
 
@@ -155,8 +186,16 @@ void AChampionCharacter::ApplyDamage(float damage)
 		CurrentHealth = FMath::Clamp(CurrentHealth - damage, 0.f, MAX_HEALTH);
 		OnRepCurrentHealth();
 
-		FString msg = FString::Printf(TEXT("[%s] Current Health: %f"), GetOwner() != nullptr ? *GetOwner()->GetName() : *GetName(), CurrentHealth);
-		GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, *msg);
+		//if (GetLocalRole() < ENetRole::ROLE_Authority) 
+		//{
+		//	FString msg = FString::Printf(TEXT("[Client][%s] Current Health: %f"), GetOwner() != nullptr ? *GetOwner()->GetName() : *GetName(), CurrentHealth);
+		//	GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, *msg);
+		//}
+		//else 
+		//{
+		//	FString msg = FString::Printf(TEXT("[Server][%s] Current Health: %f"), GetOwner() != nullptr ? *GetOwner()->GetName() : *GetName(), CurrentHealth);
+		//	GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, *msg);
+		//}
 		
 		if (OnDamagedEvent.IsBound())
 		{
@@ -177,7 +216,7 @@ bool AChampionCharacter::CanReceiveDamage()
 
 void AChampionCharacter::Destroy()
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s was killed!"), *GetOwner()->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("%s was killed!"), *GetOwner()->GetName());
 	if (OnChampionDeathEvent.IsBound())
 	{
 		OnChampionDeathEvent.Broadcast();

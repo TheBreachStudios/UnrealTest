@@ -3,7 +3,6 @@
 
 #include "UnrealTest/Weapons/BaseShootingWeapon.h"
 #include "UnrealTest/Character/ChampionCharacter.h"
-#include "UnrealTest/Character/HealthComponent.h"
 #include "UnrealTest/Interfaces/IDamageable.h"
 #include "Camera/CameraComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -49,7 +48,8 @@ void ABaseShootingWeapon::Reload()
 	float addedAmmo = CurrentReserveAmmo >= neededClipAmmo ? neededClipAmmo : CurrentReserveAmmo;
 	int32 newClipAmmo = CurrentClipAmmo + addedAmmo;
 	int32 newReserveAmmo = CurrentReserveAmmo - addedAmmo;
-	SetCurrentAmmo(newClipAmmo, newReserveAmmo);
+	SetCurrentClipAmmo(newClipAmmo);
+	SetCurrentReserveAmmo(newReserveAmmo);
 }
 
 void ABaseShootingWeapon::TryUseWeapon()
@@ -58,7 +58,7 @@ void ABaseShootingWeapon::TryUseWeapon()
 	{
 		Super::TryUseWeapon();
 		int32 newClipAmmo = FMath::Clamp(CurrentClipAmmo - AmmoUsedPerShot, 0, MaxClipAmmo);
-		SetCurrentAmmo(newClipAmmo, CurrentReserveAmmo);
+		SetCurrentClipAmmo(newClipAmmo);
 	}
 }
 
@@ -68,11 +68,14 @@ void ABaseShootingWeapon::ResetWeapon()
 
 	SetWeaponState(ShootingWeaponStateEnum::Ready);
 
-	SetCurrentAmmo(MaxClipAmmo, MaxReserveAmmo);
+	SetCurrentClipAmmo(MaxClipAmmo);
+	SetCurrentReserveAmmo(MaxReserveAmmo);
 }
 
 void ABaseShootingWeapon::BeginPlay()
-{
+{	
+	Super::BeginPlay();
+
 	SetWeaponState(ShootingWeaponStateEnum::Ready);
 }
 
@@ -112,17 +115,42 @@ void ABaseShootingWeapon::Server_TraceHitscanShot_Implementation()
 	}
 }
 
-void ABaseShootingWeapon::Client_BroadcastAmmoChanged_Implementation()
+void ABaseShootingWeapon::Client_BroadcastClipAmmoChanged_Implementation()
 {
-	if (OnAmmoChangedEvent.IsBound())
+	if (OnClipAmmoChangedEvent.IsBound())
 	{
-		OnAmmoChangedEvent.Broadcast(CurrentClipAmmo, MaxClipAmmo, CurrentReserveAmmo);
+		OnClipAmmoChangedEvent.Broadcast(CurrentClipAmmo, MaxClipAmmo);
 	}
+}
+
+void ABaseShootingWeapon::Client_BroadcastReserveAmmoChanged_Implementation()
+{
+	if (OnReserveAmmoChangedEvent.IsBound())
+	{
+		OnReserveAmmoChangedEvent.Broadcast(CurrentReserveAmmo);
+	}
+}
+
+void ABaseShootingWeapon::OnRepCurrentClipAmmo()
+{
+	Client_BroadcastClipAmmoChanged();
+}
+
+void ABaseShootingWeapon::OnRepCurrentReserveAmmo()
+{
+	Client_BroadcastReserveAmmoChanged();
 }
 
 void ABaseShootingWeapon::TryApplyDamageToActor(AActor* actor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *actor->GetName());
+	if (GetLocalRole() < ENetRole::ROLE_Authority) 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Client][%s] Hit Actor: %s"), *GetName(), *actor->GetName());
+	}
+	else 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Server][%s] Hit Actor: %s"), *GetName(), *actor->GetName());
+	}
 
 	// TODO: Later account for non player actors.
 	AChampionCharacter* champion = Cast<AChampionCharacter>(actor);
@@ -171,17 +199,28 @@ void ABaseShootingWeapon::SetWeaponState(ShootingWeaponStateEnum newState)
 	WeaponState = newState;
 }
 
-void ABaseShootingWeapon::SetCurrentAmmo(int32 clipAmmo, int32 reserveAmmo)
+void ABaseShootingWeapon::SetCurrentClipAmmo(int32 clipAmmo)
 {
-	bool shouldBroadcastChange = CurrentClipAmmo != clipAmmo || CurrentReserveAmmo != reserveAmmo;
-
 	CurrentClipAmmo = clipAmmo;
-	CurrentReserveAmmo = reserveAmmo;
+	OnRepCurrentClipAmmo();
 
-	if (shouldBroadcastChange)
-	{
-		Client_BroadcastAmmoChanged();
-	}
+	FString msg = FString::Printf(TEXT("[%s][%s] Current Clip Ammo: %d | Current Reserve Ammo: %d"),
+		GetLocalRole() < ENetRole::ROLE_Authority ? TEXT("Client") : TEXT("Server"),
+		GetOwner() != nullptr ? *GetOwner()->GetName() : *GetName(),
+		CurrentClipAmmo, CurrentReserveAmmo);
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::White, *msg);
+}
+
+void ABaseShootingWeapon::SetCurrentReserveAmmo(int32 reserveAmmo)
+{
+	CurrentReserveAmmo = reserveAmmo;
+	OnRepCurrentReserveAmmo();
+
+	FString msg = FString::Printf(TEXT("[%s][%s] Current Clip Ammo: %d | Current Reserve Ammo: %d"),
+		GetLocalRole() < ENetRole::ROLE_Authority ? TEXT("Client") : TEXT("Server"),
+		GetOwner() != nullptr ? *GetOwner()->GetName() : *GetName(),
+		CurrentClipAmmo, CurrentReserveAmmo);
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::White, *msg);
 }
 
 void ABaseShootingWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

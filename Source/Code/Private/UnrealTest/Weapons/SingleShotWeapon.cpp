@@ -28,9 +28,6 @@ void ASingleShotWeapon::TryUseWeapon()
 	{
 		Super::TryUseWeapon();
 
-		//FString msg = FString::Printf(TEXT("[%s] Current Clip Ammo: %d/%d | Current Reserve Ammo: %d/%d"), OwningPawn != nullptr ? *OwningPawn->GetName() : *GetName(), CurrentClipAmmo, MaxClipAmmo, CurrentReserveAmmo, MaxReserveAmmo);
-		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Yellow, *msg);
-
 		AudioComponent->Multicast_PlayAttackSFX();
 		VFXComponent->Multicast_PlayAttackVFX_Implementation();
 		Server_TraceHitscanShot();

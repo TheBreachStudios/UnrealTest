@@ -14,7 +14,8 @@ class UNREALTEST_API ABaseShootingWeapon : public ABaseWeapon
 {
 	GENERATED_BODY()
 	
-	DECLARE_MULTICAST_DELEGATE_ThreeParams(FWeaponAmmoSignature, int32, int32, int32);
+	DECLARE_MULTICAST_DELEGATE_OneParam(FWeaponReserveAmmoSignature, int32);
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FWeaponClipAmmoSignature, int32, int32);
 
 public:
 	ABaseShootingWeapon();
@@ -35,7 +36,8 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	FWeaponAmmoSignature OnAmmoChangedEvent;
+	FWeaponReserveAmmoSignature OnReserveAmmoChangedEvent;
+	FWeaponClipAmmoSignature OnClipAmmoChangedEvent;
 	FWeaponSignature OnStartedReloadingEvent;
 	FWeaponSignature OnEndedReloadingEvent;
 	FWeaponSignature OnStartedShootingEvent;
@@ -56,19 +58,27 @@ protected:
 	void Server_TraceHitscanShot();
 
 	UFUNCTION(Client, Reliable)
-	void Client_BroadcastAmmoChanged();
+	void Client_BroadcastClipAmmoChanged();
+	UFUNCTION(Client, Reliable)
+	void Client_BroadcastReserveAmmoChanged();
+
+	UFUNCTION()
+	void OnRepCurrentClipAmmo();
+	UFUNCTION()
+	void OnRepCurrentReserveAmmo();
 
 	void TryApplyDamageToActor(AActor* actor);
 
 	void SetWeaponState(ShootingWeaponStateEnum newState);
 
-	void SetCurrentAmmo(int32 clipAmmo, int32 reserveAmmo);
+	void SetCurrentClipAmmo(int32 clipAmmo);
+	void SetCurrentReserveAmmo(int32 reserveAmmo);
 
 	ShootingWeaponStateEnum WeaponState = ShootingWeaponStateEnum::None;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRepCurrentClipAmmo)
 	int32 CurrentClipAmmo;
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRepCurrentReserveAmmo)
 	int32 CurrentReserveAmmo;
 	
 	UPROPERTY(EditAnywhere)

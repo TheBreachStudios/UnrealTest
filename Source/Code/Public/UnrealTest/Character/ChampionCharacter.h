@@ -26,9 +26,16 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void ShootBinding(class UInputComponent* PlayerInputComponent);
 	void ReloadBinding(class UInputComponent* PlayerInputComponent);
-	void HandleDeath();
-	void TryFindWeapon();
+	void HandleDeath();	
 	void ResetCurrentHealth();
+	void TryFindWeapon();
+	void HandleOnWeaponInitialized();
+
+	UFUNCTION(Server, Reliable)
+	void Server_UseWeapon();
+
+	UFUNCTION(Server, Reliable)
+	void Server_ReloadWeapon();
 
 	UFUNCTION(Client, Reliable)
 	void Client_BroadcastHealthChanged();
@@ -45,7 +52,6 @@ protected:
 	UFUNCTION()
 	void OnRepCurrentHealth();
 	
-	//class UHealthComponent* HealthComponent = nullptr;
 	class UChampionAnimHandlerComp* AnimHandler = nullptr;
 	class UChampionAudioComponent* AudioComponent = nullptr;
 	class ABaseWeapon* Weapon = nullptr;

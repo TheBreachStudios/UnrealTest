@@ -2,11 +2,8 @@
 
 
 #include "UnrealTest/UI/CharacterHudWidget.h"
-#include "UnrealTest/Character/HealthComponent.h"
 #include "UnrealTest/Weapons/BaseShootingWeapon.h"
 #include "UnrealTest/Character/ChampionCharacter.h"
-
-
 
 void UCharacterHudWidget::NativeConstruct()
 {
@@ -85,9 +82,13 @@ void UCharacterHudWidget::UpdateHealth(float currentHealth, float maxHealth)
 	SetHealth(currentHealth, maxHealth);
 }
 
-void UCharacterHudWidget::UpdateAmmo(int32 currentClipAmmo, int32 maxClipAmmo, int32 currentReserveAmmo)
+void UCharacterHudWidget::UpdateClipAmmo(int32 currentClipAmmo, int32 maxClipAmmo)
 {
 	SetClipAmmo(currentClipAmmo, maxClipAmmo);
+}
+
+void UCharacterHudWidget::UpdateReserveAmmo(int32 currentReserveAmmo)
+{
 	SetReserveAmmo(currentReserveAmmo);
 }
 
@@ -106,8 +107,10 @@ void UCharacterHudWidget::TryBindToWeaponEvents()
 			ABaseShootingWeapon* weapon = Cast<ABaseShootingWeapon>(player->AccessWeapon());
 			if (weapon != nullptr)
 			{
-				weapon->OnAmmoChangedEvent.AddUObject(this, &UCharacterHudWidget::UpdateAmmo);
-				UpdateAmmo(weapon->GetCurrentClipAmmo(), weapon->GetMaxClipAmmo(), weapon->GetCurrentReserveAmmo());
+				weapon->OnClipAmmoChangedEvent.AddUObject(this, &UCharacterHudWidget::UpdateClipAmmo);
+				UpdateClipAmmo(weapon->GetCurrentClipAmmo(), weapon->GetMaxClipAmmo());
+				weapon->OnReserveAmmoChangedEvent.AddUObject(this, &UCharacterHudWidget::UpdateReserveAmmo);
+				UpdateReserveAmmo(weapon->GetCurrentReserveAmmo());
 			}
 		}
 	}

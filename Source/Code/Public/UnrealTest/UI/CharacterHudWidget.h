@@ -27,7 +27,8 @@ protected:
 	void SetTeamLives(int32 onwTeamLives, int32 enemyTeamLives);
 
 	void UpdateHealth(float currentHealth, float maxHealth);
-	void UpdateAmmo(int32 currentClipAmmo, int32 maxClipAmmo, int32 currentReserveAmmo);
+	void UpdateClipAmmo(int32 currentClipAmmo, int32 maxClipAmmo);
+	void UpdateReserveAmmo(int32 currentReserveAmmo);
 	void UpdateLives();
 
 	void TryBindToWeaponEvents();
