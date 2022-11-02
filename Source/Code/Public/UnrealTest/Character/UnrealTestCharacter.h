@@ -10,7 +10,15 @@ UCLASS(config=Game)
 class AUnrealTestCharacter : public ACharacter
 {
 	GENERATED_BODY()
+		
+public:
+	AUnrealTestCharacter(const FObjectInitializer& ObjectInitializer);
 
+	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
+	float TurnRateGamepad;
+
+protected:
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
@@ -18,14 +26,7 @@ class AUnrealTestCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
-public:
-	AUnrealTestCharacter();
 
-	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
-	float TurnRateGamepad;
-
-protected:
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
