@@ -18,6 +18,12 @@ class UNREALTEST_API AChampionPlayerController : public APlayerController
 	DECLARE_MULTICAST_DELEGATE_OneParam(FChampionSignature, APlayerController*);
 
 public:
+	
+	UFUNCTION(Client, Reliable)
+	void Client_LockPlayerInput(APlayerController* playerCtrl);
+	UFUNCTION(Client, Reliable)
+	void Client_UnlockPlayerInput(APlayerController* playerCtrl);
+	
 	FChampionSignature OnPlayerDeathEvent;
 
 protected:

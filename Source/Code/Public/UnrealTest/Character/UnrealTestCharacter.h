@@ -12,7 +12,7 @@ class AUnrealTestCharacter : public ACharacter
 	GENERATED_BODY()
 		
 public:
-	AUnrealTestCharacter();
+	AUnrealTestCharacter(const FObjectInitializer& ObjectInitializer);
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)

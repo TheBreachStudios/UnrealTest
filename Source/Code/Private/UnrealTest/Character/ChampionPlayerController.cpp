@@ -4,7 +4,7 @@
 #include "UnrealTest/Character/ChampionPlayerController.h"
 #include "UnrealTest/Character/ChampionCharacter.h"
 
-void AChampionPlayerController:: OnPossess(APawn* aPawn)
+void AChampionPlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
 
@@ -53,9 +53,25 @@ void AChampionPlayerController::Server_HandleChampionDeath_Implementation()
 
 void AChampionPlayerController::ResetChampionCharacter()
 {
-	if (ChampionPawn != nullptr)
+	if (ChampionPawn != nullptr) 
 	{
 		ChampionPawn->Multicast_ResetChampionCharacter();
+	}
+}
+
+void AChampionPlayerController::Client_LockPlayerInput_Implementation(APlayerController* player)
+{
+	if (player->AcknowledgedPawn != nullptr)
+	{
+		player->AcknowledgedPawn->DisableInput(player);
+	}
+}
+
+void AChampionPlayerController::Client_UnlockPlayerInput_Implementation(APlayerController* player)
+{
+	if (player->AcknowledgedPawn != nullptr)
+	{
+		player->AcknowledgedPawn->EnableInput(player);
 	}
 }
 

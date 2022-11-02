@@ -3,15 +3,13 @@
 
 #include "UnrealTest/Weapons/BaseWeapon.h"
 
-ABaseWeapon::ABaseWeapon()
+ABaseWeapon::ABaseWeapon(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	bReplicates = true;
 
 	Damage = 10.f;
 	Range = 10000.f;
 	AttackRate = 3;
-
-
 }
 
 void ABaseWeapon::TryUseWeapon()

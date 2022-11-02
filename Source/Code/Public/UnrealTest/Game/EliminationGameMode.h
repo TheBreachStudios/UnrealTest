@@ -72,7 +72,6 @@ public:
 	FORCEINLINE FName GetMatchState() const { return CurrentMatchState; }
 
 	const float RESPAWN_DELAY = 5.f;
-	const int32 MAX_TEAM_LIVES = 2;
 	const int32 MAX_TEAM_SIZE = 2;
 	const int32 MAX_TEAMS = 2;
 	const float TIME_LIMIT = 600.f;

@@ -16,7 +16,7 @@ class UNREALTEST_API ASingleShotWeapon : public ABaseShootingWeapon
 	GENERATED_BODY()
 	
 public:
-	ASingleShotWeapon();
+	ASingleShotWeapon(const FObjectInitializer& ObjectInitializer);
 
 	virtual void TryUseWeapon() override;
 	virtual void TryStartReload() override;
@@ -24,6 +24,6 @@ public:
 
 protected:
 	
-	class UShootingWeaponAudioComponent* AudioComponent = nullptr;
-	class UWeaponVFXComponent* VFXComponent = nullptr;
+	class UShootingWeaponAudioComponent* WeaponAudioComponent = nullptr;
+	class UWeaponVFXComponent* WeaponVFXComponent = nullptr;
 };

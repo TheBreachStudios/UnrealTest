@@ -4,17 +4,26 @@
 #include "UnrealTest/UI/CharacterHudWidget.h"
 #include "UnrealTest/Weapons/BaseShootingWeapon.h"
 #include "UnrealTest/Character/ChampionCharacter.h"
+#include "UnrealTest/Game/EliminationGameState.h"
 
-void UCharacterHudWidget::NativeConstruct()
+void UCharacterHudWidget::NativeOnInitialized()
 {
-	Super::NativeConstruct();
+	Super::NativeOnInitialized();
 
-	// Bind to the Lives changes
 	AChampionCharacter* player = GetOwningPlayerPawn<AChampionCharacter>();
 	if (player != nullptr) 
 	{
 		player->OnHealthChangedEvent.AddUObject(this, &UCharacterHudWidget::UpdateHealth);
 		UpdateHealth(player->GetCurrentHealth(), player->GetMaxHealth());
+
+		player->OnOwnTeamLivesChangedEvent.AddUObject(this, &UCharacterHudWidget::UpdateOwnTeamLives);
+		player->OnEnemyTeamLivesChangedEvent.AddUObject(this, &UCharacterHudWidget::UpdateEnemyTeamLives);
+		AEliminationGameState* gameState = GetWorld() != nullptr ? GetWorld()->GetGameState<AEliminationGameState>() : nullptr;
+		if (gameState != nullptr)
+		{			
+			UpdateOwnTeamLives(gameState->GetMaxLives());
+			UpdateEnemyTeamLives(gameState->GetMaxLives());
+		}
 
 		if (player->GetWeapon() != nullptr)
 		{
@@ -27,7 +36,7 @@ void UCharacterHudWidget::NativeConstruct()
 	}
 }
 
-void UCharacterHudWidget::SetHealth(float currentHealth, float maxHealth)
+void UCharacterHudWidget::SetHealthTextAndBar(float currentHealth, float maxHealth)
 {
 	if (HpText != nullptr)
 	{
@@ -44,7 +53,7 @@ void UCharacterHudWidget::SetHealth(float currentHealth, float maxHealth)
 	}
 }
 
-void UCharacterHudWidget::SetClipAmmo(int32 currentClipAmmo, int32 maxClipAmmo)
+void UCharacterHudWidget::SetClipAmmoText(int32 currentClipAmmo, int32 maxClipAmmo)
 {
 	if (ClipAmmoText != nullptr)
 	{
@@ -53,7 +62,7 @@ void UCharacterHudWidget::SetClipAmmo(int32 currentClipAmmo, int32 maxClipAmmo)
 	}
 }
 
-void UCharacterHudWidget::SetReserveAmmo(int32 reserveAmmo)
+void UCharacterHudWidget::SetReserveAmmoText(int32 reserveAmmo)
 {
 	if (ReserveAmmoText != nullptr)
 	{
@@ -62,39 +71,47 @@ void UCharacterHudWidget::SetReserveAmmo(int32 reserveAmmo)
 	}
 }
 
-void UCharacterHudWidget::SetTeamLives(int32 onwTeamLives, int32 enemyTeamLives)
+void UCharacterHudWidget::SetOwnTeamLivesText(int32 lives)
 {
 	if (TeamLivesText != nullptr)
 	{
-		FString str = FString::Printf(TEXT("%d"), onwTeamLives);
+		FString str = FString::Printf(TEXT("%d"), lives);
 		TeamLivesText->SetText(FText::FromString(str));
 	}
+}
 
+void UCharacterHudWidget::SetEnemyTeamLivesText(int32 lives)
+{
 	if (EnemyTeamLivesText != nullptr)
 	{
-		FString str = FString::Printf(TEXT("%d"), enemyTeamLives);
+		FString str = FString::Printf(TEXT("%d"), lives);
 		EnemyTeamLivesText->SetText(FText::FromString(str));
 	}
 }
 
 void UCharacterHudWidget::UpdateHealth(float currentHealth, float maxHealth)
 {
-	SetHealth(currentHealth, maxHealth);
+	SetHealthTextAndBar(currentHealth, maxHealth);
 }
 
 void UCharacterHudWidget::UpdateClipAmmo(int32 currentClipAmmo, int32 maxClipAmmo)
 {
-	SetClipAmmo(currentClipAmmo, maxClipAmmo);
+	SetClipAmmoText(currentClipAmmo, maxClipAmmo);
 }
 
 void UCharacterHudWidget::UpdateReserveAmmo(int32 currentReserveAmmo)
 {
-	SetReserveAmmo(currentReserveAmmo);
+	SetReserveAmmoText(currentReserveAmmo);
 }
 
-void UCharacterHudWidget::UpdateLives()
+void UCharacterHudWidget::UpdateOwnTeamLives(int32 lives)
 {
-	//TODO
+	SetOwnTeamLivesText(lives);
+}
+
+void UCharacterHudWidget::UpdateEnemyTeamLives(int32 lives)
+{
+	SetEnemyTeamLivesText(lives);
 }
 
 void UCharacterHudWidget::TryBindToWeaponEvents()

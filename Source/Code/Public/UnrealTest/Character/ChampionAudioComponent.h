@@ -10,7 +10,7 @@
 /**
  *
  */
-UCLASS()
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UNREALTEST_API UChampionAudioComponent : public UAudioComponent
 {
 	GENERATED_BODY()
@@ -31,9 +31,12 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void BindToHealthEvents();
+	void BindToChampionEvents();
 	
+	UPROPERTY(EditAnywhere)
 	USoundCue* DeathSound = nullptr;
+	UPROPERTY(EditAnywhere)
 	USoundCue* BodyHitSound = nullptr;
-	//USoundCue* AbilitySound = nullptr;
+	UPROPERTY(EditAnywhere)
+	USoundCue* AbilitySound = nullptr;
 };

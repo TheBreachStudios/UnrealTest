@@ -8,11 +8,14 @@
 UWeaponAudioComponent::UWeaponAudioComponent() 
 {
 	// TEMP
-	static ConstructorHelpers::FObjectFinder<USoundCue> AttackSoundCue(TEXT("/Game/Audio/Weapons/RifleShot_SoundCue"));
-	if (AttackSoundCue.Succeeded())
+	if (AttackSound == nullptr)
 	{
-		AttackSound = AttackSoundCue.Object;
-	}
+		static ConstructorHelpers::FObjectFinder<USoundCue> AttackSoundCue(TEXT("/Game/Audio/Weapons/RifleShot_SoundCue"));
+		if (AttackSoundCue.Succeeded())
+		{
+			AttackSound = AttackSoundCue.Object;
+		}
+	}	
 }
 
 void UWeaponAudioComponent::Multicast_PlayAttackSFX_Implementation()

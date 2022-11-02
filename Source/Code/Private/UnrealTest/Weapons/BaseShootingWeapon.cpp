@@ -9,7 +9,7 @@
 #include "EngineUtils.h"
 
 
-ABaseShootingWeapon::ABaseShootingWeapon()
+ABaseShootingWeapon::ABaseShootingWeapon(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	WeaponState = ShootingWeaponStateEnum::None;
 
@@ -204,11 +204,11 @@ void ABaseShootingWeapon::SetCurrentClipAmmo(int32 clipAmmo)
 	CurrentClipAmmo = clipAmmo;
 	OnRepCurrentClipAmmo();
 
-	FString msg = FString::Printf(TEXT("[%s][%s] Current Clip Ammo: %d | Current Reserve Ammo: %d"),
-		GetLocalRole() < ENetRole::ROLE_Authority ? TEXT("Client") : TEXT("Server"),
-		GetOwner() != nullptr ? *GetOwner()->GetName() : *GetName(),
-		CurrentClipAmmo, CurrentReserveAmmo);
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::White, *msg);
+	//FString msg = FString::Printf(TEXT("[%s][%s] Current Clip Ammo: %d | Current Reserve Ammo: %d"),
+	//	GetLocalRole() < ENetRole::ROLE_Authority ? TEXT("Client") : TEXT("Server"),
+	//	GetOwner() != nullptr ? *GetOwner()->GetName() : *GetName(),
+	//	CurrentClipAmmo, CurrentReserveAmmo);
+	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::White, *msg);
 }
 
 void ABaseShootingWeapon::SetCurrentReserveAmmo(int32 reserveAmmo)
@@ -216,11 +216,11 @@ void ABaseShootingWeapon::SetCurrentReserveAmmo(int32 reserveAmmo)
 	CurrentReserveAmmo = reserveAmmo;
 	OnRepCurrentReserveAmmo();
 
-	FString msg = FString::Printf(TEXT("[%s][%s] Current Clip Ammo: %d | Current Reserve Ammo: %d"),
-		GetLocalRole() < ENetRole::ROLE_Authority ? TEXT("Client") : TEXT("Server"),
-		GetOwner() != nullptr ? *GetOwner()->GetName() : *GetName(),
-		CurrentClipAmmo, CurrentReserveAmmo);
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::White, *msg);
+	//FString msg = FString::Printf(TEXT("[%s][%s] Current Clip Ammo: %d | Current Reserve Ammo: %d"),
+	//	GetLocalRole() < ENetRole::ROLE_Authority ? TEXT("Client") : TEXT("Server"),
+	//	GetOwner() != nullptr ? *GetOwner()->GetName() : *GetName(),
+	//	CurrentClipAmmo, CurrentReserveAmmo);
+	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::White, *msg);
 }
 
 void ABaseShootingWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -8,10 +8,13 @@
 UShootingWeaponAudioComponent::UShootingWeaponAudioComponent()
 {
 	// TEMP
-	static ConstructorHelpers::FObjectFinder<USoundCue> ReloadSoundCue(TEXT("/Game/Audio/Weapons/Reload_SoundCue"));
-	if (ReloadSoundCue.Succeeded())
+	if (ReloadSound == nullptr) 
 	{
-		ReloadSound = ReloadSoundCue.Object;
+		static ConstructorHelpers::FObjectFinder<USoundCue> ReloadSoundCue(TEXT("/Game/Audio/Weapons/Reload_SoundCue"));
+		if (ReloadSoundCue.Succeeded())
+		{
+			ReloadSound = ReloadSoundCue.Object;
+		}
 	}
 }
 

@@ -102,7 +102,7 @@ void AEliminationGameMode::RegisterTeams()
 			{
 				tempArray.Add(&TeamsArray[i]);
 			}
-			eliminationState->RegisterTeams(tempArray, MAX_TEAM_LIVES);
+			eliminationState->RegisterTeams(tempArray);
 		}
 	}
 }
@@ -120,7 +120,8 @@ void AEliminationGameMode::CreateTeams()
 {
 	for (int i = 0; i < MAX_TEAMS; i++)
 	{
-		Team newTeam = Team();
+		FString teamName = FString::Printf(TEXT("Team%d"), i);
+		Team newTeam = Team(teamName);
 		TeamsArray.Add(newTeam);
 	}
 }
@@ -220,6 +221,12 @@ void AEliminationGameMode::HandlePlayerDeath(APlayerController* player)
 	FTimerDelegate timerDel;
 	timerDel.BindUFunction(this, FName("HandlePlayerRespawn"), player);
 	GetWorldTimerManager().SetTimer(timerHandle, timerDel, RESPAWN_DELAY, false);
+
+	AEliminationGameState* eliminationState = Cast<AEliminationGameState>(GameState);
+	if (eliminationState != nullptr)
+	{
+		eliminationState->LockPlayerInput(player);
+	}
 }
 
 void AEliminationGameMode::HandlePlayerRespawn(APlayerController* player)
@@ -230,6 +237,11 @@ void AEliminationGameMode::HandlePlayerRespawn(APlayerController* player)
 	//FRotator respawnRotation = playerStart->GetActorRotation();
 	//RestartPlayerAtTransform(player, playerStart->GetActorTransform());
 	RestartPlayer(player);
+	AEliminationGameState* eliminationState = Cast<AEliminationGameState>(GameState);
+	if (eliminationState != nullptr)
+	{
+		eliminationState->UnlockPlayerInput(player);
+	}
 }
 
 void AEliminationGameMode::RemovePlayerControllerFromPlayerCount(APlayerController* PC)

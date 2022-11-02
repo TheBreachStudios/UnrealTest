@@ -18,7 +18,7 @@ class UNREALTEST_API ABaseShootingWeapon : public ABaseWeapon
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FWeaponClipAmmoSignature, int32, int32);
 
 public:
-	ABaseShootingWeapon();
+	ABaseShootingWeapon(const FObjectInitializer& ObjectInitializer);
 
 	enum ShootingWeaponStateEnum 
 	{
@@ -77,9 +77,9 @@ protected:
 	ShootingWeaponStateEnum WeaponState = ShootingWeaponStateEnum::None;
 
 	UPROPERTY(ReplicatedUsing = OnRepCurrentClipAmmo)
-	int32 CurrentClipAmmo;
+	int32 CurrentClipAmmo = 0;
 	UPROPERTY(ReplicatedUsing = OnRepCurrentReserveAmmo)
-	int32 CurrentReserveAmmo;
+	int32 CurrentReserveAmmo = 0;
 	
 	UPROPERTY(EditAnywhere)
 	int32 MaxClipAmmo;

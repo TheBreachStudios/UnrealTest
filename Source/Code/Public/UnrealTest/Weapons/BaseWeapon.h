@@ -12,7 +12,7 @@ class UNREALTEST_API ABaseWeapon : public AActor
 	GENERATED_BODY()
 	
 public:	
-	ABaseWeapon();
+	ABaseWeapon(const FObjectInitializer& ObjectInitializer);
 
 	virtual void TryUseWeapon();
 	virtual void StopUsingWeapon();

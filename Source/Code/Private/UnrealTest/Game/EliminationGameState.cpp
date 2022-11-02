@@ -2,10 +2,10 @@
 
 
 #include "UnrealTest/Game/EliminationGameState.h"
-#include "Net/UnrealNetwork.h"
 #include "UnrealTest/Game/EliminationGameMode.h"
 #include "UnrealTest/Character/ChampionCharacter.h"
 #include "UnrealTest/Character/ChampionPlayerController.h"
+#include "Net/UnrealNetwork.h"
 
 AEliminationGameState::AEliminationGameState()
 {
@@ -20,6 +20,24 @@ void AEliminationGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME(AEliminationGameState, CurrentMatchState);
 }
 
+void AEliminationGameState::LockPlayerInput(APlayerController* player)
+{
+	AChampionPlayerController* championCtrl = Cast<AChampionPlayerController>(player);
+	if (championCtrl != nullptr)
+	{
+		championCtrl->Client_LockPlayerInput(player);
+	}
+}
+
+void AEliminationGameState::UnlockPlayerInput(APlayerController* player)
+{
+	AChampionPlayerController* championCtrl = Cast<AChampionPlayerController>(player);
+	if (championCtrl != nullptr)
+	{
+		championCtrl->Client_UnlockPlayerInput(player);
+	}
+}
+
 bool AEliminationGameState::IsMatchInProgress() const
 {
 	return CurrentMatchState == MatchState::InProgress;
@@ -29,7 +47,7 @@ void AEliminationGameState::SetMatchState(FName newState)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		UE_LOG(LogGameState, Log, TEXT("Match State Changed from %s to %s"), *CurrentMatchState.ToString(), *newState.ToString());
+		UE_LOG(LogGameState, Log, TEXT("[Server] Match State Changed from %s to %s"), *CurrentMatchState.ToString(), *newState.ToString());
 
 		CurrentMatchState = newState;
 
@@ -91,7 +109,12 @@ void AEliminationGameState::HandlePlayerDeath(APlayerController* player)
 	{
 		if (TeamsPtrArray[i]->IsPlayerInTeam(player))
 		{
-			TeamLivesMap[TeamsPtrArray[i]->GetTeamID()]--;
+			TeamLivesMap[TeamsPtrArray[i]] = FMath::Clamp(TeamLivesMap[TeamsPtrArray[i]] - 1, 0, MAX_TEAM_LIVES);
+			if (OnTeamLivesChanged.IsBound())
+			{
+				OnTeamLivesChanged.Broadcast(TeamsPtrArray[i]->GetTeamID(), TeamLivesMap[TeamsPtrArray[i]]);
+			}
+			break;
 		}
 	}
 }
@@ -120,7 +143,6 @@ bool AEliminationGameState::HasMatchEnded() const
 void AEliminationGameState::HandleBeginPlay()
 {
 	Super::HandleBeginPlay();
-
 }
 
 bool AEliminationGameState::CanStartMatch() const
@@ -149,13 +171,13 @@ bool AEliminationGameState::CanEndMatch() const
 	// Game End Requirements:
 	// - One team has reached zero lives.
 
-   for (int i = 0; i < TeamsPtrArray.Num(); i++)
-   {
-		if (TeamLivesMap[TeamsPtrArray[i]->GetTeamID()] <= 0)
+	for (int i = 0; i < TeamsPtrArray.Num(); i++)
+	{
+		if (TeamLivesMap[TeamsPtrArray[i]] <= 0)
 		{
 			return true;
 		}
-   }
+	}
 	return false;
 }
 
@@ -173,11 +195,56 @@ void AEliminationGameState::RegisterPlayer(APlayerController* player)
 	}
 }
 
-void AEliminationGameState::RegisterTeams(TArray<Team*> teams, int32 teamLives)
+void AEliminationGameState::RegisterTeams(TArray<Team*> teams)
 {
 	TeamsPtrArray = teams;
 	for (int i = 0; i < teams.Num(); i++)
 	{
-		TeamLivesMap.Add(teams[i]->GetTeamID(), teamLives);
+		TeamLivesMap.Add(teams[i], 0);
+	}
+
+	ResetTeamLives();
+}
+
+int32 AEliminationGameState::GetTeamID(APlayerController* player) const
+{
+	for (int i = 0; i < TeamsPtrArray.Num(); i++)
+	{
+		if (TeamsPtrArray[i]->IsPlayerInTeam(player))
+		{
+			return TeamsPtrArray[i]->GetTeamID();
+		}
+	}
+	return int32();
+}
+
+//TODO: Account for more than two teams.
+void AEliminationGameState::GetAllTeamLives(APlayerController* player, int32& ownTeamLives, int32& enemyTeamLives)
+{
+	for (int i = 0; i < TeamsPtrArray.Num(); i++)
+	{
+		if (TeamsPtrArray[i]->IsPlayerInTeam(player))
+		{
+			ownTeamLives = TeamLivesMap[TeamsPtrArray[i]];
+		}
+		else
+		{
+			enemyTeamLives = TeamLivesMap[TeamsPtrArray[i]];
+		}
+	}
+}
+
+void AEliminationGameState::ResetTeamLives()
+{
+	for (int i = 0; i < TeamsPtrArray.Num(); i++)
+	{
+		TeamLivesMap[TeamsPtrArray[i]] = MAX_TEAM_LIVES;
+
+		if (OnTeamLivesChanged.IsBound())
+		{
+			OnTeamLivesChanged.Broadcast(TeamsPtrArray[i]->GetTeamID(), TeamLivesMap[TeamsPtrArray[i]]);
+		}
+
+		//UE_LOG(LogTemp, Warning, TEXT("[%s] %s Lives: %d"), GetLocalRole() < ENetRole::ROLE_Authority ? TEXT("Client") : TEXT("Server"), *TeamsPtrArray[i]->GetTeamName(), maxLives);
 	}
 }

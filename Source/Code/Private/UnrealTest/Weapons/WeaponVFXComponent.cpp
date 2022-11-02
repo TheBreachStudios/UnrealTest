@@ -6,14 +6,18 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshSocket.h"
+#include "Net/UnrealNetwork.h"
 
 UWeaponVFXComponent::UWeaponVFXComponent()
 {
-	//static ConstructorHelpers::FObjectFinder<UParticleSystem> ShotVFXClass(TEXT("/Game/VFX/Weapons/P_GunShot"));
-	//if (ShotVFXClass.Succeeded())
-	//{
-	//	ShotVFX = ShotVFXClass.Object;
-	//}
+	if (ShotVFX == nullptr) 
+	{
+		static ConstructorHelpers::FObjectFinder<UParticleSystem> ShotVFXClass(TEXT("/Game/VFX/Weapons/P_GunShot"));
+		if (ShotVFXClass.Succeeded())
+		{
+			ShotVFX = ShotVFXClass.Object;
+		}
+	}
 }
 
 
@@ -21,6 +25,7 @@ void UWeaponVFXComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	WeaponMeshComponent = GetOwner()->FindComponentByClass<UStaticMeshComponent>();
+	SetIsReplicated(true);
 }
 
 void UWeaponVFXComponent::Multicast_PlayAttackVFX_Implementation()
@@ -30,11 +35,9 @@ void UWeaponVFXComponent::Multicast_PlayAttackVFX_Implementation()
 		UStaticMeshSocket* socket = WeaponMeshComponent->GetStaticMesh()->FindSocket(MUZZLE_SOCKET_NAME);
 		if (socket != nullptr) 
 		{
-			FVector actorLocation = GetOwner()->GetActorLocation();
-			FVector muzzleRelativeLocation = socket->RelativeLocation;
-			FVector spawnLocation = actorLocation + muzzleRelativeLocation;
-			FTransform spawnTransform = FTransform(spawnLocation);
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ShotVFX, spawnTransform);
+			FTransform spawnTransform;
+			socket->GetSocketTransform(spawnTransform, WeaponMeshComponent);
+			UGameplayStatics::SpawnEmitterAttached(ShotVFX, WeaponMeshComponent, MUZZLE_SOCKET_NAME, spawnTransform.GetLocation(), spawnTransform.Rotator(), EAttachLocation::KeepWorldPosition);
 		}
 	}
 }

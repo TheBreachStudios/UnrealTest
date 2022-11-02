@@ -15,21 +15,29 @@ class UNREALTEST_API AChampionCharacter : public AUnrealTestCharacter, public ID
 {
 	GENERATED_BODY()
 	
-	DECLARE_MULTICAST_DELEGATE(FChampionSignature);
-	DECLARE_MULTICAST_DELEGATE_TwoParams(FHealthChangedSignature, float, float);
-	
+	DECLARE_MULTICAST_DELEGATE_OneParam(FTeamLivesDelegate, int32);
+	DECLARE_MULTICAST_DELEGATE(FChampionDelegate);
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FHealthDelegate, float, float);		
+
 public :
-	AChampionCharacter();
+	AChampionCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void ShootBinding(class UInputComponent* PlayerInputComponent);
 	void ReloadBinding(class UInputComponent* PlayerInputComponent);
+	void AbilityBinding(class UInputComponent* PlayerInputComponent);
 	void HandleDeath();	
-	void ResetCurrentHealth();
 	void TryFindWeapon();
-	void HandleOnWeaponInitialized();
+	void BindToGameStateEvents();
+	void BindToAbilityEvents();
+
+	UFUNCTION()
+	void HandleOnAbilityTriggered();
+
+	UFUNCTION()
+	void HandleOnTeamLivesChanged(int32 teamID, int32 lives);
 
 	UFUNCTION(Server, Reliable)
 	void Server_UseWeapon();
@@ -37,29 +45,50 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_ReloadWeapon();
 
+	UFUNCTION(Server, Reliable)
+	void Server_UseChampionAbility();
+
 	UFUNCTION(Client, Reliable)
 	void Client_BroadcastHealthChanged();
+	UFUNCTION(Client, Reliable)
+	void Client_BroadcastOwnTeamLivesChanged();
+	UFUNCTION(Client, Reliable)
+	void Client_BroadcastEnemyTeamLivesChanged();
 
 	UFUNCTION()
 	void ShootingStarted();
-
 	UFUNCTION()
 	void ShootingStopped();
-
 	UFUNCTION()
 	void Reload();
+	UFUNCTION()
+	void UseAbility();
 
 	UFUNCTION()
 	void OnRepCurrentHealth();
+	UFUNCTION()
+	void OnRepOwnTeamLives();
+	UFUNCTION()
+	void OnRepEnemyTeamLives();
 	
+	class UChampionAbilityComponent* AbilityComponent = nullptr;
 	class UChampionAnimHandlerComp* AnimHandler = nullptr;
-	class UChampionAudioComponent* AudioComponent = nullptr;
+	class UChampionAudioComponent* ChampionAudioComponent = nullptr;
 	class ABaseWeapon* Weapon = nullptr;
+
+	void SetCurrentHealth(float newHealth);
+	void SetOwnTeamLives(int32 newlives);
+	void SetEnemyTeamLives(int32 newlives);
 
 	UPROPERTY(ReplicatedUsing = OnRepCurrentHealth)
 	float CurrentHealth = 0.f;
 
 	const float MAX_HEALTH = 100.f;
+
+	UPROPERTY(ReplicatedUsing= OnRepOwnTeamLives)
+	int32 OwnTeamLives = 0;
+	UPROPERTY(ReplicatedUsing = OnRepEnemyTeamLives)
+	int32 EnemyTeamLives = 0;
 
 public:
 	//IDamageable
@@ -74,14 +103,20 @@ public:
 
 	FORCEINLINE float GetMaxHealth() const { return MAX_HEALTH; }
 	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
+	FORCEINLINE int32 GetOwnTeamLives() const { return OwnTeamLives; }
+	FORCEINLINE int32 GetEnemyTeamLives() const { return EnemyTeamLives; }
 	FORCEINLINE const ABaseWeapon* GetWeapon() const { return Weapon; }
 	FORCEINLINE ABaseWeapon* AccessWeapon() { return Weapon; }
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UChampionAnimHandlerComp* AccessAnimationHandler() { return AnimHandler; }
 
-	FHealthChangedSignature OnHealthChangedEvent;
-	FChampionSignature OnDamagedEvent;
-	FChampionSignature OnChampionDeathEvent;
-	FChampionSignature OnWeaponAquiredEvent;
+	FHealthDelegate OnHealthChangedEvent;
+	FChampionDelegate OnDamagedEvent;
+	FChampionDelegate OnChampionDeathEvent;
+	FChampionDelegate OnAbilityUsedEvent;
+	FChampionDelegate OnWeaponAquiredEvent;
+	FTeamLivesDelegate OnOwnTeamLivesChangedEvent;
+	FTeamLivesDelegate OnEnemyTeamLivesChangedEvent;
+
 };

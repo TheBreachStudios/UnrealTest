@@ -19,17 +19,19 @@ class UNREALTEST_API UCharacterHudWidget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
-	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 
-	void SetHealth(float currentHealth, float maxHealth);
-	void SetClipAmmo(int32 currentClipAmmo, int32 maxClipAmmo);
-	void SetReserveAmmo(int32 reserveAmmo);
-	void SetTeamLives(int32 onwTeamLives, int32 enemyTeamLives);
+	void SetHealthTextAndBar(float currentHealth, float maxHealth);
+	void SetClipAmmoText(int32 currentClipAmmo, int32 maxClipAmmo);
+	void SetReserveAmmoText(int32 reserveAmmo);
+	void SetOwnTeamLivesText(int32 lives);
+	void SetEnemyTeamLivesText(int32 lives);
 
 	void UpdateHealth(float currentHealth, float maxHealth);
 	void UpdateClipAmmo(int32 currentClipAmmo, int32 maxClipAmmo);
 	void UpdateReserveAmmo(int32 currentReserveAmmo);
-	void UpdateLives();
+	void UpdateOwnTeamLives(int32 lives);
+	void UpdateEnemyTeamLives(int32 lives);
 
 	void TryBindToWeaponEvents();
 

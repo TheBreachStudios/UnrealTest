@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UNREALTEST_API UShootingWeaponAudioComponent : public UWeaponAudioComponent
 {
 	GENERATED_BODY()
@@ -21,5 +21,6 @@ public:
 	void Multicast_PlayReloadSFX();
 
 protected:
+	UPROPERTY(EditAnywhere)
 	class USoundCue* ReloadSound = nullptr;
 };

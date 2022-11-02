@@ -3,7 +3,7 @@
 
 #include "UnrealTest/Game/Team.h"
 
-Team::Team()
+Team::Team(FString name)
 {
 	// TODO: Find a better way to get a unique ID.
 	TeamID = FMath::Rand();

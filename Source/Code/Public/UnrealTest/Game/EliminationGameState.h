@@ -16,6 +16,8 @@ class UNREALTEST_API AEliminationGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FEliminationStateDelegate, int32, int32);
+
 public:
 	AEliminationGameState();	
 
@@ -30,10 +32,21 @@ public:
 	bool CanEndMatch() const;
 
 	void RegisterPlayer(APlayerController* player);
-	void RegisterTeams(TArray<Team*> teams, int32 teamLives);
+	void RegisterTeams(TArray<Team*> teams);
+
+	int32 GetTeamID(APlayerController* player) const;
+	void GetAllTeamLives(APlayerController* player, int32 &ownTeamLives, int32 &enemyTeamLives);
+
+	FORCEINLINE int32 GetMaxLives() const { return MAX_TEAM_LIVES; }
 
 	UFUNCTION()
 	void OnRep_MatchState();
+
+	FEliminationStateDelegate OnTeamLivesChanged;
+	
+
+	void LockPlayerInput(APlayerController* player);
+	void UnlockPlayerInput(APlayerController* player);
 
 private:
 	bool IsMatchInProgress() const;
@@ -47,6 +60,8 @@ protected:
 	void HandleMatchHasEnded();
 	void HandlePlayerDeath(APlayerController* player);
 
+	void ResetTeamLives();
+
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_MatchState, BlueprintReadOnly, VisibleInstanceOnly, Category = GameState)
 	FName CurrentMatchState;
 
@@ -55,5 +70,7 @@ protected:
 
 	TArray<APlayerController*> PlayersArray;
 	TArray<Team*> TeamsPtrArray;
-	TMap<int32, int32> TeamLivesMap;
+	TMap<Team*, int32> TeamLivesMap;
+
+	const int32 MAX_TEAM_LIVES = 10;
 };

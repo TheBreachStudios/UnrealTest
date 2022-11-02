@@ -9,23 +9,32 @@
 
 UChampionAudioComponent::UChampionAudioComponent()
 {
-	static ConstructorHelpers::FObjectFinder<USoundCue> DeathSoundCue(TEXT("/Game/Audio/Characters/Death_SoundCue"));
-	if (DeathSoundCue.Succeeded())
+	if (DeathSound == nullptr)
 	{
-		DeathSound = DeathSoundCue.Object;
+		static ConstructorHelpers::FObjectFinder<USoundCue> DeathSoundCue(TEXT("/Game/Audio/Characters/Death_SoundCue"));
+		if (DeathSoundCue.Succeeded())
+		{
+			DeathSound = DeathSoundCue.Object;
+		}
 	}
 
-	static ConstructorHelpers::FObjectFinder<USoundCue> BodyHitSoundCue(TEXT("/Game/Audio/Characters/BodyHit_SoundCue"));
-	if (BodyHitSoundCue.Succeeded())
+	if (BodyHitSound == nullptr)
 	{
-		BodyHitSound = BodyHitSoundCue.Object;
+		static ConstructorHelpers::FObjectFinder<USoundCue> BodyHitSoundCue(TEXT("/Game/Audio/Characters/BodyHit_SoundCue"));
+		if (BodyHitSoundCue.Succeeded())
+		{
+			BodyHitSound = BodyHitSoundCue.Object;
+		}
 	}
 
-	//static ConstructorHelpers::FObjectFinder<USoundCue> AbilitySoundCue(TEXT("/Game/StarterContent/Audio/Explosion_Cue"));
-	//if (AbilitySoundCue.Succeeded())
-	//{
-	//	AbilitySound = Cast<USoundCue>(AbilitySoundCue);
-	//}
+	if (AbilitySound == nullptr)
+	{
+		static ConstructorHelpers::FObjectFinder<USoundCue> AbilitySoundCue(TEXT("/Game/StarterContent/Audio/Explosion_Cue"));
+		if (AbilitySoundCue.Succeeded())
+		{
+			AbilitySound = AbilitySoundCue.Object;
+		}
+	}
 }
 
 void UChampionAudioComponent::Multicast_PlayDeathSFX_Implementation()
@@ -48,11 +57,11 @@ void UChampionAudioComponent::Multicast_PlayBodyHitSFX_Implementation()
 
 void UChampionAudioComponent::Multicast_PlayAbilitySFX_Implementation()
 {
-	//if (AbilitySound != nullptr)
-	//{
-	//	SetSound(AbilitySound);
-	//	Play();
-	//}
+	if (AbilitySound != nullptr)
+	{
+		SetSound(AbilitySound);
+		Play();
+	}
 }
 
 void UChampionAudioComponent::Multicast_ResetAudio_Implementation()
@@ -63,10 +72,10 @@ void UChampionAudioComponent::Multicast_ResetAudio_Implementation()
 void UChampionAudioComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	BindToHealthEvents();
+	BindToChampionEvents();
 }
 
-void UChampionAudioComponent::BindToHealthEvents()
+void UChampionAudioComponent::BindToChampionEvents()
 {
 	if (GetOwner() == nullptr) { return; }
 
@@ -74,6 +83,8 @@ void UChampionAudioComponent::BindToHealthEvents()
 	if (champion != nullptr)
 	{
 		champion->OnDamagedEvent.AddUObject(this, &UChampionAudioComponent::Multicast_PlayBodyHitSFX);
+		champion->OnChampionDeathEvent.AddUObject(this, &UChampionAudioComponent::Multicast_PlayDeathSFX);
+		champion->OnAbilityUsedEvent.AddUObject(this, &UChampionAudioComponent::Multicast_PlayAbilitySFX);
 	}
 }
 

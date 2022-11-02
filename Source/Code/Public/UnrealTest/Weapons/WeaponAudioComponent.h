@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UNREALTEST_API UWeaponAudioComponent : public UAudioComponent
 {
 	GENERATED_BODY()
@@ -24,6 +24,7 @@ public:
 	void Multicast_ResetAudio();
 
 protected:
+	UPROPERTY(EditAnywhere)
 	class USoundCue* AttackSound = nullptr;
 
 };

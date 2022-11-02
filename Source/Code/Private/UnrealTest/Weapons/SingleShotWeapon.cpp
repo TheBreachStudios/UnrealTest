@@ -5,12 +5,13 @@
 #include "UnrealTest/Weapons/ShootingWeaponAudioComponent.h"
 #include "UnrealTest/Weapons/WeaponVFXComponent.h"
 
-ASingleShotWeapon::ASingleShotWeapon()
+ASingleShotWeapon::ASingleShotWeapon(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	AudioComponent = CreateDefaultSubobject<UShootingWeaponAudioComponent>(TEXT("ShootingWeaponAudioComponent"));
-	VFXComponent = CreateDefaultSubobject<UWeaponVFXComponent>(TEXT("WeaponVFXComponent"));
+	//WeaponAudioComponent = FindComponentByClass<UShootingWeaponAudioComponent>();
+	//WeaponVFXComponent = FindComponentByClass<UWeaponVFXComponent>();
+	WeaponAudioComponent = ObjectInitializer.CreateDefaultSubobject<UShootingWeaponAudioComponent>(this, TEXT("ShootingWeaponAudioComponent"));
+	WeaponVFXComponent = ObjectInitializer.CreateDefaultSubobject<UWeaponVFXComponent>(this, TEXT("WeaponVFXComponent"));
 
-	//TEMP VALUES
 	Damage = 10.f;
 	Range = 10000.f;
 	AttackRate = 3;
@@ -28,8 +29,15 @@ void ASingleShotWeapon::TryUseWeapon()
 	{
 		Super::TryUseWeapon();
 
-		AudioComponent->Multicast_PlayAttackSFX();
-		VFXComponent->Multicast_PlayAttackVFX_Implementation();
+		if (WeaponAudioComponent != nullptr)
+		{
+			WeaponAudioComponent->Multicast_PlayAttackSFX();
+		}
+
+		if (WeaponVFXComponent != nullptr)
+		{
+			WeaponVFXComponent->Multicast_PlayAttackVFX_Implementation();
+		}
 		Server_TraceHitscanShot();
 	}
 }
@@ -40,7 +48,10 @@ void ASingleShotWeapon::TryStartReload()
 	{
 		Super::TryStartReload();
 
-		AudioComponent->Multicast_PlayReloadSFX();
+		if (WeaponAudioComponent != nullptr)
+		{
+			WeaponAudioComponent->Multicast_PlayReloadSFX();
+		}
 	}
 }
 
@@ -48,6 +59,13 @@ void ASingleShotWeapon::ResetWeapon()
 {
 	Super::ResetWeapon();
 	//TODO: Reset all components
-	AudioComponent->Multicast_ResetAudio();
-	VFXComponent->Multicast_ResetVFX();
+	if (WeaponAudioComponent != nullptr)
+	{
+		WeaponAudioComponent->Multicast_ResetAudio();
+	}	
+
+	if (WeaponVFXComponent != nullptr) 
+	{
+		WeaponVFXComponent->Multicast_ResetVFX();
+	}
 }
